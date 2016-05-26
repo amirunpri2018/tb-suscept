@@ -13,6 +13,14 @@
 #
 # python3 arrange-fastq.py /project/gilad/jdblischak/tb-suscept/fgfftp.uchicago.edu/Genomics_Data/NGS/160511_K00242_0067_AHCMF5BBXX-SR-YG-MM1-3/FastQ /project/gilad/jdblischak/tb-suscept/fastq
 #
+# Some examples:
+#
+# orig: fgfftp.uchicago.edu/Genomics_Data/NGS/160525_K00242_0071_AHCN77BBXX-YG-MM1-3-(2)/FastQ/YG-MM1-02-contact-infected_S6_L002_R1_001.fastq.gz
+# new:  /project/gilad/jdblischak/tb-suscept/fastq/02-contact-infected-HCN77BBXX-l2.fastq.gz
+#
+# orig: fgfftp.uchicago.edu/Genomics_Data/NGS/160525_K00242_0071_AHCN77BBXX-YG-MM1-3-(2)/FastQ/YG-MM2-19-contact-none_S39_L003_R1_001.fastq.gz
+# new:  /project/gilad/jdblischak/tb-suscept/fastq/19-contact-none-HCN77BBXX-l3.fastq.gz
+#
 
 import glob
 import os
