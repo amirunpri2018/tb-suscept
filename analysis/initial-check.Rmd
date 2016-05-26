@@ -101,6 +101,10 @@ pc1pc2 %+% aes(color = susceptibility) + labs(title = "Susceptibility")
 pc1pc2 %+% aes(color = lane) + labs(title = "Lane")
 ```
 
+```{r pc1-pc2-flow-cell}
+pc1pc2 %+% aes(color = flow_cell) + labs(title = "Flow cell")
+```
+
 PC3 versus PC4.
 
 ```{r pc3-pc4}
@@ -122,12 +126,17 @@ pc3pc4 %+% aes(color = susceptibility) + labs(title = "Susceptibility")
 pc3pc4 %+% aes(color = lane) + labs(title = "Lane")
 ```
 
+```{r pc3-pc4-flow-cell}
+pc3pc4 %+% aes(color = flow_cell) + labs(title = "Flow cell")
+```
+
 ## Hierarchical clustering
 
-```{r dendrogram}
+```{r dendrogram, fig.width=8}
 d <- dist(t(tpm_clean))
 h <- hclust(d)
-plot(h, labels = anno$id)
+plot(h, labels = anno$treatment, main = "Treatment", cex = 0.75)
+plot(h, labels = substr(anno$flow_cell, 3, 5), main = "Flow cell", cex = 0.75)
 ```
 
 ## Session information
