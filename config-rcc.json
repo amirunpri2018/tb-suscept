@@ -12,5 +12,14 @@
     "kallisto_quant" :
     {
 	"mem" : 8000
+    },
+    "subread_index" :
+    {
+	"mem" : 8000
+    },
+    "subread_align" :
+    {
+	"mem": 16000,
+	"tasks" : 8
     }
 }
