@@ -41,8 +41,8 @@ rule prepare_kallisto:
     input: scratch + "transcriptome-ensembl-GRCh38.idx"
 
 rule run_subread:
-    input: expand(counts_dir + "{sample}.genecounts.txt", sample = samples)
-    
+    input: data + "subread-counts-per-lane.txt"
+
 rule prepare_subread:
     input: genome + "hg38.reads", genome + "exons.saf"
 
@@ -109,7 +109,62 @@ rule subread_feauturecounts:
     output: counts_dir + "{sample}.genecounts.txt"
     shell: "featureCounts -a {input.exons} -F SAF -R -o {output} {input.bam}"
 
-# rule subread_collate:
-#     input: expand(counts_dir + "{sample}.genecounts.txt", sample = samples)
-#     output: data + "subread-counts-per-lane.txt"
-#     run:
+rule subread_collate_per_lane:
+    input: expand(counts_dir + "{sample}.genecounts.txt", sample = samples)
+    output: data + "subread-counts-per-lane.txt"
+    run:
+        files = input
+        files.sort()
+        outfile = open(output[0], "w")
+        
+        # Get gene names from first file
+        gene_list = []
+        f = files[0]
+        handle = open(f, "r")
+        for line in handle:
+            if line[0] == "#" or line[:6] == "Geneid":
+                continue
+            cols = line.strip("\n").split("\t")
+            gene = cols[0]
+            gene_list.append(gene)
+        handle.close()
+
+        # Create header row
+        header = "individual\tstatus\ttreatment\tflow_cell\tlane\t" + \
+                 "\t".join(gene_list) + "\n"
+        outfile.write(header)
+
+        # Process each input genecounts file
+        for f in files:
+            # Get counts from f
+            g = 0 # iterator for indexing gene names
+            counts = ["NA"] * len(gene_list)
+            handle = open(f, "r")
+            for line in handle:
+                if line[0] == "#" or line[:6] == "Geneid":
+                    continue
+                cols = line.strip("\n").split("\t")
+                gene = cols[0]
+                assert gene == gene_list[g], \
+                       "Gene names are not in correct order in file: %s"%(f)
+                counts[g] = cols[6]
+                g += 1
+            handle.close()
+
+            # Get meta data from filename
+            path_parts = f.split("/")
+            fname = path_parts[-1].rstrip(".genecounts.txt")
+            fname_parts = fname.split("-")
+            num, status, treatment = fname_parts[:3]
+            if status == "tb":
+                individual = "t" + num
+            else:
+                individual = "c" + num
+            flow_cell, lane = fname_parts[3:5]
+
+            # Write line
+            outfile.write(individual + "\t" + status + "\t" + \
+                          treatment + "\t" + flow_cell + "\t" + \
+                          lane + "\t" + "\t".join(counts) + "\n")
+
+        outfile.close()
