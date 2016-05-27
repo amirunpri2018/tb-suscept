@@ -107,7 +107,7 @@ rule subread_feauturecounts:
     input: bam = bam_dir + "{sample}.bam",
            exons = genome + "exons.saf"
     output: counts_dir + "{sample}.genecounts.txt"
-    shell: "featureCounts -a {input.exons} -F SAF -R -o {output} {input.bam}"
+    shell: "featureCounts -a {input.exons} -F SAF -o {output} {input.bam}"
 
 rule subread_collate_per_lane:
     input: expand(counts_dir + "{sample}.genecounts.txt", sample = samples)
