@@ -41,7 +41,7 @@ rule prepare_kallisto:
     input: scratch + "transcriptome-ensembl-GRCh38.idx"
 
 rule run_subread:
-    input: data + "subread-counts-per-lane.txt"
+    input: data + "subread-counts-per-sample.txt"
 
 rule prepare_subread:
     input: genome + "hg38.reads", genome + "exons.saf"
@@ -168,3 +168,14 @@ rule subread_collate_per_lane:
                           lane + "\t" + "\t".join(counts) + "\n")
 
         outfile.close()
+
+rule subread_collate_per_sample:
+    input: data + "subread-counts-per-lane.txt"
+    output: data + "subread-counts-per-sample.txt"
+    run:
+        import pandas as pd
+
+        lane = pd.read_table(input[0])
+        sample = lane.groupby(["individual", "status", "treatment"],
+                              as_index = False).sum()
+        sample.to_csv(output[0], sep = "\t", na_rep = "NA", index = False)
