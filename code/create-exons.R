@@ -5,7 +5,7 @@
 
 # Notes:
 # + This includes only coding genes, i.e. gene_biotype == "protein_coding"
-# + Uses grch37 Ensembl archive
+# + Uses Ensembl 83 from Dec 2015 (based on grch38.p5, i.e. hg38)
 # + Output is in Simplified Annotation Format (SAF)
 #     + Columns: GeneID, Chr, Start, End, Strand
 #     + Coordinates are 1-based, inclusive on both ends
