@@ -1,0 +1,421 @@
+stage	id	status	treatment	flow_cell	lane	counts
+raw	15-contact-infected	contact	infected	HCMF5BBXX	l4	199907353
+raw	15-contact-none	contact	none	HCMF5BBXX	l4	2520627
+raw	14-contact-infected	contact	infected	HCMF5BBXX	l4	2341884
+raw	14-contact-none	contact	none	HCMF5BBXX	l4	3737673
+raw	13-contact-infected	contact	infected	HCMF5BBXX	l4	2353719
+raw	13-contact-none	contact	none	HCMF5BBXX	l4	2952317
+raw	05-tb-infected	tb	infected	HCMF5BBXX	l4	4000489
+raw	05-tb-none	tb	none	HCMF5BBXX	l4	1791455
+raw	04-tb-infected	tb	infected	HCMF5BBXX	l4	2002647
+raw	04-tb-none	tb	none	HCMF5BBXX	l4	4850081
+raw	19-contact-infected	contact	infected	HCMF5BBXX	l3	2496633
+raw	19-contact-none	contact	none	HCMF5BBXX	l3	2131969
+raw	18-contact-infected	contact	infected	HCMF5BBXX	l3	2190349
+raw	18-contact-none	contact	none	HCMF5BBXX	l3	1583528
+raw	17-contact-infected	contact	infected	HCMF5BBXX	l3	3388652
+raw	17-contact-none	contact	none	HCMF5BBXX	l3	2211834
+raw	16-contact-infected	contact	infected	HCMF5BBXX	l3	3043390
+raw	16-contact-none	contact	none	HCMF5BBXX	l3	3086229
+raw	12-contact-infected	contact	infected	HCMF5BBXX	l3	6575333
+raw	12-contact-none	contact	none	HCMF5BBXX	l3	4268691
+raw	11-contact-infected	contact	infected	HCMF5BBXX	l3	3897883
+raw	11-contact-none	contact	none	HCMF5BBXX	l3	209899649
+raw	10-contact-infected	contact	infected	HCMF5BBXX	l3	3184985
+raw	10-contact-none	contact	none	HCMF5BBXX	l3	2813459
+raw	09-contact-infected	contact	infected	HCMF5BBXX	l3	2384483
+raw	09-contact-none	contact	none	HCMF5BBXX	l3	2952539
+raw	06-tb-infected	tb	infected	HCMF5BBXX	l3	1796919
+raw	06-tb-none	tb	none	HCMF5BBXX	l3	1980106
+raw	03-tb-infected	tb	infected	HCMF5BBXX	l3	3344460
+raw	03-tb-none	tb	none	HCMF5BBXX	l3	2735772
+raw	08-contact-infected	contact	infected	HCMF5BBXX	l2	4333188
+raw	08-contact-none	contact	none	HCMF5BBXX	l2	8533861
+raw	07-contact-infected	contact	infected	HCMF5BBXX	l2	6419573
+raw	07-contact-none	contact	none	HCMF5BBXX	l2	8101259
+raw	06-contact-infected	contact	infected	HCMF5BBXX	l2	7856358
+raw	06-contact-none	contact	none	HCMF5BBXX	l2	8243479
+raw	05-contact-infected	contact	infected	HCMF5BBXX	l2	16538372
+raw	05-contact-none	contact	none	HCMF5BBXX	l2	9500615
+raw	04-contact-infected	contact	infected	HCMF5BBXX	l2	7929164
+raw	04-contact-none	contact	none	HCMF5BBXX	l2	2145289
+raw	03-contact-infected	contact	infected	HCMF5BBXX	l2	169899309
+raw	03-contact-none	contact	none	HCMF5BBXX	l2	5906547
+raw	02-tb-infected	tb	infected	HCMF5BBXX	l2	6270759
+raw	02-tb-none	tb	none	HCMF5BBXX	l2	11442058
+raw	02-contact-infected	contact	infected	HCMF5BBXX	l2	7752087
+raw	02-contact-none	contact	none	HCMF5BBXX	l2	16575563
+raw	01-tb-infected	tb	infected	HCMF5BBXX	l2	5150812
+raw	01-tb-none	tb	none	HCMF5BBXX	l2	9572780
+raw	01-contact-infected	contact	infected	HCMF5BBXX	l2	7922694
+raw	01-contact-none	contact	none	HCMF5BBXX	l2	7472057
+raw	13-contact-infected	contact	infected	HCN77BBXX	l4	23265414
+raw	04-tb-infected	tb	infected	HCN77BBXX	l4	30891160
+raw	04-tb-none	tb	none	HCN77BBXX	l4	23729494
+raw	05-tb-infected	tb	infected	HCN77BBXX	l4	46220993
+raw	05-tb-none	tb	none	HCN77BBXX	l4	32833968
+raw	14-contact-infected	contact	infected	HCN77BBXX	l4	31264301
+raw	13-contact-none	contact	none	HCN77BBXX	l4	50247147
+raw	15-contact-infected	contact	infected	HCN77BBXX	l4	7843977
+raw	14-contact-none	contact	none	HCN77BBXX	l4	36168221
+raw	01-contact-infected	contact	infected	HCN77BBXX	l2	16153002
+raw	15-contact-none	contact	none	HCN77BBXX	l4	43431654
+raw	02-contact-infected	contact	infected	HCN77BBXX	l2	14481761
+raw	01-contact-none	contact	none	HCN77BBXX	l2	13237782
+raw	01-tb-infected	tb	infected	HCN77BBXX	l2	9214979
+raw	01-tb-none	tb	none	HCN77BBXX	l2	21323381
+raw	03-contact-infected	contact	infected	HCN77BBXX	l2	69363
+raw	02-contact-none	contact	none	HCN77BBXX	l2	14352751
+raw	04-contact-infected	contact	infected	HCN77BBXX	l2	10356852
+raw	02-tb-infected	tb	infected	HCN77BBXX	l2	12175652
+raw	03-tb-infected	tb	infected	HCN77BBXX	l3	15944161
+raw	03-tb-none	tb	none	HCN77BBXX	l3	12305189
+raw	02-tb-none	tb	none	HCN77BBXX	l2	24287256
+raw	06-tb-none	tb	none	HCN77BBXX	l3	10869614
+raw	06-tb-infected	tb	infected	HCN77BBXX	l3	8147170
+raw	03-contact-none	contact	none	HCN77BBXX	l2	10582953
+raw	06-contact-infected	contact	infected	HCN77BBXX	l2	16801115
+raw	04-contact-none	contact	none	HCN77BBXX	l2	2459447
+raw	09-contact-infected	contact	infected	HCN77BBXX	l3	10419455
+raw	09-contact-none	contact	none	HCN77BBXX	l3	12883528
+raw	10-contact-infected	contact	infected	HCN77BBXX	l3	14829928
+raw	05-contact-infected	contact	infected	HCN77BBXX	l2	39715024
+raw	10-contact-none	contact	none	HCN77BBXX	l3	13457574
+raw	05-contact-none	contact	none	HCN77BBXX	l2	22160137
+raw	07-contact-infected	contact	infected	HCN77BBXX	l2	5521283
+raw	11-contact-infected	contact	infected	HCN77BBXX	l3	39556214
+raw	11-contact-none	contact	none	HCN77BBXX	l3	8193997
+raw	06-contact-none	contact	none	HCN77BBXX	l2	17748258
+raw	08-contact-infected	contact	infected	HCN77BBXX	l2	10512679
+raw	12-contact-infected	contact	infected	HCN77BBXX	l3	16406721
+raw	07-contact-none	contact	none	HCN77BBXX	l2	15522294
+raw	16-contact-none	contact	none	HCN77BBXX	l3	15876195
+raw	12-contact-none	contact	none	HCN77BBXX	l3	20649583
+raw	16-contact-infected	contact	infected	HCN77BBXX	l3	13783647
+raw	08-contact-none	contact	none	HCN77BBXX	l2	19359664
+raw	17-contact-infected	contact	infected	HCN77BBXX	l3	7263734
+raw	17-contact-none	contact	none	HCN77BBXX	l3	11702753
+raw	18-contact-infected	contact	infected	HCN77BBXX	l3	12493568
+raw	18-contact-none	contact	none	HCN77BBXX	l3	8515943
+raw	19-contact-infected	contact	infected	HCN77BBXX	l3	11973080
+raw	19-contact-none	contact	none	HCN77BBXX	l3	11357381
+raw	19-contact-infected	contact	infected	H7LVWBBXX	l3	15541681
+raw	19-contact-none	contact	none	H7LVWBBXX	l3	14633072
+raw	18-contact-infected	contact	infected	H7LVWBBXX	l3	15516973
+raw	18-contact-none	contact	none	H7LVWBBXX	l3	10435301
+raw	17-contact-infected	contact	infected	H7LVWBBXX	l3	8771693
+raw	17-contact-none	contact	none	H7LVWBBXX	l3	14721732
+raw	16-contact-infected	contact	infected	H7LVWBBXX	l3	18166843
+raw	16-contact-none	contact	none	H7LVWBBXX	l3	19926600
+raw	12-contact-infected	contact	infected	H7LVWBBXX	l3	20514410
+raw	12-contact-none	contact	none	H7LVWBBXX	l3	27697710
+raw	11-contact-infected	contact	infected	H7LVWBBXX	l3	53295224
+raw	11-contact-none	contact	none	H7LVWBBXX	l3	10876930
+raw	10-contact-infected	contact	infected	H7LVWBBXX	l3	18384048
+raw	10-contact-none	contact	none	H7LVWBBXX	l3	17034004
+raw	09-contact-infected	contact	infected	H7LVWBBXX	l3	13045724
+raw	09-contact-none	contact	none	H7LVWBBXX	l3	16142716
+raw	06-tb-infected	tb	infected	H7LVWBBXX	l3	10373074
+raw	06-tb-none	tb	none	H7LVWBBXX	l3	13652640
+raw	03-tb-infected	tb	infected	H7LVWBBXX	l3	20681235
+raw	03-tb-none	tb	none	H7LVWBBXX	l3	16287540
+raw	08-contact-none	contact	none	H7LVWBBXX	l2	22141391
+raw	08-contact-infected	contact	infected	H7LVWBBXX	l2	12276396
+raw	07-contact-none	contact	none	H7LVWBBXX	l2	18362260
+raw	07-contact-infected	contact	infected	H7LVWBBXX	l2	6468314
+raw	06-contact-none	contact	none	H7LVWBBXX	l2	19789556
+raw	06-contact-infected	contact	infected	H7LVWBBXX	l2	19030459
+raw	05-contact-none	contact	none	H7LVWBBXX	l2	24219709
+raw	05-contact-infected	contact	infected	H7LVWBBXX	l2	45552118
+raw	04-contact-none	contact	none	H7LVWBBXX	l2	2793611
+raw	04-contact-infected	contact	infected	H7LVWBBXX	l2	11579487
+raw	03-contact-none	contact	none	H7LVWBBXX	l2	11933787
+raw	03-contact-infected	contact	infected	H7LVWBBXX	l2	39037
+raw	02-tb-none	tb	none	H7LVWBBXX	l2	26502860
+raw	02-tb-infected	tb	infected	H7LVWBBXX	l2	13860384
+raw	02-contact-none	contact	none	H7LVWBBXX	l2	14786227
+raw	02-contact-infected	contact	infected	H7LVWBBXX	l2	16208591
+raw	01-tb-none	tb	none	H7LVWBBXX	l2	24156155
+raw	01-tb-infected	tb	infected	H7LVWBBXX	l2	10009919
+raw	01-contact-none	contact	none	H7LVWBBXX	l2	15907970
+raw	01-contact-infected	contact	infected	H7LVWBBXX	l2	18324354
+mapped to genome	15-contact-infected	contact	infected	HCMF5BBXX	l4	174691525
+mapped to genome	15-contact-none	contact	none	HCMF5BBXX	l4	2224409
+mapped to genome	14-contact-infected	contact	infected	HCMF5BBXX	l4	2080645
+mapped to genome	14-contact-none	contact	none	HCMF5BBXX	l4	3360419
+mapped to genome	13-contact-infected	contact	infected	HCMF5BBXX	l4	2041475
+mapped to genome	13-contact-none	contact	none	HCMF5BBXX	l4	2532145
+mapped to genome	05-tb-infected	tb	infected	HCMF5BBXX	l4	3490026
+mapped to genome	05-tb-none	tb	none	HCMF5BBXX	l4	1579685
+mapped to genome	04-tb-infected	tb	infected	HCMF5BBXX	l4	1783283
+mapped to genome	04-tb-none	tb	none	HCMF5BBXX	l4	3503000
+mapped to genome	19-contact-infected	contact	infected	HCMF5BBXX	l3	2216488
+mapped to genome	19-contact-none	contact	none	HCMF5BBXX	l3	1876973
+mapped to genome	18-contact-infected	contact	infected	HCMF5BBXX	l3	1941834
+mapped to genome	18-contact-none	contact	none	HCMF5BBXX	l3	1396113
+mapped to genome	17-contact-infected	contact	infected	HCMF5BBXX	l3	3000655
+mapped to genome	17-contact-none	contact	none	HCMF5BBXX	l3	1893079
+mapped to genome	16-contact-infected	contact	infected	HCMF5BBXX	l3	2663702
+mapped to genome	16-contact-none	contact	none	HCMF5BBXX	l3	2624786
+mapped to genome	12-contact-infected	contact	infected	HCMF5BBXX	l3	5768133
+mapped to genome	12-contact-none	contact	none	HCMF5BBXX	l3	3760974
+mapped to genome	11-contact-infected	contact	infected	HCMF5BBXX	l3	3346224
+mapped to genome	11-contact-none	contact	none	HCMF5BBXX	l3	181417618
+mapped to genome	10-contact-infected	contact	infected	HCMF5BBXX	l3	2751698
+mapped to genome	10-contact-none	contact	none	HCMF5BBXX	l3	2391201
+mapped to genome	09-contact-infected	contact	infected	HCMF5BBXX	l3	2071572
+mapped to genome	09-contact-none	contact	none	HCMF5BBXX	l3	2598971
+mapped to genome	06-tb-infected	tb	infected	HCMF5BBXX	l3	1564010
+mapped to genome	06-tb-none	tb	none	HCMF5BBXX	l3	1708981
+mapped to genome	03-tb-infected	tb	infected	HCMF5BBXX	l3	2554535
+mapped to genome	03-tb-none	tb	none	HCMF5BBXX	l3	2156231
+mapped to genome	08-contact-infected	contact	infected	HCMF5BBXX	l2	3534184
+mapped to genome	08-contact-none	contact	none	HCMF5BBXX	l2	7100928
+mapped to genome	07-contact-infected	contact	infected	HCMF5BBXX	l2	5572405
+mapped to genome	07-contact-none	contact	none	HCMF5BBXX	l2	6532399
+mapped to genome	06-contact-infected	contact	infected	HCMF5BBXX	l2	4410691
+mapped to genome	06-contact-none	contact	none	HCMF5BBXX	l2	3756762
+mapped to genome	05-contact-infected	contact	infected	HCMF5BBXX	l2	12927201
+mapped to genome	05-contact-none	contact	none	HCMF5BBXX	l2	8187076
+mapped to genome	04-contact-infected	contact	infected	HCMF5BBXX	l2	6970648
+mapped to genome	04-contact-none	contact	none	HCMF5BBXX	l2	1894861
+mapped to genome	03-contact-infected	contact	infected	HCMF5BBXX	l2	149434797
+mapped to genome	03-contact-none	contact	none	HCMF5BBXX	l2	5301760
+mapped to genome	02-tb-infected	tb	infected	HCMF5BBXX	l2	5463804
+mapped to genome	02-tb-none	tb	none	HCMF5BBXX	l2	9982919
+mapped to genome	02-contact-infected	contact	infected	HCMF5BBXX	l2	6940281
+mapped to genome	02-contact-none	contact	none	HCMF5BBXX	l2	1123292
+mapped to genome	01-tb-infected	tb	infected	HCMF5BBXX	l2	4541319
+mapped to genome	01-tb-none	tb	none	HCMF5BBXX	l2	8258262
+mapped to genome	01-contact-infected	contact	infected	HCMF5BBXX	l2	7008037
+mapped to genome	01-contact-none	contact	none	HCMF5BBXX	l2	6249019
+mapped to genome	13-contact-infected	contact	infected	HCN77BBXX	l4	20238647
+mapped to genome	04-tb-infected	tb	infected	HCN77BBXX	l4	27569518
+mapped to genome	04-tb-none	tb	none	HCN77BBXX	l4	17389897
+mapped to genome	05-tb-infected	tb	infected	HCN77BBXX	l4	40596246
+mapped to genome	05-tb-none	tb	none	HCN77BBXX	l4	29136056
+mapped to genome	14-contact-infected	contact	infected	HCN77BBXX	l4	27931919
+mapped to genome	13-contact-none	contact	none	HCN77BBXX	l4	43277830
+mapped to genome	15-contact-infected	contact	infected	HCN77BBXX	l4	6863364
+mapped to genome	14-contact-none	contact	none	HCN77BBXX	l4	32660979
+mapped to genome	01-contact-infected	contact	infected	HCN77BBXX	l2	14269306
+mapped to genome	15-contact-none	contact	none	HCN77BBXX	l4	38462966
+mapped to genome	02-contact-infected	contact	infected	HCN77BBXX	l2	12955103
+mapped to genome	01-contact-none	contact	none	HCN77BBXX	l2	10969778
+mapped to genome	01-tb-infected	tb	infected	HCN77BBXX	l2	8075816
+mapped to genome	01-tb-none	tb	none	HCN77BBXX	l2	18238687
+mapped to genome	03-contact-infected	contact	infected	HCN77BBXX	l2	57005
+mapped to genome	02-contact-none	contact	none	HCN77BBXX	l2	933943
+mapped to genome	04-contact-infected	contact	infected	HCN77BBXX	l2	9080123
+mapped to genome	02-tb-infected	tb	infected	HCN77BBXX	l2	10565964
+mapped to genome	03-tb-infected	tb	infected	HCN77BBXX	l3	12159668
+mapped to genome	03-tb-none	tb	none	HCN77BBXX	l3	9701046
+mapped to genome	02-tb-none	tb	none	HCN77BBXX	l2	21171293
+mapped to genome	06-tb-none	tb	none	HCN77BBXX	l3	9421030
+mapped to genome	06-tb-infected	tb	infected	HCN77BBXX	l3	7089155
+mapped to genome	03-contact-none	contact	none	HCN77BBXX	l2	9482105
+mapped to genome	06-contact-infected	contact	infected	HCN77BBXX	l2	9313069
+mapped to genome	04-contact-none	contact	none	HCN77BBXX	l2	2171202
+mapped to genome	09-contact-infected	contact	infected	HCN77BBXX	l3	9064733
+mapped to genome	09-contact-none	contact	none	HCN77BBXX	l3	11367089
+mapped to genome	10-contact-infected	contact	infected	HCN77BBXX	l3	12796351
+mapped to genome	05-contact-infected	contact	infected	HCN77BBXX	l2	30556940
+mapped to genome	10-contact-none	contact	none	HCN77BBXX	l3	11434762
+mapped to genome	05-contact-none	contact	none	HCN77BBXX	l2	19045194
+mapped to genome	07-contact-infected	contact	infected	HCN77BBXX	l2	4778174
+mapped to genome	11-contact-infected	contact	infected	HCN77BBXX	l3	33879669
+mapped to genome	11-contact-none	contact	none	HCN77BBXX	l3	7056135
+mapped to genome	06-contact-none	contact	none	HCN77BBXX	l2	8019215
+mapped to genome	08-contact-infected	contact	infected	HCN77BBXX	l2	8501335
+mapped to genome	12-contact-infected	contact	infected	HCN77BBXX	l3	14384828
+mapped to genome	07-contact-none	contact	none	HCN77BBXX	l2	12390966
+mapped to genome	16-contact-none	contact	none	HCN77BBXX	l3	13480370
+mapped to genome	12-contact-none	contact	none	HCN77BBXX	l3	18162097
+mapped to genome	16-contact-infected	contact	infected	HCN77BBXX	l3	12057881
+mapped to genome	08-contact-none	contact	none	HCN77BBXX	l2	16054009
+mapped to genome	17-contact-infected	contact	infected	HCN77BBXX	l3	6429098
+mapped to genome	17-contact-none	contact	none	HCN77BBXX	l3	10074063
+mapped to genome	18-contact-infected	contact	infected	HCN77BBXX	l3	11063018
+mapped to genome	18-contact-none	contact	none	HCN77BBXX	l3	7494929
+mapped to genome	19-contact-infected	contact	infected	HCN77BBXX	l3	10629885
+mapped to genome	19-contact-none	contact	none	HCN77BBXX	l3	10002823
+mapped to genome	19-contact-infected	contact	infected	H7LVWBBXX	l3	13828590
+mapped to genome	19-contact-none	contact	none	H7LVWBBXX	l3	12924671
+mapped to genome	18-contact-infected	contact	infected	H7LVWBBXX	l3	13778897
+mapped to genome	18-contact-none	contact	none	H7LVWBBXX	l3	9199030
+mapped to genome	17-contact-infected	contact	infected	H7LVWBBXX	l3	7778222
+mapped to genome	17-contact-none	contact	none	H7LVWBBXX	l3	12715664
+mapped to genome	16-contact-infected	contact	infected	H7LVWBBXX	l3	15958070
+mapped to genome	16-contact-none	contact	none	H7LVWBBXX	l3	16953880
+mapped to genome	12-contact-infected	contact	infected	H7LVWBBXX	l3	18022465
+mapped to genome	12-contact-none	contact	none	H7LVWBBXX	l3	24490886
+mapped to genome	11-contact-infected	contact	infected	H7LVWBBXX	l3	45827086
+mapped to genome	11-contact-none	contact	none	H7LVWBBXX	l3	9393062
+mapped to genome	10-contact-infected	contact	infected	H7LVWBBXX	l3	15960977
+mapped to genome	10-contact-none	contact	none	H7LVWBBXX	l3	14528588
+mapped to genome	09-contact-infected	contact	infected	H7LVWBBXX	l3	11377256
+mapped to genome	09-contact-none	contact	none	H7LVWBBXX	l3	14272964
+mapped to genome	06-tb-infected	tb	infected	H7LVWBBXX	l3	9046894
+mapped to genome	06-tb-none	tb	none	H7LVWBBXX	l3	11859089
+mapped to genome	03-tb-infected	tb	infected	H7LVWBBXX	l3	15878638
+mapped to genome	03-tb-none	tb	none	H7LVWBBXX	l3	12922348
+mapped to genome	08-contact-none	contact	none	H7LVWBBXX	l2	18454305
+mapped to genome	08-contact-infected	contact	infected	H7LVWBBXX	l2	10082589
+mapped to genome	07-contact-none	contact	none	H7LVWBBXX	l2	14844869
+mapped to genome	07-contact-infected	contact	infected	H7LVWBBXX	l2	5614009
+mapped to genome	06-contact-none	contact	none	H7LVWBBXX	l2	9026173
+mapped to genome	06-contact-infected	contact	infected	H7LVWBBXX	l2	10702346
+mapped to genome	05-contact-none	contact	none	H7LVWBBXX	l2	20871476
+mapped to genome	05-contact-infected	contact	infected	H7LVWBBXX	l2	35592333
+mapped to genome	04-contact-none	contact	none	H7LVWBBXX	l2	2466868
+mapped to genome	04-contact-infected	contact	infected	H7LVWBBXX	l2	10149101
+mapped to genome	03-contact-none	contact	none	H7LVWBBXX	l2	10706160
+mapped to genome	03-contact-infected	contact	infected	H7LVWBBXX	l2	29844
+mapped to genome	02-tb-none	tb	none	H7LVWBBXX	l2	23134999
+mapped to genome	02-tb-infected	tb	infected	H7LVWBBXX	l2	12037195
+mapped to genome	02-contact-none	contact	none	H7LVWBBXX	l2	1087292
+mapped to genome	02-contact-infected	contact	infected	H7LVWBBXX	l2	14508610
+mapped to genome	01-tb-none	tb	none	H7LVWBBXX	l2	20992116
+mapped to genome	01-tb-infected	tb	infected	H7LVWBBXX	l2	8917515
+mapped to genome	01-contact-none	contact	none	H7LVWBBXX	l2	13272454
+mapped to genome	01-contact-infected	contact	infected	H7LVWBBXX	l2	16194403
+mapped to exons	15-contact-infected	contact	infected	HCMF5BBXX	l4	148875764
+mapped to exons	15-contact-none	contact	none	HCMF5BBXX	l4	1949347
+mapped to exons	14-contact-infected	contact	infected	HCMF5BBXX	l4	1824503
+mapped to exons	14-contact-none	contact	none	HCMF5BBXX	l4	2986482
+mapped to exons	13-contact-infected	contact	infected	HCMF5BBXX	l4	1793301
+mapped to exons	13-contact-none	contact	none	HCMF5BBXX	l4	2261114
+mapped to exons	05-tb-infected	tb	infected	HCMF5BBXX	l4	3063585
+mapped to exons	05-tb-none	tb	none	HCMF5BBXX	l4	1398100
+mapped to exons	04-tb-infected	tb	infected	HCMF5BBXX	l4	1564458
+mapped to exons	04-tb-none	tb	none	HCMF5BBXX	l4	3076650
+mapped to exons	19-contact-infected	contact	infected	HCMF5BBXX	l3	1921587
+mapped to exons	19-contact-none	contact	none	HCMF5BBXX	l3	1652197
+mapped to exons	18-contact-infected	contact	infected	HCMF5BBXX	l3	1719958
+mapped to exons	18-contact-none	contact	none	HCMF5BBXX	l3	1237663
+mapped to exons	17-contact-infected	contact	infected	HCMF5BBXX	l3	2591822
+mapped to exons	17-contact-none	contact	none	HCMF5BBXX	l3	1680406
+mapped to exons	16-contact-infected	contact	infected	HCMF5BBXX	l3	2337963
+mapped to exons	16-contact-none	contact	none	HCMF5BBXX	l3	2335111
+mapped to exons	12-contact-infected	contact	infected	HCMF5BBXX	l3	4987759
+mapped to exons	12-contact-none	contact	none	HCMF5BBXX	l3	3318769
+mapped to exons	11-contact-infected	contact	infected	HCMF5BBXX	l3	2934480
+mapped to exons	11-contact-none	contact	none	HCMF5BBXX	l3	161408985
+mapped to exons	10-contact-infected	contact	infected	HCMF5BBXX	l3	2385895
+mapped to exons	10-contact-none	contact	none	HCMF5BBXX	l3	2141351
+mapped to exons	09-contact-infected	contact	infected	HCMF5BBXX	l3	1801432
+mapped to exons	09-contact-none	contact	none	HCMF5BBXX	l3	2311428
+mapped to exons	06-tb-infected	tb	infected	HCMF5BBXX	l3	1355460
+mapped to exons	06-tb-none	tb	none	HCMF5BBXX	l3	1518200
+mapped to exons	03-tb-infected	tb	infected	HCMF5BBXX	l3	2222469
+mapped to exons	03-tb-none	tb	none	HCMF5BBXX	l3	1915770
+mapped to exons	08-contact-infected	contact	infected	HCMF5BBXX	l2	3094836
+mapped to exons	08-contact-none	contact	none	HCMF5BBXX	l2	6298223
+mapped to exons	07-contact-infected	contact	infected	HCMF5BBXX	l2	4880932
+mapped to exons	07-contact-none	contact	none	HCMF5BBXX	l2	5802381
+mapped to exons	06-contact-infected	contact	infected	HCMF5BBXX	l2	3661166
+mapped to exons	06-contact-none	contact	none	HCMF5BBXX	l2	3121716
+mapped to exons	05-contact-infected	contact	infected	HCMF5BBXX	l2	11278686
+mapped to exons	05-contact-none	contact	none	HCMF5BBXX	l2	7209967
+mapped to exons	04-contact-infected	contact	infected	HCMF5BBXX	l2	5940095
+mapped to exons	04-contact-none	contact	none	HCMF5BBXX	l2	1637228
+mapped to exons	03-contact-infected	contact	infected	HCMF5BBXX	l2	128561002
+mapped to exons	03-contact-none	contact	none	HCMF5BBXX	l2	4664380
+mapped to exons	02-tb-infected	tb	infected	HCMF5BBXX	l2	4713227
+mapped to exons	02-tb-none	tb	none	HCMF5BBXX	l2	8873376
+mapped to exons	02-contact-infected	contact	infected	HCMF5BBXX	l2	6037176
+mapped to exons	02-contact-none	contact	none	HCMF5BBXX	l2	935377
+mapped to exons	01-tb-infected	tb	infected	HCMF5BBXX	l2	3942408
+mapped to exons	01-tb-none	tb	none	HCMF5BBXX	l2	7268924
+mapped to exons	01-contact-infected	contact	infected	HCMF5BBXX	l2	6069825
+mapped to exons	01-contact-none	contact	none	HCMF5BBXX	l2	5486432
+mapped to exons	13-contact-infected	contact	infected	HCN77BBXX	l4	17849881
+mapped to exons	04-tb-infected	tb	infected	HCN77BBXX	l4	24238595
+mapped to exons	04-tb-none	tb	none	HCN77BBXX	l4	15313127
+mapped to exons	05-tb-infected	tb	infected	HCN77BBXX	l4	35750684
+mapped to exons	05-tb-none	tb	none	HCN77BBXX	l4	25860185
+mapped to exons	14-contact-infected	contact	infected	HCN77BBXX	l4	24617524
+mapped to exons	13-contact-none	contact	none	HCN77BBXX	l4	38888578
+mapped to exons	15-contact-infected	contact	infected	HCN77BBXX	l4	5856850
+mapped to exons	14-contact-none	contact	none	HCN77BBXX	l4	29144167
+mapped to exons	01-contact-infected	contact	infected	HCN77BBXX	l2	12362231
+mapped to exons	15-contact-none	contact	none	HCN77BBXX	l4	33799239
+mapped to exons	02-contact-infected	contact	infected	HCN77BBXX	l2	11276812
+mapped to exons	01-contact-none	contact	none	HCN77BBXX	l2	9631760
+mapped to exons	01-tb-infected	tb	infected	HCN77BBXX	l2	7013860
+mapped to exons	01-tb-none	tb	none	HCN77BBXX	l2	16058174
+mapped to exons	03-contact-infected	contact	infected	HCN77BBXX	l2	49055
+mapped to exons	02-contact-none	contact	none	HCN77BBXX	l2	777781
+mapped to exons	04-contact-infected	contact	infected	HCN77BBXX	l2	7739600
+mapped to exons	02-tb-infected	tb	infected	HCN77BBXX	l2	9113843
+mapped to exons	03-tb-infected	tb	infected	HCN77BBXX	l3	10576974
+mapped to exons	03-tb-none	tb	none	HCN77BBXX	l3	8615685
+mapped to exons	02-tb-none	tb	none	HCN77BBXX	l2	18819915
+mapped to exons	06-tb-none	tb	none	HCN77BBXX	l3	8368339
+mapped to exons	06-tb-infected	tb	infected	HCN77BBXX	l3	6145733
+mapped to exons	03-contact-none	contact	none	HCN77BBXX	l2	8349530
+mapped to exons	06-contact-infected	contact	infected	HCN77BBXX	l2	7733137
+mapped to exons	04-contact-none	contact	none	HCN77BBXX	l2	1875984
+mapped to exons	09-contact-infected	contact	infected	HCN77BBXX	l3	7882745
+mapped to exons	09-contact-none	contact	none	HCN77BBXX	l3	10108702
+mapped to exons	10-contact-infected	contact	infected	HCN77BBXX	l3	11088736
+mapped to exons	05-contact-infected	contact	infected	HCN77BBXX	l2	26638071
+mapped to exons	10-contact-none	contact	none	HCN77BBXX	l3	10234225
+mapped to exons	05-contact-none	contact	none	HCN77BBXX	l2	16778106
+mapped to exons	07-contact-infected	contact	infected	HCN77BBXX	l2	4187005
+mapped to exons	11-contact-infected	contact	infected	HCN77BBXX	l3	29710636
+mapped to exons	11-contact-none	contact	none	HCN77BBXX	l3	6276642
+mapped to exons	06-contact-none	contact	none	HCN77BBXX	l2	6659227
+mapped to exons	08-contact-infected	contact	infected	HCN77BBXX	l2	7439101
+mapped to exons	12-contact-infected	contact	infected	HCN77BBXX	l3	12453851
+mapped to exons	07-contact-none	contact	none	HCN77BBXX	l2	11003006
+mapped to exons	16-contact-none	contact	none	HCN77BBXX	l3	11991223
+mapped to exons	12-contact-none	contact	none	HCN77BBXX	l3	16030404
+mapped to exons	16-contact-infected	contact	infected	HCN77BBXX	l3	10578929
+mapped to exons	08-contact-none	contact	none	HCN77BBXX	l2	14234543
+mapped to exons	17-contact-infected	contact	infected	HCN77BBXX	l3	5554717
+mapped to exons	17-contact-none	contact	none	HCN77BBXX	l3	8943533
+mapped to exons	18-contact-infected	contact	infected	HCN77BBXX	l3	9795739
+mapped to exons	18-contact-none	contact	none	HCN77BBXX	l3	6639827
+mapped to exons	19-contact-infected	contact	infected	HCN77BBXX	l3	9215803
+mapped to exons	19-contact-none	contact	none	HCN77BBXX	l3	8806641
+mapped to exons	19-contact-infected	contact	infected	H7LVWBBXX	l3	11989708
+mapped to exons	19-contact-none	contact	none	H7LVWBBXX	l3	11379937
+mapped to exons	18-contact-infected	contact	infected	H7LVWBBXX	l3	12202847
+mapped to exons	18-contact-none	contact	none	H7LVWBBXX	l3	8149723
+mapped to exons	17-contact-infected	contact	infected	H7LVWBBXX	l3	6719129
+mapped to exons	17-contact-none	contact	none	H7LVWBBXX	l3	11294360
+mapped to exons	16-contact-infected	contact	infected	H7LVWBBXX	l3	14008288
+mapped to exons	16-contact-none	contact	none	H7LVWBBXX	l3	15084046
+mapped to exons	12-contact-infected	contact	infected	H7LVWBBXX	l3	15603830
+mapped to exons	12-contact-none	contact	none	H7LVWBBXX	l3	21627380
+mapped to exons	11-contact-infected	contact	infected	H7LVWBBXX	l3	40206096
+mapped to exons	11-contact-none	contact	none	H7LVWBBXX	l3	8357719
+mapped to exons	10-contact-infected	contact	infected	H7LVWBBXX	l3	13832110
+mapped to exons	10-contact-none	contact	none	H7LVWBBXX	l3	13008453
+mapped to exons	09-contact-infected	contact	infected	H7LVWBBXX	l3	9897861
+mapped to exons	09-contact-none	contact	none	H7LVWBBXX	l3	12694214
+mapped to exons	06-tb-infected	tb	infected	H7LVWBBXX	l3	7843071
+mapped to exons	06-tb-none	tb	none	H7LVWBBXX	l3	10537401
+mapped to exons	03-tb-infected	tb	infected	H7LVWBBXX	l3	13814174
+mapped to exons	03-tb-none	tb	none	H7LVWBBXX	l3	11479815
+mapped to exons	08-contact-none	contact	none	H7LVWBBXX	l2	16368559
+mapped to exons	08-contact-infected	contact	infected	H7LVWBBXX	l2	8824404
+mapped to exons	07-contact-none	contact	none	H7LVWBBXX	l2	13183428
+mapped to exons	07-contact-infected	contact	infected	H7LVWBBXX	l2	4921138
+mapped to exons	06-contact-none	contact	none	H7LVWBBXX	l2	7493486
+mapped to exons	06-contact-infected	contact	infected	H7LVWBBXX	l2	8878311
+mapped to exons	05-contact-none	contact	none	H7LVWBBXX	l2	18382980
+mapped to exons	05-contact-infected	contact	infected	H7LVWBBXX	l2	31039839
+mapped to exons	04-contact-none	contact	none	H7LVWBBXX	l2	2130990
+mapped to exons	04-contact-infected	contact	infected	H7LVWBBXX	l2	8649735
+mapped to exons	03-contact-none	contact	none	H7LVWBBXX	l2	9426022
+mapped to exons	03-contact-infected	contact	infected	H7LVWBBXX	l2	25628
+mapped to exons	02-tb-none	tb	none	H7LVWBBXX	l2	20560138
+mapped to exons	02-tb-infected	tb	infected	H7LVWBBXX	l2	10384450
+mapped to exons	02-contact-none	contact	none	H7LVWBBXX	l2	908128
+mapped to exons	02-contact-infected	contact	infected	H7LVWBBXX	l2	12627175
+mapped to exons	01-tb-none	tb	none	H7LVWBBXX	l2	18478566
+mapped to exons	01-tb-infected	tb	infected	H7LVWBBXX	l2	7742141
+mapped to exons	01-contact-none	contact	none	H7LVWBBXX	l2	11654891
+mapped to exons	01-contact-infected	contact	infected	H7LVWBBXX	l2	14026817

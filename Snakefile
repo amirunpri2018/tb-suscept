@@ -41,7 +41,7 @@ rule prepare_kallisto:
     input: scratch + "transcriptome-ensembl-GRCh38.idx"
 
 rule run_subread:
-    input: data + "subread-counts-per-sample.txt"
+    input: data + "subread-counts-per-sample.txt", data + "total-counts.txt"
 
 rule prepare_subread:
     input: genome + "hg38.reads", genome + "exons.saf"
@@ -179,3 +179,103 @@ rule subread_collate_per_sample:
         sample = lane.groupby(["individual", "status", "treatment"],
                               as_index = False).sum()
         sample.to_csv(output[0], sep = "\t", na_rep = "NA", index = False)
+
+rule count_fastq:
+    input: fastq_dir + "{sample}.fastq.gz"
+    output: fastq_dir + "{sample}.count.txt"
+    shell: "bioawk -c fastx 'END{{print NR}}' {input} > {output}"
+
+rule count_bam:
+    input: bam_dir + "{sample}.bam"
+    output: bam_dir + "{sample}.count.txt"
+    shell: "samtools view -c -q 1 {input} > {output}"
+
+rule count_gather:
+    input: fastq = expand(fastq_dir + "{sample}.count.txt", sample = samples),
+           bam = expand(bam_dir + "{sample}.count.txt", sample = samples),
+           featureCounts = expand(counts_dir + "{sample}.genecounts.txt.summary",
+                                  sample = samples)
+    output: data + "total-counts.txt"
+    run:
+        import glob
+        import sys
+
+        files = input.fastq + input.bam + input.featureCounts
+
+        # Output file
+        outfile = open(output[0], "w")
+
+        # Output header:
+        #   stage - the stage of the processing pipeline
+        outfile.write("stage\tid\tstatus\ttreatment\tflow_cell\tlane\tcounts\n")
+
+        # Function definitions ---------------------------------------------------------
+
+        def read_lines(f):
+            """
+            Input: Path to file
+            Output: Lines of the file (list)
+            """
+            handle = open(f, "r")
+            lines = handle.readlines()
+            handle.close()
+            return lines
+
+        def read_count_file(f):
+            """
+            Input: Path to file
+            Output: The number contained in the file (str)
+            Explanation: The count file only contains one number, the number of
+              sequences at that stage in the processing pipeline.
+            """
+            lines = read_lines(f)
+            assert "Count file has only one line", len(lines) == 1
+            counts = lines[0].strip("\n")
+            return counts
+
+        def read_featureCounts_summary(f):
+            """
+            Input: Path to file
+            Output: The number of sequences labeled Assigned (str)
+            Explanation: featureCounts outputs a file with the extension .summmary that
+                 details the number of sequences per result category. The
+                 category Assigned is for sequences that map unambiguously to a
+                 gene.
+            """
+            assert  f[-8:] == ".summary", \
+                "featureCounts summary file has correct extension"
+            lines = read_lines(f)
+            assert len(lines) == 12, \
+                "featureCounts summary file has 12 lines"
+            assert lines[1].split("\t")[0] == "Assigned", \
+                "The Assigned category is the first entry after the header"
+            counts = lines[1].strip("\n").split("\t")[1]
+            return counts
+
+        # Process each file ------------------------------------------------------------
+
+        for f in files:
+            # Set default values
+            path = f.split("/")
+            fname = path[-1]
+            dir = path[-2]
+
+            if dir == "fastq":
+                stage = "raw"
+                counts = read_count_file(f)
+            elif dir == "bam":
+                stage = "mapped to genome"
+                counts = read_count_file(f)
+            elif dir == "counts":
+                stage = "mapped to exons"
+                counts = read_featureCounts_summary(f)
+
+            # Get meta data from filename
+            fname_parts = fname.rstrip("genecounts.txt.summary").split("-")
+            num, status, treatment, flow_cell, lane = fname_parts[:5]
+            id = "-".join([num, status, treatment])
+
+            outfile.write("\t".join([stage, id, status, treatment,
+                                     flow_cell, lane, counts]) + "\n")
+
+        outfile.close()
