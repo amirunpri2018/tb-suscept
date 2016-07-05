@@ -1,51 +1,51 @@
-id	status	treatment	infection	arrival	extraction	master_mix	me	individual	birthdate
-01-tb-none	tb	none	2013-04-05	a1	e1	m1	me1	101	NA
-01-tb-infected	tb	infected	2013-04-05	a1	e1	m1	me1	101	NA
-01-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	DS202	NA
-01-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	DS202	NA
-02-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	LA201	NA
-02-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	LA201	NA
-03-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	LC203	NA
-03-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	LC203	NA
-04-contact-none	contact	none	2013-07-08	a1	e1	m1	NA	CP004	NA
-04-contact-infected	contact	infected	2013-07-08	a1	e1	m1	NA	CP004	NA
-02-tb-none	tb	none	2013-04-05	a2	e2	m1	me2	102	NA
-02-tb-infected	tb	infected	2013-04-05	a2	e2	m1	me2	102	NA
-05-contact-none	contact	none	2013-07-08	a2	e2	m1	me2	Ci005	NA
-05-contact-infected	contact	infected	2013-07-08	a2	e2	m1	me2	Ci005	NA
-06-contact-none	contact	none	2013-09-02	a2	e2	m1	me2	DL007	NA
-06-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me2	DL007	NA
-07-contact-none	contact	none	2013-09-02	a2	e2	m1	me2	FL006	NA
-07-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me2	FL006	NA
-08-contact-none	contact	none	2013-09-02	a2	e2	m1	me4	FP008	NA
-08-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me4	FP008	NA
-03-tb-none	tb	none	2013-04-05	a3	e3	m2	me3	103	NA
-03-tb-infected	tb	infected	2013-04-05	a3	e3	m2	me3	103	NA
-09-contact-none	contact	none	2013-09-02	a3	e3	m2	me3	MJ009	NA
-09-contact-infected	contact	infected	2013-09-02	a3	e3	m2	me3	MJ009	NA
-10-contact-none	contact	none	2013-09-02	a3	e3	m2	me3	MM010	NA
-10-contact-infected	contact	infected	2013-09-02	a3	e3	m2	me3	MM010	NA
-11-contact-none	contact	none	2013-09-04	a3	e3	m2	me3	GJ011	NA
-11-contact-infected	contact	infected	2013-09-04	a3	e3	m2	me3	GJ011	NA
-12-contact-none	contact	none	2013-09-04	a3	e3	m2	me4	HH012	NA
-12-contact-infected	contact	infected	2013-09-04	a3	e3	m2	me4	HH012	NA
-13-contact-none	contact	none	2013-09-04	a4	e4	m3	me5	13	NA
-13-contact-infected	contact	infected	2013-09-04	a4	e4	m3	me5	13	NA
-14-contact-none	contact	none	2013-09-09	a4	e4	m3	me5	SV014	NA
-14-contact-infected	contact	infected	2013-09-09	a4	e4	m3	me5	SV014	NA
-15-contact-none	contact	none	2013-09-23	a4	e4	m3	me5	HE015	NA
-15-contact-infected	contact	infected	2013-09-23	a4	e4	m3	me5	HE015	NA
-04-tb-none	tb	none	2013-10-07	a4	e4	m3	me5	LD104	NA
-04-tb-infected	tb	infected	2013-10-07	a4	e4	m3	me5	LD104	NA
-05-tb-none	tb	none	2014-06-10	a4	e4	m3	me4	1030-01 CA	1/5/1971
-05-tb-infected	tb	infected	2014-06-10	a4	e4	m3	me4	1030-01 CA	1/5/1971
-16-contact-none	contact	none	2014-11-03	a4	e5	m2	me6	AJ003	NA
-16-contact-infected	contact	infected	2014-11-03	a4	e5	m2	me6	AJ003	NA
-17-contact-none	contact	none	2014-11-03	a4	e5	m2	me6	VR002	NA
-17-contact-infected	contact	infected	2014-11-03	a4	e5	m2	me6	VR002	NA
-18-contact-none	contact	none	2014-11-24	a4	e5	m2	me6	1030-04 DG	11/6/1990
-18-contact-infected	contact	infected	2014-11-24	a4	e5	m2	me6	1030-04 DG	11/6/1990
-06-tb-none	tb	none	2014-11-24	a4	e5	m2	me6	1030-05 PJ	28/11/1958
-06-tb-infected	tb	infected	2014-11-24	a4	e5	m2	me6	1030-05 PJ	28/11/1958
-19-contact-none	contact	none	2014-12-01	a4	e5	m2	me4	2010-30 06 BT	NA
-19-contact-infected	contact	infected	2014-12-01	a4	e5	m2	me4	2010-30 06 BT	NA
+id	status	treatment	infection	arrival	extraction	master_mix	me	individual	birthdate	rin
+01-tb-none	tb	none	2013-04-05	a1	e1	m1	me1	101	NA	10
+01-tb-infected	tb	infected	2013-04-05	a1	e1	m1	me1	101	NA	10
+01-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	DS202	NA	10
+01-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	DS202	NA	10
+02-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	LA201	NA	8.1
+02-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	LA201	NA	9.5
+03-contact-none	contact	none	2013-06-24	a1	e1	m1	me1	LC203	NA	9.9
+03-contact-infected	contact	infected	2013-06-24	a1	e1	m1	me1	LC203	NA	10
+04-contact-none	contact	none	2013-07-08	a1	e1	m1	NA	CP004	NA	8.9
+04-contact-infected	contact	infected	2013-07-08	a1	e1	m1	NA	CP004	NA	10
+02-tb-none	tb	none	2013-04-05	a2	e2	m1	me2	102	NA	9.9
+02-tb-infected	tb	infected	2013-04-05	a2	e2	m1	me2	102	NA	9.5
+05-contact-none	contact	none	2013-07-08	a2	e2	m1	me2	Ci005	NA	9.7
+05-contact-infected	contact	infected	2013-07-08	a2	e2	m1	me2	Ci005	NA	9.7
+06-contact-none	contact	none	2013-09-02	a2	e2	m1	me2	DL007	NA	9.7
+06-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me2	DL007	NA	9.9
+07-contact-none	contact	none	2013-09-02	a2	e2	m1	me2	FL006	NA	9.5
+07-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me2	FL006	NA	9
+08-contact-none	contact	none	2013-09-02	a2	e2	m1	me4	FP008	NA	9
+08-contact-infected	contact	infected	2013-09-02	a2	e2	m1	me4	FP008	NA	9
+03-tb-none	tb	none	2013-04-05	a3	e3	m2	me3	103	NA	9.9
+03-tb-infected	tb	infected	2013-04-05	a3	e3	m2	me3	103	NA	9.6
+09-contact-none	contact	none	2013-09-02	a3	e3	m2	me3	MJ009	NA	10
+09-contact-infected	contact	infected	2013-09-02	a3	e3	m2	me3	MJ009	NA	10
+10-contact-none	contact	none	2013-09-02	a3	e3	m2	me3	MM010	NA	9.5
+10-contact-infected	contact	infected	2013-09-02	a3	e3	m2	me3	MM010	NA	9.6
+11-contact-none	contact	none	2013-09-04	a3	e3	m2	me3	GJ011	NA	9.4
+11-contact-infected	contact	infected	2013-09-04	a3	e3	m2	me3	GJ011	NA	9.6
+12-contact-none	contact	none	2013-09-04	a3	e3	m2	me4	HH012	NA	9.7
+12-contact-infected	contact	infected	2013-09-04	a3	e3	m2	me4	HH012	NA	9.7
+13-contact-none	contact	none	2013-09-04	a4	e4	m3	me5	13	NA	9.2
+13-contact-infected	contact	infected	2013-09-04	a4	e4	m3	me5	13	NA	9.4
+14-contact-none	contact	none	2013-09-09	a4	e4	m3	me5	SV014	NA	9.6
+14-contact-infected	contact	infected	2013-09-09	a4	e4	m3	me5	SV014	NA	9.8
+15-contact-none	contact	none	2013-09-23	a4	e4	m3	me5	HE015	NA	9
+15-contact-infected	contact	infected	2013-09-23	a4	e4	m3	me5	HE015	NA	9.1
+04-tb-none	tb	none	2013-10-07	a4	e4	m3	me5	LD104	NA	7.7
+04-tb-infected	tb	infected	2013-10-07	a4	e4	m3	me5	LD104	NA	8.6
+05-tb-none	tb	none	2014-06-10	a4	e4	m3	me4	1030-01 CA	1/5/1971	8.8
+05-tb-infected	tb	infected	2014-06-10	a4	e4	m3	me4	1030-01 CA	1/5/1971	9
+16-contact-none	contact	none	2014-11-03	a4	e5	m2	me6	AJ003	NA	10
+16-contact-infected	contact	infected	2014-11-03	a4	e5	m2	me6	AJ003	NA	10
+17-contact-none	contact	none	2014-11-03	a4	e5	m2	me6	VR002	NA	9.3
+17-contact-infected	contact	infected	2014-11-03	a4	e5	m2	me6	VR002	NA	10
+18-contact-none	contact	none	2014-11-24	a4	e5	m2	me6	1030-04 DG	11/6/1990	10
+18-contact-infected	contact	infected	2014-11-24	a4	e5	m2	me6	1030-04 DG	11/6/1990	9.7
+06-tb-none	tb	none	2014-11-24	a4	e5	m2	me6	1030-05 PJ	28/11/1958	9
+06-tb-infected	tb	infected	2014-11-24	a4	e5	m2	me6	1030-05 PJ	28/11/1958	10
+19-contact-none	contact	none	2014-12-01	a4	e5	m2	me4	2010-30 06 BT	NA	10
+19-contact-infected	contact	infected	2014-12-01	a4	e5	m2	me4	2010-30 06 BT	NA	10
