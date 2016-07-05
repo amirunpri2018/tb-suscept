@@ -229,7 +229,7 @@ rule count_gather:
               sequences at that stage in the processing pipeline.
             """
             lines = read_lines(f)
-            assert "Count file has only one line", len(lines) == 1
+            assert len(lines) == 1, "Count file has only one line"
             counts = lines[0].strip("\n")
             return counts
 
