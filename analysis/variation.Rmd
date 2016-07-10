@@ -1,0 +1,192 @@
+---
+title: "Sources of variation in the data"
+date: 2016-07-07
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE, fig.pos = "center")
+```
+
+## Setup
+
+```{r packages, message=FALSE}
+library("dplyr")
+library("tidyr")
+library("edgeR")
+library("DT")
+library("gplots")
+library("ggplot2")
+library("cowplot")
+theme_set(theme_bw(base_size = 12))
+theme_update(panel.grid.minor.x = element_blank(),
+             panel.grid.minor.y = element_blank(),
+             panel.grid.major.x = element_blank(),
+             panel.grid.major.y = element_blank())
+```
+
+Input data.
+
+```{r input-counts}
+counts <- read.delim("../data/counts.txt", check.names = FALSE, row.names = 1)
+info <- read.delim("../data/experiment-info.txt", stringsAsFactors = FALSE)
+rownames(info) <- info$id
+info <- info %>% select(-id, -tube_ind)
+stopifnot(colnames(counts) == rownames(info))
+```
+
+Calculate counts per million.
+
+```{r calc-cpm}
+counts_cpm <- cpm(counts, log = TRUE)
+```
+
+## PCA
+
+```{r calc-pca}
+pca <- prcomp(t(counts_cpm), scale. = TRUE)
+variances <- pca$sdev^2
+explained <- variances / sum(variances)
+plot(pca, main = "Variance per PC")
+```
+
+Calculate the relationship between each recorded covariate and the top 5 PCs.
+
+```{r pc-covariate-correlation}
+p_comps <- 1:6
+pc_cov_cor <- matrix(nrow = ncol(info), ncol = length(p_comps),
+                     dimnames = list(colnames(info), colnames(pca$x)[p_comps]))
+for (pc in p_comps) {
+  for (covariate in 1:ncol(info)) {
+    lm_result <- lm(pca$x[, pc] ~ info[, covariate])
+    r2 <- summary(lm_result)$r.squared
+    pc_cov_cor[covariate, pc] <- r2
+  }
+}
+datatable(pc_cov_cor)
+```
+
+```{r pc-covariate-correlation-heatmap, fig.width=8}
+heatmap.2(pc_cov_cor, trace = "none")
+```
+
+```{r pca-data}
+pca_data <- cbind(info, pca$x[, p_comps])
+```
+
+PC1 is correlated with treatment.
+
+```{r}
+pc1_treatment <- ggplot(pca_data, aes(x = treatment, y = PC1)) +
+  geom_boxplot()
+pc1_treatment
+```
+
+PC2 is strongly correlated with individual, and moderately correlated with the batch processing (infection, arrival, and extraction batches were purposely confounded as much as possible).
+However, all of this signal appears to be driven by just one individual, contact #6.
+
+```{r}
+pc2_individual <- pc1_treatment %+% aes(x = individual, y = PC2)
+pc2_individual
+pc2_infection <- pc2_individual %+% aes(x = infection)
+pc2_infection
+pc2_extraction <- pc2_individual %+% aes(x = extraction)
+pc2_extraction
+pc2_arrival <- pc2_individual %+% aes(x = arrival)
+pc2_arrival
+```
+
+PCs 3-6 are similar to PC2.
+They are correlated with techincal factors, but it is not a systematic effect.
+Instead, a few outlier individuals drive the correlations.
+
+PC1 versus PC2.
+
+```{r pc1-pc2}
+ggplot(pca_data, aes(x = PC1, y = PC2, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
+```
+
+PC3 versus PC4.
+
+```{r pc3-pc4}
+ggplot(pca_data, aes(x = PC3, y = PC4, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained[3] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 4, round(explained[4] * 100, 2)))
+```
+
+PC5 versus PC6.
+
+```{r pc5-pc6}
+ggplot(pca_data, aes(x = PC5, y = PC6, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained[5] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 6, round(explained[6] * 100, 2)))
+```
+
+## Pairwise correlations
+
+```{r calc-pairwise-cor}
+pair_cor <- cor(counts_cpm)
+pair_cor <- as.data.frame(pair_cor)
+pair_cor$sample1 <- rownames(pair_cor)
+pair_cor_long <- gather(pair_cor, key = "sample2", value = "r", -sample1) %>%
+  mutate(sample2 = as.character(sample2)) %>%
+  filter(sample1 < sample2) %>% # ensures only one of the two entries is
+  arrange(sample1, sample2)     # maintained
+n <- ncol(counts_cpm)
+stopifnot(pair_cor_long$r < 1,
+          nrow(pair_cor_long) == (n*n - n) / 2)
+head(pair_cor_long)
+```
+
+```{r categorize-pairwise-cor}
+pair_cor_long$comparison <- ""
+for (i in 1:nrow(pair_cor_long)) {
+  treat1 <- info[pair_cor_long$sample1[i], "treatment"]
+  treat2 <- info[pair_cor_long$sample2[i], "treatment"]
+  status1 <- info[pair_cor_long$sample1[i], "status"]
+  status2 <- info[pair_cor_long$sample2[i], "status"]
+  test.treat <- treat1 == treat2
+  test.status <- status1 == status2
+  if (test.treat & test.status) {
+    pair_cor_long$comparison[i] <- "Same treat,\nSame status"
+  } else if (test.treat & !test.status) {
+    pair_cor_long$comparison[i] <- "Same treat,\nDiff status"
+  } else if (!test.treat & test.status) {
+    pair_cor_long$comparison[i] <- "Diff treat,\nSame status"
+  } else if (!test.treat & !test.status) {
+    pair_cor_long$comparison[i] <- "Diff treat,\nDiff status"
+  }
+}
+stopifnot(pair_cor_long$comparison != "")
+pair_cor_long$comparison <- factor(pair_cor_long$comparison,
+                                   levels = c("Same treat,\nSame status",
+                                              "Same treat,\nDiff status",
+                                              "Diff treat,\nSame status",
+                                              "Diff treat,\nDiff status"))
+table(pair_cor_long$comparison)
+```
+
+```{r pairwise-comparisons}
+ggplot(pair_cor_long, aes(x = comparison, y = r)) +
+  geom_boxplot() +
+  labs(x = "", y = "Pearson's r", title = "Pairwise correlations")
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
