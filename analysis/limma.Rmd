@@ -31,40 +31,14 @@ library("cowplot")
 theme_set(theme_bw(base_size = 12))
 ```
 
+Input data.
+
 ```{r input-counts}
-data_raw <- fread("../data/subread-counts-per-sample.txt")
-setDF(data_raw)
-```
-
-Prepare data files.
-
-```{r prepare-data}
-anno <- data_raw %>% select(individual, status, treatment)
-head(anno)
-counts_raw <- data_raw %>% select(starts_with("ENSG")) %>% t %>% as.data.frame
-cpm_raw <- cpm(counts_raw, log = TRUE)
-```
-
-## Remove lowly expressed genes
-
-```{r median-density}
-cpm_raw_median <- apply(cpm_raw, 1, median)
-cpm_raw_median_density <- density(cpm_raw_median)
-cpm_raw_density <- apply(cpm_raw, 2, density)
-plot(cpm_raw_density[[1]], lty = "dotted", col = gray(0.05, alpha = 0.5),
-     main = "Gene expression distribution",
-     xlab = "log2 cpm", sub = "red = median; blue = cutoff")
-suppress_output <- lapply(cpm_raw_density, lines, lty = "dotted",
-                          col = gray(0.05, alpha = 0.5))
-lines(cpm_raw_median_density, col = "red", lwd = 3)
-cutoff <- 0
-abline(v = cutoff, col = "blue")
-```
-
-Keeping the `r sum(cpm_raw_median > cutoff)` genes with a median log~2~ cpm greater than `r cutoff`.
-
-```{r filter-genes}
-counts <- counts_raw %>% filter(cpm_raw_median > cutoff)
+counts <- read.delim("../data/counts.txt", check.names = FALSE, row.names = 1)
+anno <- read.delim("../data/experiment-info.txt", stringsAsFactors = FALSE)
+rownames(anno) <- anno$id
+anno <- anno %>% select(-id, -tube_ind)
+stopifnot(colnames(counts) == rownames(anno))
 ```
 
 ## Model with limma
@@ -94,6 +68,58 @@ topTable(fit, coef = "tb")
 plotMA(fit, coef = "tb")
 topTable(fit, coef = "infected.tb")
 plotMA(fit, coef = "infected.tb")
+```
+
+## Explore top hits
+
+Boxplot function.
+
+```{r boxplot-function}
+plot_gene <- function(v, g) {
+  # v - An EList object containing log2 counts per million
+  # g - character vector of a single gene
+  stopifnot(class(v) == "EList",
+            is.character(g), length(g) == 1)
+  library("tidyr")
+  single_gene <- v$E[g, ]
+  single_gene_long <- gather_(as.data.frame(single_gene),
+                              gather_cols = colnames(single_gene))
+  # For some reason, the argument value_col wouldn't work
+  colnames(single_gene_long) <- "log2cpm"
+  single_gene_long$sample <- rownames(single_gene_long)
+  single_gene_long <- separate_(single_gene_long, col = "sample", sep = "-",
+                                into = c("individual", "status", "treatment"))
+  single_gene_long$status <- factor(single_gene_long$status, levels = c("contact", "tb"))
+  single_gene_long$treatment <- factor(single_gene_long$treatment, levels = c("none", "infected"))
+  ggplot(single_gene_long, aes(x = treatment, y = log2cpm, fill = status)) +
+    geom_boxplot() +
+    labs(title = g, x = "Treatment", y = expression("Expression level (" * log[2] * " cpm)"))
+}
+
+```
+
+Infected.
+
+```{r}
+for (g in c("ENSG00000172183", "ENSG00000100906", "ENSG00000271503")) {
+  print(plot_gene(v, g))
+}
+```
+
+Susceptibility status.
+
+```{r}
+for (g in c("ENSG00000254709", "ENSG00000132465", "ENSG00000107742")) {
+  print(plot_gene(v, g))
+}
+```
+
+Interaction.
+
+```{r}
+for (g in c("ENSG00000106605", "ENSG00000225830", "ENSG00000107099")) {
+  print(plot_gene(v, g))
+}
 ```
 
 ## Session information
