@@ -46,28 +46,45 @@ stopifnot(colnames(counts) == rownames(anno))
 ```{r design-matrix}
 anno$status <- factor(anno$status, levels = c("contact", "tb"))
 anno$treatment <- factor(anno$treatment, levels = c("none", "infected"))
-design <- model.matrix(~treatment + status + status:treatment + individual,
+design <- model.matrix(~treatment + status + status:treatment,
                        data = anno)
 colnames(design)[1] <- "Intercept"
-colnames(design) <- gsub("individual", "", colnames(design))
 colnames(design) <- gsub("treatment", "", colnames(design))
 colnames(design) <- gsub("status", "", colnames(design))
 colnames(design) <- gsub(":", ".", colnames(design))
 colnames(design)
 ```
 
-```{r fit-model}
+```{r fit-model, fig.width=8}
 y <- DGEList(counts)
 y <- calcNormFactors(y)
 v <- voom(y, design)
-fit <- lmFit(v, design)
+# Model individual as a random effect
+corfit <- duplicateCorrelation(v, design, block = anno$individual)
+corfit$consensus
+v <- voom(y, design, block = anno$individual, correlation = corfit$consensus)
+fit <- lmFit(v, design, block = anno$individual, correlation = corfit$consensus)
 fit <- eBayes(fit)
-topTable(fit, coef = "infected")
+op <- par(mfrow = c(1, 3))
+top_treatment <- topTable(fit, coef = "infected")
+top_treatment
+results_treatment <- topTable(fit, coef = "infected", number = nrow(counts), sort = "none")
 plotMA(fit, coef = "infected")
-topTable(fit, coef = "tb")
+hist(results_treatment$P.Value)
+hist(results_treatment$adj.P.Val)
+top_status <- topTable(fit, coef = "tb")
+top_status
+results_status <- topTable(fit, coef = "tb", number = nrow(counts), sort = "none")
 plotMA(fit, coef = "tb")
-topTable(fit, coef = "infected.tb")
+hist(results_status$P.Value)
+hist(results_status$adj.P.Val)
+top_interaction <- topTable(fit, coef = "infected.tb")
+top_interaction
+results_interaction <- topTable(fit, coef = "infected.tb", number = nrow(counts), sort = "none")
 plotMA(fit, coef = "infected.tb")
+hist(results_interaction$P.Value)
+hist(results_interaction$adj.P.Val)
+par(op)
 ```
 
 ## Explore top hits
@@ -95,13 +112,12 @@ plot_gene <- function(v, g) {
     geom_boxplot() +
     labs(title = g, x = "Treatment", y = expression("Expression level (" * log[2] * " cpm)"))
 }
-
 ```
 
 Infected.
 
 ```{r}
-for (g in c("ENSG00000172183", "ENSG00000100906", "ENSG00000271503")) {
+for (g in rownames(top_treatment)[1:3]) {
   print(plot_gene(v, g))
 }
 ```
@@ -109,7 +125,7 @@ for (g in c("ENSG00000172183", "ENSG00000100906", "ENSG00000271503")) {
 Susceptibility status.
 
 ```{r}
-for (g in c("ENSG00000254709", "ENSG00000132465", "ENSG00000107742")) {
+for (g in rownames(top_status)[1:3]) {
   print(plot_gene(v, g))
 }
 ```
@@ -117,7 +133,7 @@ for (g in c("ENSG00000254709", "ENSG00000132465", "ENSG00000107742")) {
 Interaction.
 
 ```{r}
-for (g in c("ENSG00000106605", "ENSG00000225830", "ENSG00000107099")) {
+for (g in rownames(top_interaction)[1:3]) {
   print(plot_gene(v, g))
 }
 ```
