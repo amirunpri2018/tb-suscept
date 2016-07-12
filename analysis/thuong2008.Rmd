@@ -1,0 +1,115 @@
+---
+title: "Analysis of Thuong et al., 2008"
+date: 2016-05-27
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+http://www.ncbi.nlm.nih.gov/pubmed/19057661
+
+http://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1000229#s2
+
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE11199
+
+http://www.bioconductor.org/packages/release/bioc/html/affy.html
+
+http://bioconductor.org/packages/release/bioc/vignettes/GEOquery/inst/doc/GEOquery.html
+
+## Setup
+
+```{r packages, message=FALSE}
+library("GEOquery")
+library("hgu133plus2.db")
+library("limma")
+library("tidyr")
+```
+
+## Download data from GEO
+
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE11199
+
+```{r download}
+gse <- getGEO(GEO = "GSE11199")
+class(gse)
+length(gse)
+gse <- gse[[1]]
+class(gse)
+pData(gse)
+```
+
+```{r}
+getGEOSuppFiles(GEO = "GSE11199")
+untar("GSE11199/GSE11199_RAW.tar")
+```
+
+
+```{r}
+x <- exprs(gse)
+anno <- pData(gse)[, 1]
+anno <- as.data.frame(anno)
+anno <- separate(anno, col = anno, into = c("individual", "treatment"))
+anno$treatment <- factor(anno$treatment, levels = c("unstim", "stim"),
+                         labels = c("none", "infected"))
+anno$status <- substr(anno$individual, 1, 1)
+anno$status <- factor(anno$status, levels = c("L", "P", "T"),
+                      labels = c("latent", "pulmonary", "meningeal"))
+table(anno$treatment, anno$status)
+```
+
+Convert probe IDs to Ensembl gene IDs.
+
+```{r}
+id_table <- as.data.frame(hgu133plus2ENSEMBL)
+dim(id_table)
+length(unique(id_table$probe_id))
+length(unique(id_table$ensembl_id))
+sum(id_table$probe_id %in% rownames(x))
+```
+
+```{r}
+library("affy")
+affy::express.summary.stat()
+```
+
+
+Following limma manual sections 9.3, 9.5.2, and 9.7.
+
+```{r}
+f <- paste(anno$status, anno$treatment, sep = ".")
+f <- factor(f)
+design <- model.matrix(~0 + f)
+colnames(design) <- levels(f)
+colSums(design)
+corfit <- duplicateCorrelation(x, design, block = anno$individual)
+corfit$consensus
+fit <- lmFit(x, design, block = anno$individual, correlation = corfit$consensus)
+contrast_matrix <- makeContrasts(
+  latent = latent.infected - latent.none,
+  pulmonary = pulmonary.infected - pulmonary.none,
+  # meningeal = meningeal.infected - meningeal.none,
+  interaction = (pulmonary.infected - pulmonary.none) -
+                (latent.infected - latent.none),
+  levels = design)
+fit2 <- contrasts.fit(fit, contrast_matrix)
+fit2 <- eBayes(fit2)
+results <- decideTests(fit2)
+summary(results)
+vennDiagram(results)
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
