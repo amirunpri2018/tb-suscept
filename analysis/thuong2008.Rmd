@@ -26,18 +26,20 @@ http://www.bioconductor.org/packages/release/bioc/html/affy.html
 
 http://bioconductor.org/packages/release/bioc/vignettes/GEOquery/inst/doc/GEOquery.html
 
+http://www.bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db.html
+
 ## Setup
 
-```{r packages, message=FALSE}
+```{r packages, message=FALSE, warning=FALSE}
 library("GEOquery")
+library("affy")
 library("hgu133plus2.db")
 library("limma")
 library("tidyr")
 ```
 
-## Download data from GEO
+## Analyze starting from processed data
 
-https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE11199
 
 ```{r download}
 gse <- getGEO(GEO = "GSE11199")
@@ -45,14 +47,8 @@ class(gse)
 length(gse)
 gse <- gse[[1]]
 class(gse)
-pData(gse)
+pData(gse)[1, ]
 ```
-
-```{r}
-getGEOSuppFiles(GEO = "GSE11199")
-untar("GSE11199/GSE11199_RAW.tar")
-```
-
 
 ```{r}
 x <- exprs(gse)
@@ -78,8 +74,8 @@ sum(id_table$probe_id %in% rownames(x))
 ```
 
 ```{r}
-library("affy")
-affy::express.summary.stat()
+probe_mappings <- select(hgu133plus2.db, keys = rownames(x),
+                         columns = c("ENSEMBL", "SYMBOL"))
 ```
 
 
@@ -106,6 +102,55 @@ fit2 <- eBayes(fit2)
 results <- decideTests(fit2)
 summary(results)
 vennDiagram(results)
+```
+
+## Analyze starting from raw data
+
+Download.
+
+```{r}
+getGEOSuppFiles(GEO = "GSE11199")
+untar("GSE11199/GSE11199_RAW.tar", exdir = "GSE11199")
+```
+
+Import.
+
+```{r}
+raw <- ReadAffy(filenames = Sys.glob("GSE11199/*CEL.gz"), compress = TRUE)
+```
+
+Pre-process.
+The only information they provided on GEO was "Raw CEL intensity data were RMA normalized using R/Bioconductor".
+Thus I just used the recommendation from the affy package example for the other steps.
+
+```{r}
+if (file.exists("thuong2008.rds")) {
+  eset <- readRDS("../data/thuong2008.rds")
+} else {
+  eset <- expresso(raw,
+                   bgcorrect.method = "rma",
+                   normalize.method = "quantiles",
+                   pmcorrect.method = "pmonly",
+                   summary.method = "medianpolish")
+  saveRDS(eset, "../data/thuong2008.rds")
+}
+```
+
+## Compare the two approaches
+
+My pre-processing obtains results very similar to theirs.
+
+```{r}
+dim(x)
+y <- exprs(eset)
+x[1:5, 1:5]
+y[1:5, 1:5]
+plot(x[, 1], y[, 1])
+cor(x[, 1], y[, 1])
+z <- cor(cbind(x, y))
+dim(z)
+min(z)
+median(z)
 ```
 
 ## Session information
