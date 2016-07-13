@@ -148,8 +148,8 @@ ash_treatment <- ash(betahat = fit$coefficients[, "infected"],
                      sebetahat = fit$stdev.unscaled[, "infected"])
 class(ash_treatment)
 names(ash_treatment)
-sum(ash_treatment$lfsr < .05)
-hist(ash_treatment$lfsr)
+sum(ash_treatment$svalue < .01)
+hist(ash_treatment$svalue)
 ```
 
 Susceptibility effect.
@@ -157,8 +157,8 @@ Susceptibility effect.
 ```{r}
 ash_status <- ash(betahat = fit$coefficients[, "tb"],
                      sebetahat = fit$stdev.unscaled[, "tb"])
-sum(ash_status$lfsr < .05)
-hist(ash_status$lfsr)
+sum(ash_status$svalue < .01)
+hist(ash_status$svalue)
 ```
 
 Interaction effect.
@@ -166,8 +166,8 @@ Interaction effect.
 ```{r}
 ash_interaction <- ash(betahat = fit$coefficients[, "infected.tb"],
                      sebetahat = fit$stdev.unscaled[, "infected.tb"])
-sum(ash_interaction$lfsr < .05)
-hist(ash_interaction$lfsr)
+sum(ash_interaction$svalue < .01)
+hist(ash_interaction$svalue)
 ```
 
 ## Session information
