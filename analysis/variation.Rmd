@@ -75,7 +75,7 @@ datatable(pc_cov_cor)
 ```
 
 ```{r pc-covariate-correlation-heatmap, fig.width=8}
-heatmap.2(pc_cov_cor, trace = "none")
+heatmap.2(pc_cov_cor, trace = "none", margins = c(4, 8))
 ```
 
 ```{r pca-data}
@@ -137,8 +137,9 @@ ggplot(pca_data, aes(x = PC5, y = PC6, color = treatment)) +
 
 ## Pairwise correlations
 
-```{r calc-pairwise-cor}
+```{r calc-pairwise-cor, fig.width=8, fig.height=8}
 pair_cor <- cor(counts_cpm)
+heatmap.2(pair_cor, trace = "none", margins = c(7, 7))
 pair_cor <- as.data.frame(pair_cor)
 pair_cor$sample1 <- rownames(pair_cor)
 pair_cor_long <- gather(pair_cor, key = "sample2", value = "r", -sample1) %>%
@@ -183,6 +184,44 @@ table(pair_cor_long$comparison)
 ggplot(pair_cor_long, aes(x = comparison, y = r)) +
   geom_boxplot() +
   labs(x = "", y = "Pearson's r", title = "Pairwise correlations")
+```
+
+Pairwise correlations with higher resolution.
+
+```{r higher-resolution}
+pair_cor_long$high_res_status <- ""
+pair_cor_long$high_res_treat <- ""
+for (i in 1:nrow(pair_cor_long)) {
+  treat1 <- info[pair_cor_long$sample1[i], "treatment"]
+  treat2 <- info[pair_cor_long$sample2[i], "treatment"]
+  status1 <- info[pair_cor_long$sample1[i], "status"]
+  status2 <- info[pair_cor_long$sample2[i], "status"]
+  pair_cor_long$high_res_treat[i] <- paste(sort(c(treat1, treat2)),
+                                           collapse = "-")
+  pair_cor_long$high_res_status[i] <- paste(sort(c(status1, status2)),
+                                            collapse = "\n")
+}
+stopifnot(pair_cor_long$high_res_treat != "",
+          pair_cor_long$high_res_status != "")
+pair_cor_long$high_res_treat <- factor(pair_cor_long$high_res_treat,
+                                   levels = c("none-none",
+                                              "infected-infected",
+                                              "infected-none"))
+levels(pair_cor_long$high_res_treat)[3] <- "none-infected"
+pair_cor_long$high_res_status <- factor(pair_cor_long$high_res_status,
+                                   levels = c("contact\ncontact",
+                                              "tb\ntb",
+                                              "contact\ntb"))
+table(pair_cor_long$high_res_treat)
+table(pair_cor_long$high_res_status)
+```
+
+```{r pairwise-comparisons-higher-resolution}
+ggplot(pair_cor_long, aes(x = high_res_status, y = r)) +
+  geom_boxplot() +
+  facet_wrap(~high_res_treat) +
+  labs(x = "", y = "Pearson's r", title = "Pairwise correlations") +
+  theme(text = element_text(size = 14))
 ```
 
 ## Session information
