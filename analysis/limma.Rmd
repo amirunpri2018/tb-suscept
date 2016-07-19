@@ -235,6 +235,13 @@ genes_for_classifer <- as.data.frame(genes_for_classifer)
 genes_for_classifer$status <- anno$status
 ```
 
+Only include the samples before treatment.
+
+```{r}
+genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
+stopifnot(nrow(genes_for_classifer) == 25)
+```
+
 Fit SVM.
 
 http://stackoverflow.com/questions/20461476/svm-with-cross-validation-in-r-using-caret
@@ -242,7 +249,7 @@ http://stackoverflow.com/questions/20461476/svm-with-cross-validation-in-r-using
 http://topepo.github.io/caret/training.html
 
 ```{r}
-ctrl <- trainControl(method = "repeatedcv", repeats = 10,
+ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
                      savePred = "final", classProbs = TRUE)
 set.seed(12345)
 mod_svm <- train(status ~ ., data = genes_for_classifer,
