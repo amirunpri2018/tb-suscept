@@ -253,7 +253,7 @@ ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
                      savePred = "final", classProbs = TRUE)
 set.seed(12345)
 mod_svm <- train(status ~ ., data = genes_for_classifer,
-             method = "svmLinear", trControl = ctrl)
+             method = "svmLinear", trControl = ctrl, metric = "kappa")
 mod_svm
 head(mod_svm$pred)
 ```
@@ -272,11 +272,22 @@ Use an elastic net implemented in glmnet package.
 ```{r}
 set.seed(12345)
 mod_glmnet <- train(status ~ ., data = genes_for_classifer,
-                    method = "glmnet", trControl = ctrl)
+                    method = "glmnet", trControl = ctrl, metric = "kappa")
 mod_glmnet
 head(mod_glmnet$pred)
 confusionMatrix(mod_glmnet)
 mod_glmnet$results
+```
+
+Visualizing results.
+
+```{r}
+d_glmnet <- mod_glmnet$pred %>% mutate(obs_new = ifelse(obs == "tb", "susceptible", "resistant"),
+                                       pred_new = ifelse(pred == "tb", "susceptible", "resistant"),
+                                       result = paste0("Observed: ", obs_new, "\nPredicted: ", pred_new))
+ggplot(d_glmnet, aes(x = result, y = tb)) +
+  geom_boxplot() +
+  labs(x = "Classification", y = "Assigned probability of being susceptible to TB")
 ```
 
 Will test on data from Luis's PNAS paper:
