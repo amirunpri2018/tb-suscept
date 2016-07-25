@@ -166,10 +166,11 @@ Treatment effect.
 
 ```{r ash-treatment}
 ash_treatment <- ash(betahat = fit$coefficients[, "infected"],
-                     sebetahat = fit$stdev.unscaled[, "infected"])
+                     sebetahat = fit$stdev.unscaled[, "infected"] * sqrt(fit$s2.post),
+                     df = fit$df.total)
 class(ash_treatment)
 names(ash_treatment)
-sum(ash_treatment$svalue < .01)
+sum(ash_treatment$svalue < .05)
 hist(ash_treatment$svalue)
 ```
 
@@ -177,8 +178,9 @@ Susceptibility effect.
 
 ```{r ash-status}
 ash_status <- ash(betahat = fit$coefficients[, "tb"],
-                     sebetahat = fit$stdev.unscaled[, "tb"])
-sum(ash_status$svalue < .01)
+                  sebetahat = fit$stdev.unscaled[, "tb"] * sqrt(fit$s2.post),
+                  df = fit$df.total)
+sum(ash_status$svalue < .05)
 hist(ash_status$svalue)
 ```
 
@@ -186,17 +188,18 @@ Interaction effect.
 
 ```{r ash-interaction}
 ash_interaction <- ash(betahat = fit$coefficients[, "infected.tb"],
-                     sebetahat = fit$stdev.unscaled[, "infected.tb"])
-sum(ash_interaction$svalue < .01)
+                     sebetahat = fit$stdev.unscaled[, "infected.tb"] * sqrt(fit$s2.post),
+                     df = fit$df.total)
+sum(ash_interaction$svalue < .05)
 hist(ash_interaction$svalue)
 ```
 
 Venn diagram
 
 ```{r venn}
-ash_treatment_de <- ash_treatment$svalue < .01
-ash_status_de <- ash_status$svalue < .01
-ash_interaction_de <- ash_interaction$svalue < .01
+ash_treatment_de <- ash_treatment$svalue < .05
+ash_status_de <- ash_status$svalue < .05
+ash_interaction_de <- ash_interaction$svalue < .05
 grid.newpage()
 venn_rv <- draw.triple.venn(
   area1 = sum(ash_treatment_de),
@@ -219,8 +222,8 @@ grid.draw(venn_rv)
 Select those genes that are DE by status or interaction.
 
 ```{r}
-genes_for_classifer <- v$E[ash_status$svalue < .01 |
-                           ash_interaction$svalue < .01, ]
+genes_for_classifer <- v$E[ash_status$svalue < .05 |
+                           ash_interaction$svalue < .05, ]
 # genes_for_classifer <- v$E
 # genes_for_classifer <- genes_for_classifer[order(ash_status$svalue)[1:3000], ]
 genes_for_classifer <- t(genes_for_classifer)
