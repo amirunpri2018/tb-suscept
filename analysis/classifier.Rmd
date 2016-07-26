@@ -1,0 +1,141 @@
+---
+title: "Build classifier for TB susceptibility"
+date: 2016-07-26
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+
+
+## Setup
+
+```{r packages, message=FALSE}
+library("caret")
+library("dplyr")
+library("ggplot2")
+library("cowplot")
+theme_set(theme_bw(base_size = 14))
+theme_update(panel.grid.minor.x = element_blank(),
+             panel.grid.minor.y = element_blank(),
+             panel.grid.major.x = element_blank(),
+             panel.grid.major.y = element_blank())
+```
+
+Input limma voom result and annotation.
+Note that importing the voom object is just a convenient way to get the TMM-normalized log~2~ cpm data.
+The voom weights are not being used.
+
+```{r input-data}
+v <- readRDS("../data/results-limma-voom.rds")
+anno <- read.delim("../data/experiment-info.txt", stringsAsFactors = FALSE)
+rownames(anno) <- anno$id
+anno <- anno %>% select(-id, -tube_ind)
+stopifnot(colnames(v$E) == rownames(anno))
+```
+
+Input ash results.
+
+```{r input-ash}
+ash_treatment <- readRDS("../data/results-ash-treatment.rds")
+ash_status <- readRDS("../data/results-ash-status.rds")
+ash_interaction <- readRDS("../data/results-ash-interaction.rds")
+```
+
+## Build model to predict susceptibility status
+
+Select those genes that are DE by status or interaction.
+
+```{r}
+genes_for_classifer <- v$E[ash_status$svalue < .05 |
+                           ash_interaction$svalue < .05, ]
+# genes_for_classifer <- v$E
+# genes_for_classifer <- genes_for_classifer[order(ash_status$svalue)[1:3000], ]
+genes_for_classifer <- t(genes_for_classifer)
+dim(genes_for_classifer)
+genes_for_classifer[1:5, 1:5]
+```
+
+Add susceptibility status.
+
+```{r}
+genes_for_classifer <- as.data.frame(genes_for_classifer)
+genes_for_classifer$status <- anno$status
+```
+
+Only include the samples before treatment.
+
+```{r}
+genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
+stopifnot(nrow(genes_for_classifer) == 25)
+```
+
+Fit SVM.
+
+http://stackoverflow.com/questions/20461476/svm-with-cross-validation-in-r-using-caret
+
+http://topepo.github.io/caret/training.html
+
+```{r}
+ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
+                     savePred = "final", classProbs = TRUE)
+set.seed(12345)
+mod_svm <- train(status ~ ., data = genes_for_classifer,
+             method = "svmLinear", trControl = ctrl, metric = "kappa")
+mod_svm
+head(mod_svm$pred)
+```
+
+How well did it work?
+
+```{r}
+# methods(class = class(mod_svm))
+# names(mod_svm)
+confusionMatrix(mod_svm)
+mod_svm$results
+```
+
+Use an elastic net implemented in glmnet package.
+
+```{r}
+set.seed(12345)
+mod_glmnet <- train(status ~ ., data = genes_for_classifer,
+                    method = "glmnet", trControl = ctrl, metric = "kappa")
+mod_glmnet
+head(mod_glmnet$pred)
+confusionMatrix(mod_glmnet)
+mod_glmnet$results
+```
+
+Visualizing results.
+
+```{r}
+d_glmnet <- mod_glmnet$pred %>% mutate(obs_new = ifelse(obs == "tb", "susceptible", "resistant"),
+                                       pred_new = ifelse(pred == "tb", "susceptible", "resistant"),
+                                       result = paste0("Observed: ", obs_new, "\nPredicted: ", pred_new))
+ggplot(d_glmnet, aes(x = result, y = tb)) +
+  geom_boxplot() +
+  labs(x = "Classification", y = "Assigned probability of being susceptible to TB")
+```
+
+Will test on data from Luis's PNAS paper:
+
+```{r}
+load("../data/Exp_final_Batch_corrected.Rdata")
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```

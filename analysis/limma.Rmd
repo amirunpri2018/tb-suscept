@@ -35,7 +35,6 @@ theme_update(panel.grid.minor.x = element_blank(),
              panel.grid.major.x = element_blank(),
              panel.grid.major.y = element_blank())
 library("VennDiagram")
-library("caret")
 ```
 
 Input data.
@@ -216,87 +215,16 @@ venn_rv <- draw.triple.venn(
 grid.draw(venn_rv)
 ```
 
+## Save results of differential expression analysis
 
-## Build model to predict susceptibility status
+Save results from limma and ash.
 
-Select those genes that are DE by status or interaction.
-
-```{r}
-genes_for_classifer <- v$E[ash_status$svalue < .05 |
-                           ash_interaction$svalue < .05, ]
-# genes_for_classifer <- v$E
-# genes_for_classifer <- genes_for_classifer[order(ash_status$svalue)[1:3000], ]
-genes_for_classifer <- t(genes_for_classifer)
-dim(genes_for_classifer)
-genes_for_classifer[1:5, 1:5]
-```
-
-Add susceptibility status.
-
-```{r}
-genes_for_classifer <- as.data.frame(genes_for_classifer)
-genes_for_classifer$status <- anno$status
-```
-
-Only include the samples before treatment.
-
-```{r}
-genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
-stopifnot(nrow(genes_for_classifer) == 25)
-```
-
-Fit SVM.
-
-http://stackoverflow.com/questions/20461476/svm-with-cross-validation-in-r-using-caret
-
-http://topepo.github.io/caret/training.html
-
-```{r}
-ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
-                     savePred = "final", classProbs = TRUE)
-set.seed(12345)
-mod_svm <- train(status ~ ., data = genes_for_classifer,
-             method = "svmLinear", trControl = ctrl, metric = "kappa")
-mod_svm
-head(mod_svm$pred)
-```
-
-How well did it work?
-
-```{r}
-# methods(class = class(mod_svm))
-# names(mod_svm)
-confusionMatrix(mod_svm)
-mod_svm$results
-```
-
-Use an elastic net implemented in glmnet package.
-
-```{r}
-set.seed(12345)
-mod_glmnet <- train(status ~ ., data = genes_for_classifer,
-                    method = "glmnet", trControl = ctrl, metric = "kappa")
-mod_glmnet
-head(mod_glmnet$pred)
-confusionMatrix(mod_glmnet)
-mod_glmnet$results
-```
-
-Visualizing results.
-
-```{r}
-d_glmnet <- mod_glmnet$pred %>% mutate(obs_new = ifelse(obs == "tb", "susceptible", "resistant"),
-                                       pred_new = ifelse(pred == "tb", "susceptible", "resistant"),
-                                       result = paste0("Observed: ", obs_new, "\nPredicted: ", pred_new))
-ggplot(d_glmnet, aes(x = result, y = tb)) +
-  geom_boxplot() +
-  labs(x = "Classification", y = "Assigned probability of being susceptible to TB")
-```
-
-Will test on data from Luis's PNAS paper:
-
-```{r}
-load("../data/Exp_final_Batch_corrected.Rdata")
+```{r save-limma}
+saveRDS(v, "../data/results-limma-voom.rds")
+saveRDS(fit, "../data/results-limma-fit.rds")
+saveRDS(ash_treatment, "../data/results-ash-treatment.rds")
+saveRDS(ash_status, "../data/results-ash-status.rds")
+saveRDS(ash_interaction, "../data/results-ash-interaction.rds")
 ```
 
 ## Session information
