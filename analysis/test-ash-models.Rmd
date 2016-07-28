@@ -1,0 +1,133 @@
+---
+title: "Test ash models"
+date: 2016-07-28
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+This analysis compares two different models for ash: exchangeable effects (EE) and exchangeable standardized effects (ET) models.
+For more details on the assumptions behind the models, see this [analysis by Matthew Stephens][stephens].
+
+In the analysis below, the ET model has a larger log likelihood compared to the EE model.
+
+[stephens]: http://stephenslab.github.io/ash/analysis/CompareEEvsETmodel.html
+
+## Setup
+
+```{r packages, message=FALSE}
+library("limma")
+library("ashr")
+```
+
+Input the results of the model fit by limma.
+
+```{r input-counts}
+fit <- readRDS("../data/results-limma-fit.rds")
+```
+
+The linear model was the following:
+
+$$ Y\ \sim\beta_0+X_{treat}\beta_{treat}+X_{status}\beta_{status}+X_{treat,status}\beta_{treat,status}+I+\epsilon $$
+
+where $Y$ is the expression level of a gene,
+$\beta_{treat}$ is the fixed effect of treatment with MTB,
+$\beta_{status}$ is the fixed effect of susceptibility status,
+$\beta_{treat,status}$ is the fixed effect of interaction between treatment and susceptibilty status,
+and $I$ is the random effect of individual (implemented via `duplicateCorrelation`).
+
+The following functions extracts the estimated effect sizes, standard errors of the effect size, and the degrees of freedom from the limma object.
+
+```{r extraction-functions}
+extract_betahat_se_df <- function(model, coef) {
+  # model - MArrayLM object fit by limma::eBayes
+  # coef - coefficient in linear model (column name in design matrix)
+  # 
+  # Returns list with the estimated betas (betahat), standard errors of beta
+  # (sebetahat), and degrees of freedom (df)
+  stopifnot(class(model) == "MArrayLM",
+            coef %in% colnames(model$design))
+  betahat <- model$coefficients[, coef]
+  sebetahat <- model$stdev.unscaled[, coef] * sqrt(model$s2.post)
+  df <- model$df.total
+  return(list(betahat = betahat, sebetahat = sebetahat, df = df))
+}
+```
+
+## Compare EE versus ET models
+
+### Treatment effect
+
+```{r ash-treatment, results='hide'}
+results_treatment <- extract_betahat_se_df(fit, "infected")
+ash_treatment_ee <- ash(betahat = results_treatment$betahat,
+                        sebetahat = results_treatment$sebetahat,
+                        df = results_treatment$df,
+                        method = "fdr", model = "EE")
+ash_treatment_et <- ash(betahat = results_treatment$betahat,
+                        sebetahat = results_treatment$sebetahat,
+                        df = results_treatment$df,
+                        method = "fdr", model = "ET")
+```
+
+```{r ash-treatment-results}
+sum(ash_treatment_ee$svalue < .05) / nrow(fit$coefficients)
+sum(ash_treatment_et$svalue < .05) / nrow(fit$coefficients)
+ash_treatment_ee$loglik - ash_treatment_et$loglik
+```
+
+### Susceptibility status effect
+
+```{r ash-status, results='hide'}
+results_status <- extract_betahat_se_df(fit, "tb")
+ash_status_ee <- ash(betahat = results_status$betahat,
+                     sebetahat = results_status$sebetahat,
+                     df = results_status$df,
+                     method = "fdr", model = "EE")
+ash_status_et <- ash(betahat = results_status$betahat,
+                     sebetahat = results_status$sebetahat,
+                     df = results_status$df,
+                     method = "fdr", model = "ET")
+```
+
+```{r ash-status-results}
+sum(ash_status_ee$svalue < .05)
+sum(ash_status_et$svalue < .05)
+ash_status_ee$loglik - ash_status_et$loglik
+```
+
+### Interaction effect
+
+```{r ash-interaction, results='hide'}
+results_interaction <- extract_betahat_se_df(fit, "infected.tb")
+ash_interaction_ee <- ash(betahat = results_interaction$betahat,
+                          sebetahat = results_interaction$sebetahat,
+                          df = results_interaction$df,
+                          method = "fdr", model = "EE")
+ash_interaction_et <- ash(betahat = results_interaction$betahat,
+                          sebetahat = results_interaction$sebetahat,
+                          df = results_interaction$df,
+                          method = "fdr", model = "ET")
+```
+
+```{r ash-interaction-results}
+sum(ash_interaction_ee$svalue < .05)
+sum(ash_interaction_et$svalue < .05)
+ash_interaction_ee$loglik - ash_interaction_et$loglik
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
