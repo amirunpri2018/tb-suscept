@@ -1,0 +1,262 @@
+---
+title: "Is there an enrichment of GWAS signal in differentially expressed genes?"
+date: 2016-08-01
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE, fig.width = 8)
+```
+
+## Setup
+
+```{r packages, message=FALSE}
+library("limma")
+library("data.table")
+library("biomaRt")
+library("SNPlocs.Hsapiens.dbSNP144.GRCh38")
+library("dplyr")
+library("GenomicRanges")
+library("ggplot2")
+library("cowplot")
+theme_set(theme_bw(base_size = 14))
+theme_update(panel.grid.minor.x = element_blank(),
+             panel.grid.minor.y = element_blank(),
+             panel.grid.major.x = element_blank(),
+             panel.grid.major.y = element_blank())
+```
+
+Input the results of the model fit by limma.
+
+```{r input-counts}
+fit <- readRDS("../data/results-limma-fit.rds")
+```
+
+The linear model was the following:
+
+$$ Y\ \sim\beta_0+X_{treat}\beta_{treat}+X_{status}\beta_{status}+X_{treat,status}\beta_{treat,status}+I+\epsilon $$
+
+where $Y$ is the expression level of a gene,
+$\beta_{treat}$ is the fixed effect of treatment with MTB,
+$\beta_{status}$ is the fixed effect of susceptibility status,
+$\beta_{treat,status}$ is the fixed effect of interaction between treatment and susceptibilty status,
+and $I$ is the random effect of individual (implemented via `duplicateCorrelation`).
+
+Input summary statistics from [Thye et al., 2010][Thye2010].
+
+[Thye2010]: http://www.ncbi.nlm.nih.gov/pubmed/20694014
+
+```{r input-thye}
+gwas_thye_gambia <- fread("../data/OUT_PLINK_Gambia.txt", data.table = FALSE,
+                          verbose = FALSE)
+gwas_thye_ghana <- fread("../data/OUT_PLINK_Ghana.txt", data.table = FALSE,
+                         verbose = FALSE)
+```
+
+The files contain the chromosome, SNP rsID, odds ratio (OR), and p-value (PVAL).
+Because the file does not contain any allele frequency data, it should not be possible to identify study partipants ([Craig et al., 2011][Craig2011]).
+
+[Craig2011]: http://www.ncbi.nlm.nih.gov/pubmed/21921928
+
+```{r thye-colnames}
+colnames(gwas_thye_ghana)
+```
+
+## Assign a GWAS summary statistic to each gene
+
+`r length(rownames(fit$coefficients))` genes were tested for differential expression.
+
+```{r gene-names}
+gene_names <- rownames(fit$coefficients)
+head(gene_names)
+```
+
+Obtain the transcription start site (TSS) for each gene.
+
+```{r obtain-tss}
+# Ensembl 83, Dec 2015, grch38.p5, hg38
+ensembl <- useMart(host = "dec2015.archive.ensembl.org",
+                   biomart = "ENSEMBL_MART_ENSEMBL",
+                   dataset = "hsapiens_gene_ensembl")
+tss_all_fname <- "../data/tss-all.rds"
+if (file.exists(tss_all_fname)) {
+  tss_all <- readRDS(tss_all_fname)
+} else {
+  tss_all <- getBM(attributes = c("ensembl_gene_id", "chromosome_name",
+                                  "transcription_start_site", "strand"),
+                   filters = "ensembl_gene_id",
+                   values = gene_names,
+                   mart = ensembl)
+  saveRDS(tss_all, file = tss_all_fname)
+}
+head(tss_all)
+```
+
+This returns the TSS for each transcript of gene.
+To reduce this to one number, take the most upstream TSS (i.e. the most 5' for genes on positive strand and the most 3' for genes on the negative strand).
+
+```{r one-tss-per-gene}
+tss <- tss_all %>%
+  group_by(ensembl_gene_id) %>%
+  summarize(chr = chromosome_name[1],
+            strand = strand[1],
+            tss = if (strand == 1) min(transcription_start_site) else max(transcription_start_site))
+head(tss)
+```
+
+The window to search for SNPs for a gene will be +/- 50 kb from the TSS.
+
+```{r window}
+window <- 50000
+tss$start <- tss$tss - window
+tss$end <- tss$tss + window
+tss$strand <- ifelse(tss$strand == 1, "+", "-")
+tss_gr <- makeGRangesFromDataFrame(tss, keep.extra.columns = TRUE)
+seqlevels(tss_gr) <- paste0("ch", seqlevels(tss_gr))
+tss_gr
+```
+
+Convert rs ID to genomic coordinates.
+
+```{r obtain-snp-coordinates, cache=TRUE}
+snp_coords_fname <- "../data/snp-coords.rds"
+if (file.exists(snp_coords_fname)) {
+  snp_coords <- readRDS(snp_coords_fname)
+} else {
+  snp_coords <- snpsById(SNPlocs.Hsapiens.dbSNP144.GRCh38, gwas_thye_ghana$SNP,
+                         ifnotfound = "drop")
+  saveRDS(snp_coords, file = snp_coords_fname)
+}
+```
+
+Overlap the SNPs with the genes.
+
+```{r overlap-snps-and-genes}
+overlaps <- findOverlaps(snp_coords, tss_gr, ignore.strand = TRUE)
+```
+
+How many SNPs were found for each gene?
+
+```{r snps-per-gene}
+snps_per_gene <- countSubjectHits(overlaps)
+stopifnot(length(snps_per_gene) == length(gene_names))
+summary(snps_per_gene)
+sum(snps_per_gene > 0)
+```
+
+How many genes were found for each SNP?
+
+```{r genes-per-snp}
+genes_per_snp <- countQueryHits(overlaps)
+stopifnot(length(genes_per_snp) == length(snp_coords))
+table(genes_per_snp)
+```
+
+Convert overlap results to use original SNP and gene names.
+
+```{r add-back-names}
+results <- data.frame(as.matrix(overlaps))
+colnames(results) <- c("rsID", "gene")
+results$rsID <- mcols(snp_coords)$RefSNP_id[results$rsID]
+results$gene <- mcols(tss_gr)$ensembl_gene_id[results$gene]
+head(results)
+```
+
+Add GWAS p-values.
+
+```{r add-gwas-pval}
+rownames(gwas_thye_ghana) <- gwas_thye_ghana$SNP
+results$gwas_p <- gwas_thye_ghana[results$rsID, "PVAL"]
+```
+
+For each gene, assign the median p-value of all its nearby SNPs.
+
+```{r assign-median}
+results <- results %>%
+  group_by(gene) %>%
+  summarize(gwas_p = min(gwas_p),
+            n_snps = n())
+```
+
+As expected, there is a negative correlation between the minimum GWAS p-value and the number of SNPs.
+However, there is no technical reason that genes assigned many SNPs should be more likely to be differentially expressed in our _in vitro_ infection of dendritic cells with MTB. 
+
+```{r cor-num-snps-pval}
+cor(results$n_snps, results$gwas_p)
+plot(results$n_snps, results$gwas_p, xlab = "Number of SNPs nearby gene",
+     ylab = "Minimum GWAS p-value",
+     main = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs")
+```
+
+Add coefficients from differential expression analysis.
+
+```{r add-de-pval}
+# Remove intercept coefficient
+limma_coef <- fit$coefficients[, 2:4]
+results <- merge(results, limma_coef, by.x = "gene", by.y = "row.names")
+```
+
+Convert the coefficients to their absolute value.
+
+```{r abs-val}
+results <- results %>%
+  mutate(infected = abs(infected), tb = abs(tb), infected.tb = abs(infected.tb))
+```
+
+## Enrichment of GWAS p-values
+
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB?
+
+```{r enrich-infected}
+dist_infected <- ggplot(results, aes(x = infected, y = gwas_p)) +
+  geom_point() +
+  geom_vline(xintercept = 1, color = "red")
+results$de_infected <- ifelse(results$infected > 1, "de", "non-de")
+wilcox_infected <- wilcox.test(gwas_p ~ de_infected, data = results)
+enrich_infected <- ggplot(results, aes(x = de_infected, y = gwas_p)) +
+  geom_boxplot() +
+  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_infected$p.value))
+plot_grid(dist_infected, enrich_infected, nrow = 1)
+```
+
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB?
+
+```{r enrich-tb}
+dist_tb <- ggplot(results, aes(x = tb, y = gwas_p)) +
+  geom_point() +
+  geom_vline(xintercept = 1, color = "red")
+results$de_tb <- ifelse(results$tb > 1, "de", "non-de")
+wilcox_tb <- wilcox.test(gwas_p ~ de_tb, data = results)
+enrich_tb <- ggplot(results, aes(x = de_tb, y = gwas_p)) +
+  geom_boxplot() +
+  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_tb$p.value))
+plot_grid(dist_tb, enrich_tb, nrow = 1)
+```
+
+Is there an enrichment of GWAS p-values for SNPs nearby genes in which the differential expression following treatment with MTB is different between individuals that are resistant or susceptible to TB?
+
+```{r enrich-infected.tb}
+dist_infected.tb <- ggplot(results, aes(x = infected.tb, y = gwas_p)) +
+  geom_point() +
+  geom_vline(xintercept = 1, color = "red")
+results$de_infected.tb <- ifelse(results$infected.tb > 1, "de", "non-de")
+wilcox_infected.tb <- wilcox.test(gwas_p ~ de_infected.tb, data = results)
+enrich_infected.tb <- ggplot(results, aes(x = de_infected.tb, y = gwas_p)) +
+  geom_boxplot() +
+  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_infected.tb$p.value))
+plot_grid(dist_infected.tb, enrich_infected.tb, nrow = 1)
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
