@@ -1,6 +1,7 @@
 ---
 title: "Is there an enrichment of GWAS signal in differentially expressed genes?"
 date: 2016-08-01
+author: John Blischak
 output:
   html_document:
     toc: true
@@ -11,12 +12,46 @@ output:
 
 **Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
 
-```{r chunk-options}
+```{r chunk-options, include=FALSE}
 library("knitr")
 opts_chunk$set(cache = FALSE, fig.width = 8)
 ```
 
-## Setup
+## Study design
+
+We have collected dendritic cells (DCs) from two populations: the first are individuals that have latent TB infections (putatively resistant), and the second are individuals that have recovered from an active TB infection (putatively sensitive).
+We performed RNA-seq on MTB-infected DCs and mock-treated controls.
+Because of our small sample size, we are **not** performing an eQTL analysis.
+Instead, we are performing a differential expression (DE) analysis to find gene expression differences between susceptible and resistant individuals.
+
+To test for DE, we used the following linear model (implemented with [limma+vooom][limma]):
+
+$$ Y\ \sim\beta_0+X_{treat}\beta_{treat}+X_{status}\beta_{status}+X_{treat,status}\beta_{treat,status}+I+\epsilon $$
+
+where $Y$ is the expression level of a gene,
+$\beta_{treat}$ is the fixed effect of treatment with MTB,
+$\beta_{status}$ is the fixed effect of susceptibility status,
+$\beta_{treat,status}$ is the fixed effect of interaction between treatment and susceptibility status,
+and $I$ is the random effect of individual (implemented via `duplicateCorrelation`).
+
+The assumption is that genes which are differentially expressed in our _in vitro_ system will have regulatory variants that affect TB susceptibility.
+In other words, we expect that SNPs nearby the differentially expressed genes will be enriched for low p-values obtained from GWAS of TB susceptibility.
+We would like to test this by combining the DE results with published GWAS results.
+Specifically we use the following framework.
+
+1. For each gene that was tested for DE, find all GWAS SNPs within +/- 50 kb of the TSS.
+2. Assign the minimum GWAS p-value from this set of SNPs to the gene.
+3. Test for a relationship between the DE effect size (the $B$'s from the model above) and the GWAS p-values.
+
+If there is a decrease in the GWAS p-values for increasing DE effect sizes, this suggests that these genes contain nearby genetic variants that affects TB susceptibility.
+
+In this analysis, we use the p-values from a GWAS of TB susceptibility in Ghana published in [Thye et al., 2010][Thye2010].
+The initial results look promising, i.e. there is a decrease in GWAS p-values for increasing DE effect sizes.
+Ideally we would also test for an enrichment from additional TB GWAS.
+
+[limma]: http://www.bioconductor.org/packages/release/bioc/html/limma.html
+
+## Code
 
 ```{r packages, message=FALSE}
 library("limma")
@@ -40,15 +75,6 @@ Input the results of the model fit by limma.
 fit <- readRDS("../data/results-limma-fit.rds")
 ```
 
-The linear model was the following:
-
-$$ Y\ \sim\beta_0+X_{treat}\beta_{treat}+X_{status}\beta_{status}+X_{treat,status}\beta_{treat,status}+I+\epsilon $$
-
-where $Y$ is the expression level of a gene,
-$\beta_{treat}$ is the fixed effect of treatment with MTB,
-$\beta_{status}$ is the fixed effect of susceptibility status,
-$\beta_{treat,status}$ is the fixed effect of interaction between treatment and susceptibilty status,
-and $I$ is the random effect of individual (implemented via `duplicateCorrelation`).
 
 Input summary statistics from [Thye et al., 2010][Thye2010].
 
@@ -60,7 +86,7 @@ gwas_thye_ghana <- fread("../data/OUT_PLINK_Ghana.txt", data.table = FALSE,
 ```
 
 The file contains the chromosome, SNP rsID, odds ratio (OR), and p-value (PVAL).
-Because the file does not contain any allele frequency data, it should not be possible to identify study partipants ([Craig et al., 2011][Craig2011]).
+Because the file does not contain any allele frequency data, it should not be possible to identify study participants ([Craig et al., 2011][Craig2011]).
 
 [Craig2011]: http://www.ncbi.nlm.nih.gov/pubmed/21921928
 
@@ -68,7 +94,7 @@ Because the file does not contain any allele frequency data, it should not be po
 colnames(gwas_thye_ghana)
 ```
 
-## Assign a GWAS summary statistic to each gene
+Assign a GWAS summary statistic to each gene
 
 `r length(rownames(fit$coefficients))` genes were tested for differential expression.
 
@@ -122,7 +148,7 @@ seqlevels(tss_gr) <- paste0("ch", seqlevels(tss_gr))
 tss_gr
 ```
 
-Convert rs ID to genomic coordinates.
+Convert rsID to genomic coordinates.
 
 ```{r obtain-snp-coordinates}
 snp_coords_fname <- "../data/snp-coords.rds"
@@ -228,7 +254,7 @@ This is confirmed.
 In fact, reassuringly it is the exact opposite pattern:
 genes with higher mean expression (and thus with more statistical power to call differential expression) are associated with higher GWAS p-values.
 
-## Enrichment of GWAS p-values
+## Results - Enrichment of GWAS p-values
 
 Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB?
 
