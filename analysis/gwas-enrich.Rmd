@@ -55,13 +55,11 @@ Input summary statistics from [Thye et al., 2010][Thye2010].
 [Thye2010]: http://www.ncbi.nlm.nih.gov/pubmed/20694014
 
 ```{r input-thye}
-gwas_thye_gambia <- fread("../data/OUT_PLINK_Gambia.txt", data.table = FALSE,
-                          verbose = FALSE)
 gwas_thye_ghana <- fread("../data/OUT_PLINK_Ghana.txt", data.table = FALSE,
                          verbose = FALSE)
 ```
 
-The files contain the chromosome, SNP rsID, odds ratio (OR), and p-value (PVAL).
+The file contains the chromosome, SNP rsID, odds ratio (OR), and p-value (PVAL).
 Because the file does not contain any allele frequency data, it should not be possible to identify study partipants ([Craig et al., 2011][Craig2011]).
 
 [Craig2011]: http://www.ncbi.nlm.nih.gov/pubmed/21921928
@@ -126,7 +124,7 @@ tss_gr
 
 Convert rs ID to genomic coordinates.
 
-```{r obtain-snp-coordinates, cache=TRUE}
+```{r obtain-snp-coordinates}
 snp_coords_fname <- "../data/snp-coords.rds"
 if (file.exists(snp_coords_fname)) {
   snp_coords <- readRDS(snp_coords_fname)
@@ -177,9 +175,9 @@ rownames(gwas_thye_ghana) <- gwas_thye_ghana$SNP
 results$gwas_p <- gwas_thye_ghana[results$rsID, "PVAL"]
 ```
 
-For each gene, assign the median p-value of all its nearby SNPs.
+For each gene, assign the minimum p-value of all its nearby SNPs.
 
-```{r assign-median}
+```{r assign-minimum}
 results <- results %>%
   group_by(gene) %>%
   summarize(gwas_p = min(gwas_p),
@@ -211,47 +209,51 @@ results <- results %>%
   mutate(infected = abs(infected), tb = abs(tb), infected.tb = abs(infected.tb))
 ```
 
+Create categorical variables to identify genes with absolute effect sizes greater or less than 1.
+
+```{r split-effect-size}
+results$de_infected <- ifelse(results$infected > 1, "|beta| > 1", "|beta| <= 1")
+results$de_tb <- ifelse(results$tb > 1, "|beta| > 1", "|beta| <= 1")
+results$de_infected.tb <- ifelse(results$infected.tb > 1, "|beta| > 1", "|beta| <= 1")
+```
+
 ## Enrichment of GWAS p-values
 
 Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB?
 
 ```{r enrich-infected}
 dist_infected <- ggplot(results, aes(x = infected, y = gwas_p)) +
-  geom_point() +
-  geom_vline(xintercept = 1, color = "red")
-results$de_infected <- ifelse(results$infected > 1, "de", "non-de")
+  geom_point(alpha = 0.5) +
+  geom_vline(xintercept = 1, color = "red") +
+  labs(x = "|beta| for infection", y = "GWAS p-value",
+       title = "GWAS p-value vs. DE effect size")
 wilcox_infected <- wilcox.test(gwas_p ~ de_infected, data = results)
 enrich_infected <- ggplot(results, aes(x = de_infected, y = gwas_p)) +
   geom_boxplot() +
-  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_infected$p.value))
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_infected$p.value),
+       x = "DE effect size", y = "GWAS p-value")
 plot_grid(dist_infected, enrich_infected, nrow = 1)
 ```
 
 Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB?
 
 ```{r enrich-tb}
-dist_tb <- ggplot(results, aes(x = tb, y = gwas_p)) +
-  geom_point() +
-  geom_vline(xintercept = 1, color = "red")
-results$de_tb <- ifelse(results$tb > 1, "de", "non-de")
+dist_tb <- dist_infected %+% aes(x = tb) +
+  labs(x = "|beta| for susceptibility status")
 wilcox_tb <- wilcox.test(gwas_p ~ de_tb, data = results)
-enrich_tb <- ggplot(results, aes(x = de_tb, y = gwas_p)) +
-  geom_boxplot() +
-  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_tb$p.value))
+enrich_tb <- enrich_infected %+% aes(x = de_tb) +
+  labs(x = "DE effect size")
 plot_grid(dist_tb, enrich_tb, nrow = 1)
 ```
 
 Is there an enrichment of GWAS p-values for SNPs nearby genes in which the differential expression following treatment with MTB is different between individuals that are resistant or susceptible to TB?
 
 ```{r enrich-infected.tb}
-dist_infected.tb <- ggplot(results, aes(x = infected.tb, y = gwas_p)) +
-  geom_point() +
-  geom_vline(xintercept = 1, color = "red")
-results$de_infected.tb <- ifelse(results$infected.tb > 1, "de", "non-de")
+dist_infected.tb <- dist_infected %+% aes(x = infected.tb) +
+  labs(x = "|beta| for interaction term")
 wilcox_infected.tb <- wilcox.test(gwas_p ~ de_infected.tb, data = results)
-enrich_infected.tb <- ggplot(results, aes(x = de_infected.tb, y = gwas_p)) +
-  geom_boxplot() +
-  labs(title = sprintf("Wilcox test p-value: %.2f", wilcox_infected.tb$p.value))
+enrich_infected.tb <- enrich_infected %+% aes(x = de_infected.tb) +
+  labs(x = "DE effect size")
 plot_grid(dist_infected.tb, enrich_infected.tb, nrow = 1)
 ```
 
