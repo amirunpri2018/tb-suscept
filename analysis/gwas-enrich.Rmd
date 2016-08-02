@@ -197,8 +197,7 @@ plot(results$n_snps, results$gwas_p, xlab = "Number of SNPs nearby gene",
 Add coefficients from differential expression analysis.
 
 ```{r add-de-pval}
-# Remove intercept coefficient
-limma_coef <- fit$coefficients[, 2:4]
+limma_coef <- fit$coefficients
 results <- merge(results, limma_coef, by.x = "gene", by.y = "row.names")
 ```
 
@@ -206,7 +205,8 @@ Convert the coefficients to their absolute value.
 
 ```{r abs-val}
 results <- results %>%
-  mutate(infected = abs(infected), tb = abs(tb), infected.tb = abs(infected.tb))
+  mutate(infected = abs(infected), tb = abs(tb), infected.tb = abs(infected.tb),
+         Intercept = abs(Intercept))
 ```
 
 Create categorical variables to identify genes with absolute effect sizes greater or less than 1.
@@ -216,6 +216,17 @@ results$de_infected <- ifelse(results$infected > 1, "|beta| > 1", "|beta| <= 1")
 results$de_tb <- ifelse(results$tb > 1, "|beta| > 1", "|beta| <= 1")
 results$de_infected.tb <- ifelse(results$infected.tb > 1, "|beta| > 1", "|beta| <= 1")
 ```
+
+As a sanity check to confirm that our strategy of choosing the minimum SNP per gene is not biased, check that the mean expression level (i.e. the intercept term from the model) is not associated with lower p-values.
+
+```{r enrich-intercept}
+test_intercept <- lm(gwas_p ~ Intercept, data = results)
+summary(test_intercept)
+```
+
+This is confirmed.
+In fact, reassuringly it is the exact opposite pattern:
+genes with higher mean expression (and thus with more statistical power to call differential expression) are associated with higher GWAS p-values.
 
 ## Enrichment of GWAS p-values
 
