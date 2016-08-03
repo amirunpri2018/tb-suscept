@@ -1,0 +1,194 @@
+---
+title: "Check for discordant lanes"
+date: 2016-08-03
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+## Setup
+
+```{r packages, message=FALSE}
+library("data.table")
+library("dplyr")
+library("edgeR")
+library("gplots")
+library("ggplot2")
+theme_set(theme_bw(base_size = 12))
+theme_update(panel.grid.minor.x = element_blank(),
+             panel.grid.minor.y = element_blank(),
+             panel.grid.major.x = element_blank(),
+             panel.grid.major.y = element_blank())
+```
+
+Input raw counts file.
+
+```{r input-counts}
+data_raw <- fread("../data/subread-counts-per-lane.txt", data.table = FALSE)
+data_raw[1:5, 1:7]
+```
+
+Split annotation and counts.
+
+```{r}
+anno <- data_raw %>% select(individual:lane)
+counts <- data_raw %>% select(starts_with("ENSG")) %>% t()
+anno$id <- paste(anno$individual, anno$treatment, anno$flow_cell, sep = ".")
+colnames(counts) <- anno$id
+```
+
+Standardize by library size.
+
+```{r}
+counts_cpm <- cpm(counts, log = TRUE)
+```
+
+## First pass
+
+Perform PCA.
+
+```{r}
+pca <- prcomp(t(counts_cpm), scale. = TRUE)
+variances <- pca$sdev^2
+explained <- variances / sum(variances)
+plot(pca, main = "Variance per PC")
+pca_data <- cbind(anno, pca$x)
+```
+
+```{r pc1-pc2}
+ggplot(pca_data, aes(x = PC1, y = PC2, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
+```
+
+```{r pc3-pc4}
+ggplot(pca_data, aes(x = PC3, y = PC4, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained[3] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 4, round(explained[4] * 100, 2)))
+```
+
+Perform hierachical clustering.
+
+```{r fig.width=8, fig.height=8}
+counts_cor <- cor(counts_cpm)
+clust <- heatmap.2(counts_cor, trace = "none", margins = c(7, 7))
+```
+
+From the PCA and hierarchical clustering, there are two main outliers: 
+
+```{r}
+(outliers <- colnames(counts_cor)[clust$colInd[1:2]])
+```
+
+This is strange.
+Why would two lanes of sequencing from this sample be different from the third?
+This is unexpected because they are from the same library preparation.
+I suspected this was due to sequencing depth.
+This is because 03-contact-infected was one of the three samples that was over-sequenced in the first round.
+After adjusting the amount of 03-contact-infected in the master mix, very little was sequenced in the subsequent two rounds.
+
+```{r}
+depth <- colSums(counts)
+depth <- sort(depth)
+summary(depth)
+head(depth)
+tail(depth)
+```
+
+This was clearly the reason.
+It's first lane was one of the most highly sequenced, and its two subsequent lanes were the two least sequenced.
+This is concordant with the sequencing summary statistics provided by the core.
+
+## Second pass
+
+Becuase they are outliers due to depth, and not a problem with the library itself, I think it makes sense to keep them in the final analysis.
+However, in order to better investigate differences across lanes, I remove them here.
+
+```{r}
+counts_cpm <- counts_cpm[, !(colnames(counts_cpm) %in% outliers)]
+anno <- anno[!(anno$id %in% outliers), ]
+```
+
+Perform PCA.
+
+```{r}
+pca <- prcomp(t(counts_cpm), scale. = TRUE)
+variances <- pca$sdev^2
+explained <- variances / sum(variances)
+plot(pca, main = "Variance per PC")
+pca_data <- cbind(anno, pca$x)
+```
+
+```{r pc1-pc2-filtered}
+ggplot(pca_data, aes(x = PC1, y = PC2, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
+```
+
+```{r pc3-pc4-filtered}
+ggplot(pca_data, aes(x = PC3, y = PC4, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained[3] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 4, round(explained[4] * 100, 2)))
+```
+
+```{r pc5-pc6-filtered}
+ggplot(pca_data, aes(x = PC5, y = PC6, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained[5] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 6, round(explained[6] * 100, 2)))
+```
+
+Perform hierachical clustering.
+
+```{r fig.width=8, fig.height=8}
+counts_cor <- cor(counts_cpm)
+clust <- heatmap.2(counts_cor, trace = "none", margins = c(7, 7))
+```
+
+There are three main clusters.
+The second is clearly the controls ("none") and the third is clearly the infected samples.
+The first cluster are the misfits.
+
+```{r}
+(misfits <- colnames(counts_cor)[clust$rowInd[1:26]])
+```
+
+The first 3 sets are not surprising given the PCA results.
+All 3 replicates of c06.infected, c06.none, and c02.none are in this cluster,
+consistent with them being outliers in the PCA.
+The others in this cluster are harder to interpret.
+The only other one with all 3 replicates represented is c04.none.
+
+```{r}
+table(unlist(strsplit(misfits, ".H")))
+```
+
+Maybe it is a sequencing depth issue again.
+
+```{r}
+misfits_unknown <- misfits[!(substr(misfits, 1, 3) %in% c("c06", "c02"))]
+misfit_factor <- ifelse(names(depth) %in% misfits_unknown, TRUE, FALSE)
+boxplot(log(depth) ~ misfit_factor)
+```
+
+It appears that sequencing depth is contributing to the issue.
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
