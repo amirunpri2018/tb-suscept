@@ -211,7 +211,7 @@ results <- results %>%
 ```
 
 As expected, there is a negative correlation between the minimum GWAS p-value and the number of SNPs.
-However, there is no technical reason that genes assigned many SNPs should be more likely to be differentially expressed in our _in vitro_ infection of dendritic cells with MTB. 
+However, there is no technical reason that genes assigned many SNPs should be more likely to be differentially expressed in our _in vitro_ infection of dendritic cells with MTB.
 
 ```{r cor-num-snps-pval}
 cor(results$n_snps, results$gwas_p)
@@ -279,7 +279,8 @@ dist_tb <- dist_infected %+% aes(x = tb) +
   labs(x = "|beta| for susceptibility status")
 wilcox_tb <- wilcox.test(gwas_p ~ de_tb, data = results)
 enrich_tb <- enrich_infected %+% aes(x = de_tb) +
-  labs(x = "DE effect size")
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_tb$p.value),
+                       x = "DE effect size")
 plot_grid(dist_tb, enrich_tb, nrow = 1)
 ```
 
@@ -290,8 +291,81 @@ dist_infected.tb <- dist_infected %+% aes(x = infected.tb) +
   labs(x = "|beta| for interaction term")
 wilcox_infected.tb <- wilcox.test(gwas_p ~ de_infected.tb, data = results)
 enrich_infected.tb <- enrich_infected %+% aes(x = de_infected.tb) +
-  labs(x = "DE effect size")
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_infected.tb$p.value),
+                       x = "DE effect size")
 plot_grid(dist_infected.tb, enrich_infected.tb, nrow = 1)
+```
+
+## Investigating relationship between effect size and number of SNPs
+
+Is there an increase in GWAS SNPs nearby genes that are differentially expressed following treatment with MTB?
+
+```{r snps-infected}
+dist_snps_infected <- ggplot(results, aes(x = infected, y = n_snps)) +
+  geom_point(alpha = 0.5) +
+  geom_vline(xintercept = 1, color = "red") +
+  labs(x = "|beta| for infection", y = "Number of SNPs nearby gene",
+       title = "Number of SNPs vs. DE effect size")
+wilcox_snps_infected <- wilcox.test(n_snps ~ de_infected, data = results)
+enrich_infected <- ggplot(results, aes(x = de_infected, y = n_snps)) +
+  geom_boxplot() +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_infected$p.value),
+       x = "DE effect size", y = "GWAS p-value")
+plot_grid(dist_snps_infected, enrich_infected, nrow = 1)
+```
+
+Is there an increase in GWAS SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB?
+
+```{r snps-tb}
+dist_snps_tb <- dist_snps_infected %+% aes(x = tb) +
+  labs(x = "|beta| for susceptibility status")
+wilcox_snps_tb <- wilcox.test(n_snps ~ de_tb, data = results)
+enrich_tb <- enrich_infected %+% aes(x = de_tb) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_tb$p.value),
+       x = "DE effect size")
+plot_grid(dist_snps_tb, enrich_tb, nrow = 1)
+```
+
+Is there an increase in GWAS SNPs nearby genes in which the differential expression following treatment with MTB is different between individuals that are resistant or susceptible to TB?
+
+```{r snps-infected.tb}
+dist_snps_infected.tb <- dist_snps_infected %+% aes(x = infected.tb) +
+  labs(x = "|beta| for interaction term")
+wilcox_snps_infected.tb <- wilcox.test(n_snps ~ de_infected.tb, data = results)
+enrich_infected.tb <- enrich_infected %+% aes(x = de_infected.tb) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_infected.tb$p.value),
+                       x = "DE effect size")
+plot_grid(dist_snps_infected.tb, enrich_infected.tb, nrow = 1)
+```
+
+## log-log plots and trend lines
+
+I obtained significant results when splitting the data in two: genes with effect size greater than and below 1.
+If I perform a linear regression, only the effect of treatment is statistically significant.
+It is easier to see why this is when viewing the log-log transformed plot, which is always the plot in the right panel below.
+
+Effect of treatment.
+
+```{r log-infected}
+summary(lm(gwas_p ~ infected, data = results))
+plot_grid(dist_infected + geom_smooth(method = "lm"),
+          dist_infected + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```
+
+Effect of susceptibility status.
+
+```{r log-tb}
+summary(lm(gwas_p ~ tb, data = results))
+plot_grid(dist_tb + geom_smooth(method = "lm"),
+          dist_tb + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```
+
+Effect of interaction term.
+
+```{r log-infected.tb}
+summary(lm(gwas_p ~ infected.tb, data = results))
+plot_grid(dist_infected.tb + geom_smooth(method = "lm"),
+          dist_infected.tb + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
 ```
 
 ## Session information
