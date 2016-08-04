@@ -310,7 +310,7 @@ wilcox_snps_infected <- wilcox.test(n_snps ~ de_infected, data = results)
 enrich_infected <- ggplot(results, aes(x = de_infected, y = n_snps)) +
   geom_boxplot() +
   labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_infected$p.value),
-       x = "DE effect size", y = "GWAS p-value")
+       x = "DE effect size", y = "Number of SNPs nearby gene")
 plot_grid(dist_snps_infected, enrich_infected, nrow = 1)
 ```
 
