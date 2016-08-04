@@ -21,5 +21,9 @@
     {
 	"mem": 16000,
 	"tasks" : 8
+    },
+    "map_unmapped" :
+    {
+	"mem": 8000
     }
 }

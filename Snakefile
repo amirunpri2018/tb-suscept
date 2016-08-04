@@ -34,7 +34,7 @@ for d in [scratch, external, fastq_dir, kallisto_dir, genome, bam_dir, counts_di
 
 # Targets ----------------------------------------------------------------------
 
-localrules: run_kallisto, prepare_kallisto, run_subread, prepare_subread
+localrules: run_kallisto, prepare_kallisto, run_subread, prepare_subread, run_mtb, prepare_mtb
 
 rule run_kallisto:
     input: data + "eff-counts.txt",
@@ -83,10 +83,10 @@ rule download_genome:
     params: chr = "{chr}"
     shell: "wget -O {output} http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr{params.chr}.fa.gz"
 
-rule unzip_chromosome_fasta:
-    input: genome + "chr{chr}.fa.gz"
-    output: temp(genome + "chr{chr}.fa")
-    shell: "gunzip {input}"
+# rule unzip_chromosome_fasta:
+#     input: genome + "chr{chr}.fa.gz"
+#     output: temp(genome + "chr{chr}.fa")
+#     shell: "gunzip {input}"
 
 rule subread_index:
     input: expand(genome + "chr{chr}.fa", chr = chromosomes)
@@ -304,3 +304,18 @@ rule subread_index_mtb:
 
 rule prepare_mtb:
     input: genome_mtb + "h37rv.ASM19595v2.reads"
+
+rule obtain_unmapped:
+    input: bam_dir + "{sample}.bam"
+    output: bam_dir + "{sample}-unmapped.sam"
+    shell: "samtools view -f 4 {input} > {output}"
+
+rule map_unmapped:
+    input: read = bam_dir + "{sample}-unmapped.sam",
+           index = genome_mtb + "h37rv.ASM19595v2.reads"
+    output: bam_dir + "{sample}-unmapped.bam"
+    params: prefix = genome_mtb + "h37rv.ASM19595v2"
+    shell: "subread-align -i {params.prefix} -r {input.read} -t 1 -u --SAMinput > {output}"
+
+rule run_mtb:
+    input: expand(bam_dir + "{sample}-unmapped.bam", sample = samples)
