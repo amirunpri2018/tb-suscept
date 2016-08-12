@@ -283,6 +283,15 @@ rule count_gather:
 
         outfile.close()
 
+rule remove_outliers:
+    input: counts = data + "counts.txt",
+           info = data + "experiment-info.txt",
+           script = code + "qc-outliers.R"
+    output: counts = data + "counts-filtered.txt",
+            info = data + "experiment-info-filtered.txt",
+            outliers = data + "outliers.txt"
+    shell: "Rscript {input.script}"
+
 # MTB pipeline
 
 # ftp://ftp.ensemblgenomes.org/pub/bacteria/release-32/fasta/bacteria_0_collection/mycobacterium_tuberculosis_h37rv/dna/
