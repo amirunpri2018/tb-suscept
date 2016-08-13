@@ -5,14 +5,6 @@
         "n" : 1,
 	"tasks": 1
     },
-    "kallisto_index" :
-    {
-        "mem" : 12000
-    },
-    "kallisto_quant" :
-    {
-	"mem" : 8000
-    },
     "subread_index" :
     {
 	"mem" : 8000
