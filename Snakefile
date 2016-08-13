@@ -12,6 +12,7 @@ import os
 scratch = "/scratch/midway/jdblischak/"
 external = "/project/gilad/jdblischak/tb-suscept/"
 fastq_dir = external + "fastq/"
+fastqc_dir = external + "fastqc/"
 code = "code/"
 data = "data/"
 genome = scratch + "genome/"
@@ -24,13 +25,13 @@ samples = [os.path.basename(f).rstrip(".fastq.gz") for f in fastq_files]
 #print(samples)
 chromosomes = [str(x) for x in range(1, 23)] + ["X", "Y", "M"]
 
-for d in [scratch, external, fastq_dir, genome, bam_dir, counts_dir]:
+for d in [scratch, external, fastq_dir, fastqc_dir, genome, bam_dir, counts_dir]:
     if not os.path.isdir(d):
         os.mkdir(d)
 
 # Targets ----------------------------------------------------------------------
 
-localrules: run_subread, prepare_subread
+localrules: run_subread, prepare_subread, qc
 
 rule run_subread:
     input: data + "subread-counts-per-sample.txt", data + "total-counts.txt"
@@ -38,7 +39,22 @@ rule run_subread:
 rule prepare_subread:
     input: genome + "hg38.reads", genome + "exons.saf"
 
+rule qc:
+    input: external + "multiqc_report.html"
+
 # Rules ------------------------------------------------------------------------
+
+# Sequence quality control
+
+rule fastqc:
+    input: fastq_dir + "{sample}.fastq.gz"
+    output: fastqc_dir + "{sample}_fastqc.html"
+    shell: "fastqc --outdir {fastqc_dir} {input}"
+
+rule mutliqc:
+    input: expand(fastqc_dir + "{sample}_fastqc.html", sample = samples)
+    output: external + "multiqc_report.html"
+    shell: "multiqc --outdir {external} {external}"
 
 # Subread pipeline
 
