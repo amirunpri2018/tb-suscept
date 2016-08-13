@@ -263,6 +263,18 @@ rule count_gather:
 
         outfile.close()
 
+# Analysis
+
+# Filter lowly expressed genes
+rule filter_genes:
+    input: counts = data + "subread-counts-per-sample.txt",
+           info = data + "experiment-info.txt",
+           script = code + "qc-genes.R"
+    output: counts = data + "counts.txt",
+            cpm = data + "cpm-all.rds"
+    shell: "Rscript {input.script} {data}"
+
+# Remove outliers based on PCA
 rule remove_outliers:
     input: counts = data + "counts.txt",
            info = data + "experiment-info.txt",
