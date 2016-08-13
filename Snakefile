@@ -18,6 +18,7 @@ data = "data/"
 genome = scratch + "genome/"
 bam_dir = external + "bam/"
 counts_dir = external + "counts/"
+figure = "figure/"
 
 # Input fastq files
 fastq_files = glob.glob(external + "fastq/??-*fastq.gz")
@@ -25,7 +26,8 @@ samples = [os.path.basename(f).rstrip(".fastq.gz") for f in fastq_files]
 #print(samples)
 chromosomes = [str(x) for x in range(1, 23)] + ["X", "Y", "M"]
 
-for d in [scratch, external, fastq_dir, fastqc_dir, genome, bam_dir, counts_dir]:
+for d in [scratch, external, fastq_dir, fastqc_dir, genome, bam_dir, counts_dir,
+          code, data, figure]:
     if not os.path.isdir(d):
         os.mkdir(d)
 
@@ -284,3 +286,12 @@ rule remove_outliers:
             outliers = data + "outliers.txt"
     shell: "Rscript {input.script}"
 
+rule create_figures:
+    input: data +  "cpm-all.rds",
+           data + "counts.txt",
+           data + "counts-filtered.txt",
+           script = code + "create-figures.R"
+    output: figure + "density-all-genes-all-samples.pdf",
+            figure + "density-filt-genes-all-samples.pdf",
+            figure + "density-filt-genes-filt-samples.pdf"
+    shell: "Rscript {input.script} {data} {figure}"
