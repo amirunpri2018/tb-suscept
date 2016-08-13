@@ -4,3 +4,6 @@
 slurm*
 *~
 .snakemake
+*html
+*sam
+*bam
