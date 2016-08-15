@@ -286,6 +286,16 @@ rule remove_outliers:
             outliers = data + "outliers.txt"
     shell: "Rscript {input.script}"
 
+# Differential expression analysis with limma
+rule limma:
+    input: counts = data + "counts-filtered.txt",
+           info = data + "experiment-info-filtered.txt",
+           script = code + "main-limma.R"
+    output: voom = data + "results-limma-voom.rds",
+            fit = data + "results-limma-fit.rds",
+            results = data + "results-limma-stats.rds"
+    shell: "Rscript {input.script} {data}"
+
 rule create_figures:
     input: data +  "cpm-all.rds",
            data + "counts.txt",
