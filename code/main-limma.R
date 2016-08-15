@@ -42,9 +42,9 @@ fit <- lmFit(v, design, block = anno$individual, correlation = corfit$consensus)
 
 # Fit contrasts
 contrasts_mat <- makeContrasts(
-  # Difference between susceptible and resistant individual before treatment
+  # Difference between susceptible and resistant individuals before treatment
   diff_before = tb.none - contact.none,
-  # Difference between susceptible and resistant individual after treatment
+  # Difference between susceptible and resistant individuals after treatment
   diff_after = tb.infected - contact.infected,
   # Effect of treatment in resistant individuals
   treat_resist = contact.infected - contact.none,

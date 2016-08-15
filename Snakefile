@@ -303,5 +303,14 @@ rule create_figures:
            script = code + "create-figures.R"
     output: figure + "density-all-genes-all-samples.pdf",
             figure + "density-filt-genes-all-samples.pdf",
-            figure + "density-filt-genes-filt-samples.pdf"
+            figure + "density-filt-genes-filt-samples.pdf",
+            figure + "ma-diff-after.pdf",
+            figure + "ma-diff-before.pdf",
+            figure + "ma-diff-treat.pdf",
+            figure + "ma-treat-resist.pdf",
+            figure + "ma-treat-suscept.pdf",
+            figure + "pval-diff-before.pdf",
+            figure + "pval-diff-treat.pdf",
+            figure + "pval-treat-resist.pdf",
+            figure + "pval-treat-suscept.pdf"
     shell: "Rscript {input.script} {data} {figure}"
