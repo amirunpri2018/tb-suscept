@@ -23,7 +23,9 @@ opts_chunk$set(cache = FALSE)
 ```{r packages, message=FALSE}
 library("caret")
 library("dplyr")
+library("limma")
 library("ggplot2")
+library("ggbeeswarm")
 library("cowplot")
 theme_set(theme_bw(base_size = 14))
 theme_update(panel.grid.minor.x = element_blank(),
@@ -38,18 +40,15 @@ The voom weights are not being used.
 
 ```{r input-data}
 v <- readRDS("../data/results-limma-voom.rds")
-anno <- read.delim("../data/experiment-info.txt", stringsAsFactors = FALSE)
-rownames(anno) <- anno$id
-anno <- anno %>% select(-id, -tube_ind)
+anno <- read.delim("../data/experiment-info-filtered.txt",
+                   stringsAsFactors = FALSE, row.names = 1)
 stopifnot(colnames(v$E) == rownames(anno))
 ```
 
 Input ash results.
 
 ```{r input-ash}
-ash_treatment <- readRDS("../data/results-ash-treatment.rds")
-ash_status <- readRDS("../data/results-ash-status.rds")
-ash_interaction <- readRDS("../data/results-ash-interaction.rds")
+results <- readRDS("../data/results-limma-stats.rds")
 ```
 
 ## Build model to predict susceptibility status
@@ -57,8 +56,8 @@ ash_interaction <- readRDS("../data/results-ash-interaction.rds")
 Select those genes that are DE by status or interaction.
 
 ```{r}
-genes_for_classifer <- v$E[ash_status$svalue < .05 |
-                           ash_interaction$svalue < .05, ]
+genes_for_classifer <- v$E[results[["diff_before"]]$svalue < .05 |
+                           results[["diff_treat"]]$svalue < .05, ]
 # genes_for_classifer <- v$E
 # genes_for_classifer <- genes_for_classifer[order(ash_status$svalue)[1:3000], ]
 genes_for_classifer <- t(genes_for_classifer)
@@ -77,7 +76,7 @@ Only include the samples before treatment.
 
 ```{r}
 genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
-stopifnot(nrow(genes_for_classifer) == 25)
+# stopifnot(nrow(genes_for_classifer) == 25)
 ```
 
 Fit SVM.
@@ -87,8 +86,9 @@ http://stackoverflow.com/questions/20461476/svm-with-cross-validation-in-r-using
 http://topepo.github.io/caret/training.html
 
 ```{r}
-ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
-                     savePred = "final", classProbs = TRUE)
+# ctrl <- trainControl(method = "repeatedcv", number = 5, repeats = 10,
+#                      savePred = "final", classProbs = TRUE)
+ctrl <- trainControl(method = "LOOCV", classProbs = TRUE, savePred = "final")
 set.seed(12345)
 mod_svm <- train(status ~ ., data = genes_for_classifer,
              method = "svmLinear", trControl = ctrl, metric = "kappa")
@@ -101,7 +101,7 @@ How well did it work?
 ```{r}
 # methods(class = class(mod_svm))
 # names(mod_svm)
-confusionMatrix(mod_svm)
+# confusionMatrix(mod_svm)
 mod_svm$results
 ```
 
@@ -113,7 +113,7 @@ mod_glmnet <- train(status ~ ., data = genes_for_classifer,
                     method = "glmnet", trControl = ctrl, metric = "kappa")
 mod_glmnet
 head(mod_glmnet$pred)
-confusionMatrix(mod_glmnet)
+# confusionMatrix(mod_glmnet)
 mod_glmnet$results
 ```
 
@@ -124,8 +124,16 @@ d_glmnet <- mod_glmnet$pred %>% mutate(obs_new = ifelse(obs == "tb", "susceptibl
                                        pred_new = ifelse(pred == "tb", "susceptible", "resistant"),
                                        result = paste0("Observed: ", obs_new, "\nPredicted: ", pred_new))
 ggplot(d_glmnet, aes(x = result, y = tb)) +
-  geom_boxplot() +
+  geom_boxplot() + #geom_point() + geom_beeswarm() +
   labs(x = "Classification", y = "Assigned probability of being susceptible to TB")
+```
+
+```{r}
+d_glmnet$id <- rownames(genes_for_classifer)[d_glmnet$rowIndex]
+d_glmnet <- d_glmnet %>% arrange(contact)
+plot(d_glmnet$contact, col = ifelse(d_glmnet$obs == "tb", "red", "black"))
+text(x = 1:nrow(d_glmnet) + 0.5, y = d_glmnet$contact,
+     labels = substr(d_glmnet$id, 1, 4))
 ```
 
 Will test on data from Luis's PNAS paper:
