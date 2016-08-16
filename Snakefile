@@ -296,6 +296,14 @@ rule limma:
             results = data + "results-limma-stats.rds"
     shell: "Rscript {input.script} {data}"
 
+# Build classifier with caret
+rule classifier:
+    input: counts = data + "counts-filtered.txt",
+           info = data + "experiment-info-filtered.txt",
+           script = code + "main-classifier.R"
+    output: predictions = data + "classifier-predictions.rds"
+    shell: "Rscript {input.script} {data}"
+
 rule create_figures:
     input: data +  "cpm-all.rds",
            data + "counts.txt",
