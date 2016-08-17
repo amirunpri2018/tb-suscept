@@ -51,16 +51,23 @@ Input ash results.
 results <- readRDS("../data/results-limma-stats.rds")
 ```
 
+Will test on data from Luis's PNAS paper:
+
+```{r load-pnas}
+load("../data/Exp_final_Batch_corrected.Rdata")
+```
+
 ## Build model to predict susceptibility status
 
 Select those genes that are DE by status or interaction.
 
 ```{r}
-genes_for_classifer <- v$E[results[["diff_before"]]$svalue < .05 |
-                           results[["diff_treat"]]$svalue < .05, ]
+genes_for_classifer <- v$E[results[["diff_before"]]$svalue < .5, ]
 # genes_for_classifer <- v$E
 # genes_for_classifer <- genes_for_classifer[order(ash_status$svalue)[1:3000], ]
 genes_for_classifer <- t(genes_for_classifer)
+pnas_index <- colnames(genes_for_classifer) %in% Exp_final_Batch_corrected$Ensembl_ID
+genes_for_classifer <- genes_for_classifer[, pnas_index]
 dim(genes_for_classifer)
 genes_for_classifer[1:5, 1:5]
 ```
@@ -91,7 +98,7 @@ http://topepo.github.io/caret/training.html
 ctrl <- trainControl(method = "LOOCV", classProbs = TRUE, savePred = "final")
 set.seed(12345)
 mod_svm <- train(status ~ ., data = genes_for_classifer,
-             method = "svmLinear", trControl = ctrl, metric = "kappa")
+             method = "svmLinear", trControl = ctrl, metric = "Kappa")
 mod_svm
 head(mod_svm$pred)
 ```
@@ -110,7 +117,7 @@ Use an elastic net implemented in glmnet package.
 ```{r}
 set.seed(12345)
 mod_glmnet <- train(status ~ ., data = genes_for_classifer,
-                    method = "glmnet", trControl = ctrl, metric = "kappa")
+                    method = "glmnet", trControl = ctrl, metric = "Kappa")
 mod_glmnet
 head(mod_glmnet$pred)
 # confusionMatrix(mod_glmnet)
@@ -136,11 +143,28 @@ text(x = 1:nrow(d_glmnet) + 0.5, y = d_glmnet$contact,
      labels = substr(d_glmnet$id, 1, 4))
 ```
 
-Will test on data from Luis's PNAS paper:
+## Run on lbb2012
+
+Prepare data.
 
 ```{r}
-load("../data/Exp_final_Batch_corrected.Rdata")
+lbb2012 <- Exp_final_Batch_corrected[, -1:-2]
+rownames(lbb2012) <- Exp_final_Batch_corrected$Ensembl_ID
+lbb2012 <- lbb2012[rownames(lbb2012) %in% colnames(genes_for_classifer), ]
+stopifnot(nrow(lbb2012) == ncol(genes_for_classifer) - 1)
+lbb2012 <- lbb2012[, grepl("neg", colnames(lbb2012))]
+lbb2012 <- t(lbb2012)
 ```
+
+Predict.
+
+```{r predict}
+lbb2012_glmnet <- predict(mod_glmnet, lbb2012, type = "prob")
+plot(lbb2012_glmnet$contact[order(lbb2012_glmnet$contact)])
+lbb2012_svm <- predict(mod_svm, lbb2012, type = "prob")
+plot(lbb2012_svm$contact[order(lbb2012_svm$contact)])
+```
+
 
 ## Session information
 

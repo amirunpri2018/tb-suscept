@@ -327,3 +327,47 @@ for (method in levels(class_prob_df$method)) {
     invisible(dev.off())
   }
 }
+
+# Plot results of predictions in Barreiro et al., 2012
+
+predictions_lbb <- readRDS(file.path(data_dir, "classifier-predictions-lbb.rds"))
+
+predict_lbb_tmp <- lapply(predictions_lbb, function(x) {
+  ldply(x, .id = "svalue")
+})
+
+# Step 1: Convert to list of data frames
+predict_lbb_tmp <- lapply(predictions_lbb, function(x) {
+  ldply(x, .id = "svalue")
+})
+# Step 2: Convert to data frame
+predict_lbb_df <- ldply(predict_lbb_tmp, .id = "method")
+
+predict_lbb_df$method <- factor(predict_lbb_df$method,
+                               levels = c("glmnet", "svmLinear", "rf"),
+                               labels = c("Elastic Net", "Support Vector Machine",
+                                          "Random Forest"))
+predict_lbb_df$id <- rownames(predictions_lbb[[3]][[1]])
+for (method in levels(predict_lbb_df$method)) {
+  for (sval in unique(predict_lbb_df$svalue)) {
+    fname <- paste0("class-prob-lbb-", gsub(" ", "-", tolower(method)),
+                    "-", sval, ".pdf")
+    pdf(file.path(fig_dir, fname),
+        width = w, height = h, useDingbats = FALSE)
+    d_tmp <- predict_lbb_df[predict_lbb_df$method == method &
+                              predict_lbb_df$svalue == sval, ]
+    # Order the samples by their classified probably of being resistant
+    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$contact)])
+    p <- ggplot(d_tmp, aes(x = id, y = contact)) +
+      geom_point() +
+      labs(x = "Individual",
+           y = "Assigned probability of being TB resistant",
+           title = paste(method, sval)) +
+      scale_x_discrete(labels = NULL) +
+      ylim(0, 1) +
+      theme(legend.position = c(0.75, 0.5),
+            axis.ticks.x = element_blank())
+    print(p)
+    invisible(dev.off())
+  }
+}

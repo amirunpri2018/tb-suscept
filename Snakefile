@@ -335,5 +335,20 @@ rule create_figures:
             figure + "class-prob-support-vector-machine-s0.15.pdf",
             figure + "class-prob-support-vector-machine-s0.1.pdf",
             figure + "class-prob-support-vector-machine-s0.25.pdf",
-            figure + "class-prob-support-vector-machine-s0.2.pdf"
+            figure + "class-prob-support-vector-machine-s0.2.pdf",
+            figure + "class-prob-lbb-elastic-net-s0.05.pdf",
+            figure + "class-prob-lbb-elastic-net-s0.15.pdf",
+            figure + "class-prob-lbb-elastic-net-s0.1.pdf",
+            figure + "class-prob-lbb-elastic-net-s0.25.pdf",
+            figure + "class-prob-lbb-elastic-net-s0.2.pdf",
+            figure + "class-prob-lbb-random-forest-s0.05.pdf",
+            figure + "class-prob-lbb-random-forest-s0.15.pdf",
+            figure + "class-prob-lbb-random-forest-s0.1.pdf",
+            figure + "class-prob-lbb-random-forest-s0.25.pdf",
+            figure + "class-prob-lbb-random-forest-s0.2.pdf",
+            figure + "class-prob-lbb-support-vector-machine-s0.05.pdf",
+            figure + "class-prob-lbb-support-vector-machine-s0.15.pdf",
+            figure + "class-prob-lbb-support-vector-machine-s0.1.pdf",
+            figure + "class-prob-lbb-support-vector-machine-s0.25.pdf",
+            figure + "class-prob-lbb-support-vector-machine-s0.2.pdf"
     shell: "Rscript {input.script} {data} {figure}"

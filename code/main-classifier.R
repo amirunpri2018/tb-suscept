@@ -29,6 +29,16 @@ anno <- read.delim(file.path(data_dir, "experiment-info-filtered.txt"),
                    stringsAsFactors = FALSE, row.names = 1)
 stopifnot(colnames(v$E) == rownames(anno))
 results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
+# Load Luis's data
+load(file.path(data_dir, "Exp_final_Batch_corrected.Rdata"))
+lbb2012 <- Exp_final_Batch_corrected[, -1:-2]
+rownames(lbb2012) <- Exp_final_Batch_corrected$Ensembl_ID
+lbb2012 <- lbb2012[, grepl("neg", colnames(lbb2012))]
+lbb2012 <- t(lbb2012)
+
+
+
+
 
 # Functions
 
@@ -61,7 +71,6 @@ extract_kappa <- function(results, bestTune) {
 
 # Algorithms to try
 algos <- c("svmLinear", "glmnet", "rf")
-# algos <- c("svmLinear", "glmnet", "C5.0", "rf", "PenalizedLDA")
 # getModelInfo(algos[3])[[algos[3]]]
 # svalue cutoffs
 sval_cut <- seq(0.05, 0.25, by = 0.05)
@@ -71,15 +80,21 @@ ctrl <- trainControl(method = "LOOCV", classProbs = TRUE, savePred = "final")
 
 predictions <- vector(length = length(algos), mode = "list")
 names(predictions) <- algos
+predictions_lbb <- vector(length = length(algos), mode = "list")
+names(predictions_lbb) <- algos
 
 for (alg in algos) {
   checkInstall(getModelInfo(alg)$library)
   predictions[[alg]] <- vector(length = length(sval_cut), mode = "list")
   names(predictions[[alg]]) <- paste0("s", sval_cut)
+  predictions_lbb[[alg]] <- vector(length = length(sval_cut), mode = "list")
+  names(predictions_lbb[[alg]]) <- paste0("s", sval_cut)
   for (cutoff in sval_cut) {
     cutoff_name <- paste0("s", cutoff)
     genes_for_classifer <- v$E[results[["diff_before"]]$svalue < cutoff, ]
     genes_for_classifer <- t(genes_for_classifer)
+    pnas_index <- colnames(genes_for_classifer) %in% colnames(lbb2012)
+    genes_for_classifer <- genes_for_classifer[, pnas_index]
     genes_for_classifer <- as.data.frame(genes_for_classifer)
     genes_for_classifer$status <- anno$status
     genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
@@ -94,8 +109,14 @@ for (alg in algos) {
     fit$kappa <- extract_kappa(fit$results, fit$bestTune)
     fit$pred$id <- rownames(genes_for_classifer)[fit$pred$rowIndex]
     predictions[[alg]][[cutoff_name]] <- fit
+    # Predict in Barreiro et al., 2012
+    lbb2012_sub <- lbb2012[, colnames(lbb2012) %in% colnames(genes_for_classifer)]
+    stopifnot(ncol(lbb2012_sub) == ncol(genes_for_classifer) - 1)
+    predictions_lbb[[alg]][[cutoff_name]] <- predict(fit, lbb2012_sub,
+                                                     type = "prob")
   }
 }
 
 # Save results
 saveRDS(predictions, file.path(data_dir, "classifier-predictions.rds"))
+saveRDS(predictions_lbb, file.path(data_dir, "classifier-predictions-lbb.rds"))
