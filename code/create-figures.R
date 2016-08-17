@@ -3,6 +3,9 @@
 suppressPackageStartupMessages(library("ggplot2"))
 suppressPackageStartupMessages(library("edgeR"))
 suppressPackageStartupMessages(library("VennDiagram"))
+suppressPackageStartupMessages(library("ggbeeswarm"))
+suppressPackageStartupMessages(library("cowplot"))
+suppressPackageStartupMessages(library("plyr"))
 
 if(interactive()) {
   data_dir <- "../data"
@@ -21,11 +24,11 @@ stopifnot(dir.exists(fig_dir))
 w <- 7
 h <- 7
 
-theme_set(theme_bw(base_size = 12))
-theme_update(panel.grid.minor.x = element_blank(),
-             panel.grid.minor.y = element_blank(),
-             panel.grid.major.x = element_blank(),
-             panel.grid.major.y = element_blank())
+# theme_set(theme_classic(base_size = 12))
+# theme_update(panel.grid.minor.x = element_blank(),
+#              panel.grid.minor.y = element_blank(),
+#              panel.grid.major.x = element_blank(),
+#              panel.grid.major.y = element_blank())
 
 # Filter genes -----------------------------------------------------------------
 # See code/qc-genes.R
@@ -124,12 +127,12 @@ pdf(file.path(fig_dir, "ma-diff-before.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_ma(results[["diff_before"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant individuals before treatment")
+  labs(title = "Difference between susceptible and resistant individuals\nbefore treatment")
 invisible(dev.off())
 pdf(file.path(fig_dir, "pval-diff-before.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_pval_hist(results[["diff_before"]]) +
-  labs(title = "Difference between susceptible and resistant individuals before treatment")
+  labs(title = "Difference between susceptible and resistant individuals\nbefore treatment")
 invisible(dev.off())
 
 # Difference between susceptible and resistant individuals after treatment
@@ -137,12 +140,12 @@ pdf(file.path(fig_dir, "ma-diff-after.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_ma(results[["diff_after"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant individuals after treatment")
+  labs(title = "Difference between susceptible and resistant individuals\nafter treatment")
 invisible(dev.off())
-pdf(file.path(fig_dir, "pva-diff-after.pdf"),
+pdf(file.path(fig_dir, "pval-diff-after.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_pval_hist(results[["diff_after"]]) +
-  labs(title = "Difference between susceptible and resistant individuals after treatment")
+  labs(title = "Difference between susceptible and resistant individuals\nafter treatment")
 invisible(dev.off())
 
 # Effect of treatment in resistant individuals
@@ -174,12 +177,12 @@ invisible(dev.off())
 pdf(file.path(fig_dir, "ma-diff-treat.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_ma(results[["diff_treat"]], qval = 0.1) +
-  labs(title = "Difference in effect of treatment between susceptible and resistant individuals")
+  labs(title = "Difference in effect of treatment between\nsusceptible and resistant individuals")
 invisible(dev.off())
 pdf(file.path(fig_dir, "pval-diff-treat.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_pval_hist(results[["diff_treat"]]) +
-  labs(title = "Difference in effect of treatment between susceptible and resistant individuals")
+  labs(title = "Difference in effect of treatment between\nsusceptible and resistant individuals")
 invisible(dev.off())
 
 # Venn diagram of DE gene overlap
@@ -218,3 +221,109 @@ venn_treat <- draw.triple.venn(
   alpha = c(0.5, 0.5, 0.5), col = "black", cex = 2, cat.cex = 1.5,
   euler.d = FALSE, scaled = FALSE, ind = FALSE)
 # grid.draw(venn_treat)
+
+# Classifier -------------------------------------------------------------------
+# see code/main-classifier.R
+
+predictions <- readRDS(file.path(data_dir, "classifier-predictions.rds"))
+
+# Plot the metrics of model performance
+
+# Convert nested list of lists into data frame for plotting
+extract_train_metrics <- function(x) {
+  # x - a list with compenents kappa, recall, precision, f1
+  return(c(kappa = x$kappa,
+           recall = x$recall,
+           precision = x$precision,
+           f1 = x$f1,
+           num_genes = x$num_genes))
+}
+# Step 1: Convert to list of data frames
+predict_tmp <- lapply(predictions, function(x) {
+    ldply(x, extract_train_metrics, .id = "svalue")
+  })
+# Step 2: Convert to data frame
+predict_df <- ldply(predict_tmp, .id = "method")
+
+predict_df$method <- factor(predict_df$method,
+                            levels = c("glmnet", "svmLinear", "rf"),
+                            labels = c("Elastic Net", "Support Vector Machine",
+                                       "Random Forest"))
+metrics <- c("kappa", "recall", "precision", "f1")
+.simpleCap <- function(x) {
+  # from ?chartr
+  s <- strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1, 1)), substring(s, 2),
+        sep = "", collapse = " ")
+}
+for (m in metrics) {
+  fname <- paste0("classifier-", m, ".pdf")
+  pdf(file.path(fig_dir, fname),
+      width = w, height = h, useDingbats = FALSE)
+  p <- ggplot(predict_df, aes_string(x = "num_genes", y = m, color = "method")) +
+    geom_point() +
+    facet_wrap(~method) +
+    labs(x = "Number of genes",
+         y = .simpleCap(m)) +
+    scale_x_continuous(breaks = predict_df$num_genes) +
+    ylim(0, 1) +
+    theme_linedraw() +
+    theme(legend.position = "none",
+          panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.x = element_blank(),
+          panel.grid.major.y = element_blank(),
+          axis.text.x = element_text(angle = 300, vjust = 0.5))
+  print(p)
+  invisible(dev.off())
+}
+
+# Plot the class probabilites for the different models
+
+# Convert nested list of lists into data frame for plotting
+extract_class_probs <- function(x) {
+  # x - a list with component pred
+  return(x$pred)
+}
+# Step 1: Convert to list of data frames
+class_prob_tmp <- lapply(predictions, function(x) {
+  ldply(x, extract_class_probs, .id = "svalue")
+})
+# Step 2: Convert to data frame
+class_prob_df <- ldply(class_prob_tmp, .id = "method")
+
+class_prob_df$method <- factor(class_prob_df$method,
+                            levels = c("glmnet", "svmLinear", "rf"),
+                            labels = c("Elastic Net", "Support Vector Machine",
+                                       "Random Forest"))
+class_prob_df$Observed <- factor(class_prob_df$obs,
+                                 levels = c("tb", "contact"),
+                                 labels = c("Susceptible", "Resistant"))
+for (method in levels(class_prob_df$method)) {
+  for (sval in unique(class_prob_df$svalue)) {
+    fname <- paste0("class-prob-", gsub(" ", "-", tolower(method)),
+                    "-", sval, ".pdf")
+    pdf(file.path(fig_dir, fname),
+        width = w, height = h, useDingbats = FALSE)
+    d_tmp <- class_prob_df[class_prob_df$method == method &
+                             class_prob_df$svalue == sval, ]
+    # Order the samples by their classified probably of being resistant
+    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$contact)])
+    d_tmp <- d_tmp[order(d_tmp$contact), ]
+    d_tmp$text_label <- substr(as.character(d_tmp$id), 1, 5)
+    d_tmp$text_label[11:nrow(d_tmp)] <- ""
+    p <- ggplot(d_tmp, aes(x = id, y = contact)) +
+      geom_point(aes(color = Observed)) +
+      geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+                size = rel(2)) +
+      labs(x = "Individual",
+           y = "Assigned probability of being TB resistant",
+           title = paste(method, sval)) +
+      scale_x_discrete(labels = NULL) +
+      ylim(0, 1) +
+      theme(legend.position = c(0.75, 0.5),
+            axis.ticks.x = element_blank())
+    print(p)
+    invisible(dev.off())
+  }
+}

@@ -92,7 +92,7 @@ for (alg in algos) {
     fit$precision <- specificity(data, reference, negative = "contact")
     fit$f1 <- calc_f1(fit$recall, fit$precision)
     fit$kappa <- extract_kappa(fit$results, fit$bestTune)
-    # fit$kappa <- fit$results[fit$results[, 1] == fit$bestTune[[1]], "Kappa"]
+    fit$pred$id <- rownames(genes_for_classifer)[fit$pred$rowIndex]
     predictions[[alg]][[cutoff_name]] <- fit
   }
 }

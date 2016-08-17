@@ -320,5 +320,20 @@ rule create_figures:
             figure + "pval-diff-before.pdf",
             figure + "pval-diff-treat.pdf",
             figure + "pval-treat-resist.pdf",
-            figure + "pval-treat-suscept.pdf"
+            figure + "pval-treat-suscept.pdf",
+            figure + "class-prob-elastic-net-s0.05.pdf",
+            figure + "class-prob-elastic-net-s0.15.pdf",
+            figure + "class-prob-elastic-net-s0.1.pdf",
+            figure + "class-prob-elastic-net-s0.25.pdf",
+            figure + "class-prob-elastic-net-s0.2.pdf",
+            figure + "class-prob-random-forest-s0.05.pdf",
+            figure + "class-prob-random-forest-s0.15.pdf",
+            figure + "class-prob-random-forest-s0.1.pdf",
+            figure + "class-prob-random-forest-s0.25.pdf",
+            figure + "class-prob-random-forest-s0.2.pdf",
+            figure + "class-prob-support-vector-machine-s0.05.pdf",
+            figure + "class-prob-support-vector-machine-s0.15.pdf",
+            figure + "class-prob-support-vector-machine-s0.1.pdf",
+            figure + "class-prob-support-vector-machine-s0.25.pdf",
+            figure + "class-prob-support-vector-machine-s0.2.pdf"
     shell: "Rscript {input.script} {data} {figure}"
