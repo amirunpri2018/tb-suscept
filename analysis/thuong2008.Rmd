@@ -42,10 +42,16 @@ library("tidyr")
 
 
 ```{r download}
-gse <- getGEO(GEO = "GSE11199")
-class(gse)
-length(gse)
-gse <- gse[[1]]
+geo_fname <- "../data/GSE11199.rds"
+if (!file.exists(geo_fname)) {
+  gse <- getGEO(GEO = "GSE11199")
+#   class(gse)
+#   length(gse)
+  gse <- gse[[1]]
+  saveRDS(gse, geo_fname)
+} else {
+  gse <- readRDS(geo_fname)
+}
 class(gse)
 pData(gse)[1, ]
 ```
