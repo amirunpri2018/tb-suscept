@@ -36,6 +36,7 @@ library("affy")
 library("hgu133plus2.db")
 library("limma")
 library("tidyr")
+library("biomaRt")
 ```
 
 ## Analyze starting from processed data
@@ -69,25 +70,57 @@ anno$status <- factor(anno$status, levels = c("L", "P", "T"),
 table(anno$treatment, anno$status)
 ```
 
-Convert probe IDs to Ensembl gene IDs.
+I tried using the hgu133plus2.db package, but this wasn't very useful.
 
-```{r}
-id_table <- as.data.frame(hgu133plus2ENSEMBL)
-dim(id_table)
-length(unique(id_table$probe_id))
-length(unique(id_table$ensembl_id))
-sum(id_table$probe_id %in% rownames(x))
-```
-
-```{r}
+```{r hgu133plus2}
+# columns(hgu133plus2.db)
 probe_mappings <- select(hgu133plus2.db, keys = rownames(x),
                          columns = c("ENSEMBL", "SYMBOL"))
+head(probe_mappings)
+probe_mappings[probe_mappings$SYMBOL == "DDR1" &
+               !is.na(probe_mappings$SYMBOL), ]
 ```
 
+The multipe mappings is because it is reporting lots of Ensembl gene IDs per each probe.
+However, when I check these on Ensembl, many are labelled "Not part of the primary assembly".
+Thus they should be able to be filtered out by their chromsome name.
+If I have to use biomaRt to obtain the chromosome name, I may as well just use it to obtain the probe to gene mappings as well.
+
+```{r probe2id}
+ensembl <- useMart(host = "dec2015.archive.ensembl.org",
+                   biomart = "ENSEMBL_MART_ENSEMBL",
+                   dataset = "hsapiens_gene_ensembl")
+probe2id <- getBM(attributes = c("affy_hg_u133_plus_2", "ensembl_gene_id",
+                                 "chromosome_name", "status",
+                                 "external_gene_name", "gene_biotype"),
+                   filters = "affy_hg_u133_plus_2",
+                   values = as.character(fData(gse)$ID),
+                   mart = ensembl)
+head(probe2id)
+```
+
+
+```{r}
+probes <- probe2id[probe2id$chromosome_name %in% c(1:22, "X", "Y", "MT") &
+                   probe2id$gene_biotype == "protein_coding", ]
+nrow(probes)
+length(unique(probes$affy_hg_u133_plus_2))
+```
+
+Keeping only those probes that unambiguously tag one protein-coding gene.
+
+```{r}
+genes_per_probe <- table(probes$affy_hg_u133_plus_2)
+good_probes <- names(genes_per_probe)[genes_per_probe == 1]
+```
+
+Some genes are tagged by more than one probe.
+I'll need to average them somehow to get one value per gene.
+The analysis below continues with the probe IDs.
 
 Following limma manual sections 9.3, 9.5.2, and 9.7.
 
-```{r}
+```{r limma}
 f <- paste(anno$status, anno$treatment, sep = ".")
 f <- factor(f)
 design <- model.matrix(~0 + f)
@@ -112,33 +145,26 @@ vennDiagram(results)
 
 ## Analyze starting from raw data
 
-Download.
-
-```{r}
-getGEOSuppFiles(GEO = "GSE11199")
-untar("GSE11199/GSE11199_RAW.tar", exdir = "GSE11199")
-```
-
-Import.
-
-```{r}
-raw <- ReadAffy(filenames = Sys.glob("GSE11199/*CEL.gz"), compress = TRUE)
-```
-
-Pre-process.
 The only information they provided on GEO was "Raw CEL intensity data were RMA normalized using R/Bioconductor".
 Thus I just used the recommendation from the affy package example for the other steps.
 
-```{r}
-if (file.exists("thuong2008.rds")) {
-  eset <- readRDS("../data/thuong2008.rds")
+```{r process-from-raw}
+process_raw_fname <- "../data/thuong2008.rds"
+if (file.exists(process_raw_fname)) {
+  eset <- readRDS(process_raw_fname)
 } else {
+  # Download
+  getGEOSuppFiles(GEO = "GSE11199")
+  untar("GSE11199/GSE11199_RAW.tar", exdir = "GSE11199")
+  # Import
+  raw <- ReadAffy(filenames = Sys.glob("GSE11199/*CEL.gz"), compress = TRUE)
+  # Pre-process
   eset <- expresso(raw,
                    bgcorrect.method = "rma",
                    normalize.method = "quantiles",
                    pmcorrect.method = "pmonly",
                    summary.method = "medianpolish")
-  saveRDS(eset, "../data/thuong2008.rds")
+  saveRDS(eset, process_raw_fname)
 }
 ```
 
@@ -146,7 +172,7 @@ if (file.exists("thuong2008.rds")) {
 
 My pre-processing obtains results very similar to theirs.
 
-```{r}
+```{r comparison}
 dim(x)
 y <- exprs(eset)
 x[1:5, 1:5]
