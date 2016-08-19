@@ -33,6 +33,16 @@ def begin_document():
 def write_section(text):
     return "\\section*{%s}\n"%(text)
 
+def convert_run(run):
+    result = run.text
+    if run.italic:
+        result = "\emph{" + result + "}"
+    if run.bold:
+        result = "\\textbf{" + result + "}"
+    if run.underline:
+        result = "\\underline{" + result + "}"
+    return result
+
 if __name__ == "__main__":
     fname = sys.argv[1]
     assert fname[-4:] == "docx", "Input file is Word document"
@@ -40,7 +50,9 @@ if __name__ == "__main__":
     sys.stdout.write(doc_class)
     d = docx.Document(fname)
     for line in d.paragraphs:
-        out = line.text
+        out = ""
+        for run in line.runs:
+            out = out + convert_run(run)
         style = line.style.name
         if style == "Title":
             out = write_title(out)
