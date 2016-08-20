@@ -189,7 +189,7 @@ Design matrix Use the group-means parametrization: The mean of each group is
 estimated, and the differences are tested with contasts. See Ch. 9 of limma
 User's Guide.
 
-```{r}
+```{r limma}
 anno <- info_comb
 combined <- paste(anno$status, anno$treatment, sep = ".")
 combined <- factor(combined, levels = c("contact.none", "tb.none",
@@ -283,8 +283,7 @@ ctrl <- trainControl(method = "LOOCV", classProbs = TRUE, savePred = "final")
 Find genes which are different between susceptible and resistant individuals at baseline, but not different between studies.
 
 ```{r genes-for-classifier}
-g <- rownames(training)[results[["diff_before"]]$svalue < .05 &
-                        results[["study_before"]]$svalue > .05]
+g <- rownames(training)[results[["diff_before"]]$svalue < .05]
 length(g)
 genes_for_classifer <- training[g, ]
 genes_for_classifer <- t(genes_for_classifer)
@@ -328,6 +327,18 @@ Visualize results.
 pred_testing <- fit_lbb
 pred_testing <- pred_testing[order(pred_testing$contact), ]
 plot(pred_testing$contact)
+```
+
+## Compare expression levels between the two studies
+
+```{r compare-exp-level}
+training_medians <- apply(genes_for_classifer[-ncol(genes_for_classifer)],
+                          2, median)
+testing_medians <- apply(testing, 2, median)
+plot(training_medians, testing_medians,
+     xlab = "Current study", ylab = "Barreiro et al., 2012",
+     main = "Comparing median expression levels\nof genes used in classifer")
+abline(0, 1, col = "red")
 ```
 
 ## Session information
