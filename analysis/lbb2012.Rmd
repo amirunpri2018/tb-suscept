@@ -13,7 +13,8 @@ output:
 
 ```{r chunk-options}
 library("knitr")
-opts_chunk$set(cache = FALSE, fig.pos = "center")
+opts_chunk$set(cache = FALSE, fig.pos = "center", fig.width = 7, fig.height = 7,
+               dev = c("png", "postscript"))
 ```
 
 ## Setup
@@ -87,10 +88,12 @@ Compare the distributions.
 ```{r distributions}
 rnaseq_medians <- apply(counts_cpm_sub, 1, median)
 summary(rnaseq_medians)
-plot(density(rnaseq_medians))
+plot(density(rnaseq_medians), xlim = c(-1, 15), xlab = "Median gene expression",
+     main = "Distribution in current study")
 array_medians <- apply(lbb2012_sub, 1, median)
 summary(array_medians)
-plot(density(array_medians))
+plot(density(array_medians), xlim = c(-1, 15), xlab = "Median gene expression",
+     main = "Distribution in Barreiro et al., 2012")
 ```
 
 Because they have such different distributions, transform each sample to  a standard normal ($~N(\mu=0, \sigma^(2)=1)$).
@@ -101,13 +104,17 @@ counts_cpm_sub_qq <- apply(counts_cpm_sub, 2, function(x) {
 rownames(counts_cpm_sub_qq) <- rownames(counts_cpm_sub)
 rnaseq_medians_qq <- apply(counts_cpm_sub_qq, 1, median)
 summary(rnaseq_medians_qq)
-plot(density(rnaseq_medians_qq))
+plot(density(rnaseq_medians_qq), xlim = c(-4, 4),
+     xlab = "Median gene expression",
+     main = "Distribution in current study\nafter normalization")
 lbb2012_sub_qq <- apply(lbb2012_sub, 2, function(x) {
   qqnorm(x, plot.it = FALSE)$x})
 rownames(lbb2012_sub_qq) <- rownames(lbb2012_sub)
 array_medians_qq <- apply(lbb2012_sub_qq, 1, median)
 summary(array_medians_qq)
-plot(density(array_medians_qq))
+plot(density(array_medians_qq), xlim = c(-4, 4),
+     xlab = "Median gene expression",
+     main = "Distribution in Barreiro et al., 2012\nafter normalization")
 ```
 
 Combine the two studies.
@@ -135,7 +142,8 @@ PC1 versus PC2.
 ggplot(pca_data, aes(x = PC1, y = PC2, color = study, size = treatment)) +
   geom_point() +
   labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
-       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)),
+       title = "PCA before batch correction")
 ```
 
 PC3 versus PC4.
@@ -178,7 +186,8 @@ PC1 vs. PC2.
 ggplot(pca_data2, aes(x = PC1, y = PC2, color = study, size = treatment)) +
   geom_point() +
   labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained2[1] * 100, 2)),
-       y = sprintf("PC%d (%.2f%%)", 2, round(explained2[2] * 100, 2)))
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained2[2] * 100, 2)),
+       title = "PCA after batch correction")
 ```
 
 Now PC1 is the treatment effect.
@@ -306,7 +315,11 @@ Visualize results.
 pred_training <- fit$pred
 pred_training <- pred_training[order(pred_training$contact), ]
 plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
-                                         "red", "black"))
+                                         "red", "black"),
+     ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of current study")
+abline(h = 0.9, col = "blue")
 ```
 
 ## Test classifier
@@ -326,7 +339,10 @@ Visualize results.
 ```{r vis-lbb}
 pred_testing <- fit_lbb
 pred_testing <- pred_testing[order(pred_testing$contact), ]
-plot(pred_testing$contact)
+plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of Barreiro et al., 2012")
+abline(h = 0.9, col = "blue")
 ```
 
 ## Compare expression levels between the two studies
