@@ -26,6 +26,7 @@ library("ashr")
 library("caret")
 library("glmnet")
 library("ggplot2")
+library("ggdendro")
 library("cowplot")
 ```
 
@@ -355,6 +356,31 @@ plot(training_medians, testing_medians,
      xlab = "Current study", ylab = "Barreiro et al., 2012",
      main = "Comparing median expression levels\nof genes used in classifer")
 abline(0, 1, col = "red")
+```
+
+## Hierarchical clustering
+
+```{r hclust}
+clust_current <- genes_for_classifer[, -ncol(genes_for_classifer)]
+labels <- ifelse(grepl("tb", genes_for_classifer$status),
+                 "susceptible", "resistant")
+labels[labels == "susceptible"] <- paste(labels[labels == "susceptible"],
+                                         1:sum(labels == "susceptible"),
+                                         sep = ".")
+labels[labels == "resistant"] <- paste(labels[labels == "resistant"],
+                                         1:sum(labels == "resistant"),
+                                         sep = ".")
+rownames(clust_current) <- labels
+d1 <- dist(clust_current)
+h1 <- hclust(d1)
+ggdendrogram(h1, rotate = TRUE)
+clust_lbb <- testing
+labels_lbb <- paste0("Luis.", 1:nrow(clust_lbb))
+rownames(clust_lbb) <- labels_lbb
+clust_all <- rbind(clust_current, clust_lbb)
+d2 <- dist(clust_all)
+h2 <- hclust(d2)
+ggdendrogram(h2, rotate = TRUE)
 ```
 
 ## Session information
