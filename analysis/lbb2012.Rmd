@@ -323,6 +323,24 @@ plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
 abline(h = 0.9, col = "blue")
 ```
 
+```{r training-barplot}
+pred_training$classification <- NA
+for (i in 1:nrow(pred_training)) {
+  if (pred_training$contact[i] >= 0.9) {
+    pred_training$classification[i] <- "resistant"
+  } else if (pred_training$contact[i] <= 0.1) {
+    pred_training$classification[i] <- "susceptible"
+  } else {
+    pred_training$classification[i] <- "ambiguous"
+  }
+}
+pred_training$classification <- factor(pred_training$classification,
+                                       levels = c("resistant", "ambiguous", "susceptible"))
+barplot(table(pred_training$classification), xlab = "Classification",
+        ylab = "Number of individuals",
+        main = "Interpretation of classifier results\nof current study")
+```
+
 ## Test classifier
 
 Test on lbb2012.
@@ -345,6 +363,25 @@ plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
      main = "Classifier results of Barreiro et al., 2012")
 abline(h = 0.9, col = "blue")
 ```
+
+```{r testing-barplot}
+pred_testing$classification <- NA
+for (i in 1:nrow(pred_testing)) {
+  if (pred_testing$contact[i] >= 0.9) {
+    pred_testing$classification[i] <- "resistant"
+  } else if (pred_testing$contact[i] <= 0.1) {
+    pred_testing$classification[i] <- "susceptible"
+  } else {
+    pred_testing$classification[i] <- "ambiguous"
+  }
+}
+pred_testing$classification <- factor(pred_testing$classification,
+                                       levels = c("resistant", "ambiguous", "susceptible"))
+barplot(table(pred_testing$classification), xlab = "Classification",
+        ylab = "Number of individuals",
+        main = "Interpretation of classifier results\nof Barreiro et al., 2012")
+```
+
 
 ## Compare expression levels between the two studies
 
