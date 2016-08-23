@@ -33,6 +33,9 @@ def begin_document():
 def write_section(text):
     return "\\section*{%s}\n"%(text)
 
+def write_subsection(text):
+    return "\\subsection*{%s}\n"%(text)
+
 def convert_run(run):
     result = run.text
     if run.italic:
@@ -60,8 +63,10 @@ if __name__ == "__main__":
             out = write_author(out)
         elif style == "Abstract":
             out = write_abstract(out) + begin_document()
-        elif style == "Heading 2":
+        elif style == "Heading 1":
             out = write_section(out)
+        elif style == "Heading 2":
+            out = write_subsection(out)
         sys.stdout.write(out + "\n")
 
     sys.stdout.write("\\end{document}\n")
