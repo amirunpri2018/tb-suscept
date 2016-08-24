@@ -80,6 +80,25 @@ pc_cov_cor_2 <- gather(pc_cov_cor_2, key = "pc", value = "cor", -variable)
 head(pc_cov_cor_2)
 ```
 
+```{r pca-heatmap}
+d_heatmap <- pc_cov_cor_2
+d_heatmap$variable <- factor(d_heatmap$variable,
+                             levels = c("rin", "master_mix",
+                                        "extraction", "arrival", "infection",
+                                        "individual", "status", "treatment"),
+                             labels = c("RNA quality", "Library prep batch",
+                                        "RNA extraction batch", "Arrival batch",
+                                        "Infection batch", "Individual",
+                                        "Susceptibility status", "Treatment"))
+pca_heat <- ggplot(d_heatmap, aes(x = pc, y = variable)) +
+  geom_tile(aes(fill = cor), colour = "white") +
+  scale_fill_gradient(low = "white", high = "red", limits = c(0, 1)) +
+  labs(x = "Principal Component", y = "",
+       title = "Correlation between principal components and experimental variables")
+pca_heat
+```
+
+
 ```{r pca-data}
 pca_data <- cbind(info, pca$x[, p_comps])
 pca_data$status <- factor(pca_data$status, levels = c("contact", "tb"),
@@ -153,7 +172,7 @@ The infection dates with susceptible samples are 2013-04-05, 2014-06-10, and 201
 We clearly see there is variation in PC3 by the date of the infection experiment.
 
 ```{r pc3-infection}
-pc3_infection <- ggplot(pca_data, aes(x = infection, y = PC3, color = treatment)) +
+pc3_infection <- ggplot(pca_data, aes(x = infection, y = PC3, fill = treatment)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title = "PC3 varies by date of infection")
@@ -190,6 +209,28 @@ pc5_status <- pc3_status %+% aes(x = reorder(individual, PC5), y = PC5) +
   labs(title = "PC5 does not correlate with susceptibility status",
        x = "Individual")
 pc5_status
+```
+
+## Multipanel figures
+
+PCA
+
+```{r pca-mulit, fig.width=14, fig.height=14}
+plot_grid(pc1v2 + theme(legend.position = "none"),
+          pc3v4 + theme(legend.position = "none"),
+          pc5v6 + theme(legend.position = "none"),
+          pca_heat,
+          labels = LETTERS[1:4])
+```
+
+Batch effects
+
+```{r effect-of-infection, fig.width=14, fig.height=14}
+plot_grid(pc3_infection + theme(legend.position = "bottom"),
+          pc5_infection  + theme(legend.position = "bottom"),
+          pc3_status + theme(legend.position = "bottom"),
+          pc5_status + theme(legend.position = "bottom"),
+          labels = LETTERS[1:4])
 ```
 
 ## Session information
