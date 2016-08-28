@@ -284,7 +284,7 @@ rule remove_outliers:
     output: counts = data + "counts-filtered.txt",
             info = data + "experiment-info-filtered.txt",
             outliers = data + "outliers.txt"
-    shell: "Rscript {input.script}"
+    shell: "Rscript {input.script} {data}"
 
 # Differential expression analysis with limma
 rule limma:

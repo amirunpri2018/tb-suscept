@@ -6,7 +6,12 @@ suppressPackageStartupMessages(library("plyr"))
 suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("edgeR"))
 
-data_dir <- "data"
+if(interactive()) {
+  data_dir <- "../data"
+} else {
+  data_dir <- commandArgs(trailingOnly = TRUE)
+}
+stopifnot(dir.exists(data_dir))
 
 # Input
 counts <- read.delim(file.path(data_dir, "counts.txt"),
