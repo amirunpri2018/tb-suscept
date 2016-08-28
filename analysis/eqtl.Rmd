@@ -1,0 +1,213 @@
+---
+title: "Compare DE results to eQTL results"
+date: 2016-08-25
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+Are DE genes more likely to be an eQTL in this system?
+
+## Setup
+
+```{r packages, message=FALSE}
+library("plyr")
+library("dplyr")
+library("gdata")
+library("ggplot2")
+library("cowplot")
+```
+
+Input DE statistics from limma analysis.
+
+```{r input-limma}
+results <- readRDS("../data/results-limma-stats.rds")
+results_df <- ldply(results, .id = "contrast")
+# Confirm order is maintained before adding back gene names
+stopifnot(results_df$t == sapply(results, function(x) x$t))
+results_df$gene <- rownames(results[[1]])
+head(results_df)
+```
+
+Process supplemental data from PNAS paper.
+[Barreiro et al., 2012][barreiro2012] infected dendritic cells (DCs) with MTB and identified response eQTLs.
+Table S3 contains the eQTL results.
+
+[barreiro2012]: http://www.pnas.org/content/109/4/1204.long
+
+```{r input-eqtl}
+eqtl_fname <- "../data/eqtl.txt"
+if (file.exists(eqtl_fname)) {
+  dc_eqtl <- read.delim(eqtl_fname)
+} else {
+  dc_eqtl <- read.xls("http://www.pnas.org/content/suppl/2012/01/10/1115761109.DCSupplemental/sd03.xls",
+                      skip = 2, nrow = 11954, stringsAsFactors = FALSE)
+  write.table(dc_eqtl, file = eqtl_fname, quote = FALSE, sep = "\t")  
+}
+dc_eqtl[1, ]
+```
+
+Classify eQTL type.
+
+```{r classify-eqtl}
+dc_eqtl$eqtl_type <- NA
+for (i in 1:nrow(dc_eqtl)) {
+  if (dc_eqtl$General.eQTL_2f[i] == "YES") {
+    dc_eqtl$eqtl_type[i] <- "general"
+  } else if (dc_eqtl$NI.Only.eQTL_2f[i] == "YES") {
+    dc_eqtl$eqtl_type[i] <- "pre"
+  } else if (dc_eqtl$MTB.Only.eQTL_2f[i] == "YES") {
+    dc_eqtl$eqtl_type[i] <- "post"
+  } else {
+    dc_eqtl$eqtl_type[i] <- "non"
+  }
+}
+table(dc_eqtl$eqtl_type)
+```
+
+Combine the two data sets.
+
+```{r combine}
+d <- merge(results_df, dc_eqtl, by.x = "gene", by.y = "Ensembl.gene.ID")
+table(d$eqtl_type[d$contrast == "diff_before"])
+```
+
+## Are susceptibility DE genes more likely to have an eQTL?
+
+```{r}
+ggplot(d, aes(x = logFC, y = P.value.eQTL.NI.samplesb)) +
+  geom_point(alpha = 0.5, aes(color = eqtl_type)) +
+  geom_smooth(method = "lm") +
+  scale_x_log10() +
+  scale_y_log10() +
+  facet_grid(eqtl_type ~ contrast)
+```
+
+```{r}
+ggplot(d[d$eqtl_type != "non" &
+         d$contrast %in% c("diff_before", "diff_after"), ],
+       aes(x = abs(logFC), y = P.value.eQTL.NI.samplesb)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(eqtl_type ~ contrast) +
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+What are those slopes?
+
+```{r}
+x <- d %>%
+  filter(eqtl_type != "non") %>% #,
+             # contrast %in% c("diff_before", "diff_after")) %>%
+  group_by(eqtl_type, contrast) %>%
+  do(mod = lm(P.value.eQTL.NI.samplesb ~ abs(logFC), data = .)) %>%
+  do(data.frame(eqtl_type = .$eqtl_type,
+                contrast = .$contrast,
+                slope = coef(.$mod)[2],
+                t = summary(.$mod)$coefficients[2, 3],
+                p = summary(.$mod)$coefficients[2, 4],
+                r2 = summary(.$mod)$r.squared))
+ggplot(x, aes(x = eqtl_type, y = slope)) + geom_point() + facet_wrap(~contrast)
+ggplot(x, aes(x = eqtl_type, y = abs(t))) + geom_point() + facet_wrap(~contrast)
+ggplot(x, aes(x = eqtl_type, y = p)) + geom_point() + facet_wrap(~contrast)
+ggplot(x, aes(x = eqtl_type, y = r2)) + geom_point() + facet_wrap(~contrast)
+```
+
+
+```{r}
+ggplot(d[d$eqtl_type %in% c("pre", "post", "general") &
+         d$contrast %in% c("diff_before", "diff_after"), ],
+       aes(x = eqtl_type, y = abs(logFC))) +
+  geom_boxplot() +
+  facet_wrap(~contrast) +
+  scale_y_log10()
+```
+
+```{r}
+d %>%
+  filter(eqtl_type %in% c("pre", "post", "general", "non"),
+             contrast %in% c("diff_before", "diff_after")) %>%
+  group_by(eqtl_type, contrast) %>%
+  summarize(lfc = median(abs(logFC)),
+            exp_lev = mean(AveExpr),
+            lfc_sem = sd(abs(logFC)) / n()) %>%
+  ggplot(., aes(x = eqtl_type, y = lfc)) +
+  geom_point() +
+  facet_wrap(~contrast) +
+  geom_linerange(aes(ymin = lfc - lfc_sem,
+                    ymax = lfc + lfc_sem)) +
+  geom_text(aes(label = lfc))
+
+```
+
+```{r}
+d %>%
+  group_by(eqtl_type, contrast) %>%
+  summarize(lfc = median(abs(logFC)),
+            exp_lev = mean(AveExpr),
+            lfc_sem = sd(abs(logFC)) / n()) %>%
+  ggplot(., aes(x = eqtl_type, y = lfc)) +
+  geom_point() +
+  facet_wrap(~contrast, scales = "free_y") +
+  geom_linerange(aes(ymin = lfc - lfc_sem,
+                    ymax = lfc + lfc_sem))
+```
+
+## Overlap of DE genes and genes with eQTLs
+
+Is there a significant overlap in genes that are differentially expressed by susceptibility status and genes that have a response-eQTL?
+
+```{r overlap}
+d$de <- ifelse(d$P.Value < 0.05, "de", "not")
+table(d$de, d$contrast)
+diff_before_de <- d$de[d$contrast == "diff_before" & d$eqtl_type %in% c("pre", "post")]
+diff_after_de <- d$de[d$contrast == "diff_after" & d$eqtl_type %in% c("pre", "post")]
+
+factor_eqtl <- factor(d$eqtl_type[d$eqtl_type %in% c("pre", "post") &
+                                  d$contrast == "diff_before"],
+                      levels = c("pre", "post"))
+table(factor_eqtl)
+table(factor_eqtl, diff_before_de)
+chisq.test(x = factor_eqtl, y = diff_before_de)
+table(factor_eqtl, diff_after_de)
+chisq.test(x = factor_eqtl, y = diff_after_de)
+```
+
+Genes that are DE by susceptibility status and a response-eQTL in the concordant condition.
+
+```{r genes-concordant}
+d %>%
+  filter(eqtl_type == "pre", contrast == "diff_before", de == "de") %>%
+  select(gene) %>% arrange(gene)
+d %>%
+  filter(eqtl_type == "post", contrast == "diff_after", de == "de") %>%
+  select(gene) %>% arrange(gene)
+```
+
+Genes that are DE by susceptibility status and a response-eQTL in the disconcordant condition.
+
+```{r genes-discordant}
+d %>%
+  filter(eqtl_type == "pre", contrast == "diff_after", de == "de") %>%
+  select(gene) %>% arrange(gene)
+d %>%
+  filter(eqtl_type == "post", contrast == "diff_before", de == "de") %>%
+  select(gene) %>% arrange(gene)
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
