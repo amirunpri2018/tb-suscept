@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
 
+suppressPackageStartupMessages(library("plyr"))
 suppressPackageStartupMessages(library("ggplot2"))
 suppressPackageStartupMessages(library("edgeR"))
 suppressPackageStartupMessages(library("VennDiagram"))
 suppressPackageStartupMessages(library("ggbeeswarm"))
 suppressPackageStartupMessages(library("cowplot"))
-suppressPackageStartupMessages(library("plyr"))
 
 if(interactive()) {
   data_dir <- "../data"
@@ -88,6 +88,103 @@ pdf(file.path(fig_dir, "density-filt-genes-filt-samples.pdf"),
 plot_densities(counts_filt_cpm, include_median = TRUE, cutoff = 0,
                main = "Filtered genes, filtered samples",
                xlim = c(-11, 16), ylim = c(0, 0.25))
+invisible(dev.off())
+
+# Batch effects ----------------------------------------------------------------
+# see code/qc-batch.R
+
+pca_data <- read.delim(file.path(data_dir, "results-pca.txt"),
+                       stringsAsFactors = FALSE, row.names = 1)
+pca_data$status <- factor(pca_data$status, levels = c("contact", "tb"),
+                          labels = c("resistant", "susceptible"))
+pca_data$treatment <- factor(pca_data$treatment, levels = c("none", "infected"))
+explained <- readRDS(file.path(data_dir, "results-pca-explained.rds"))
+
+# PC1 versus PC2.
+pc1v2 <- ggplot(pca_data, aes(x = PC1, y = PC2, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
+
+# PC3 versus PC4.
+pc3v4 <- ggplot(pca_data, aes(x = PC3, y = PC4, color = infection)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained[3] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 4, round(explained[4] * 100, 2)))
+
+# PC5 versus PC6.
+pc5v6 <- ggplot(pca_data, aes(x = PC5, y = PC6, color = infection)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained[5] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 6, round(explained[6] * 100, 2)))
+
+d_heatmap <- read.delim(file.path(data_dir, "results-pca-covariates.txt"),
+                        stringsAsFactors = FALSE)
+d_heatmap$covariate <- factor(d_heatmap$covariate,
+                             levels = c("rin", "master_mix",
+                                        "extraction", "arrival", "infection",
+                                        "individual", "status", "treatment"),
+                             labels = c("RNA quality", "Library prep batch",
+                                        "RNA extraction batch", "Arrival batch",
+                                        "Infection batch", "Individual",
+                                        "Susceptibility status", "Treatment"))
+pca_heat <- ggplot(d_heatmap, aes(x = pc, y = covariate)) +
+  geom_tile(aes(fill = cor), colour = "white") +
+  scale_fill_gradient(low = "white", high = "red", limits = c(0, 1), name = "r") +
+  labs(x = "Principal Component", y = "",
+       title = "Correlations with experimental covariates")
+
+p_batch_1 <- plot_grid(pc1v2 + theme(legend.position = "none"),
+                       pc3v4 + theme(legend.position = "none"),
+                       pc5v6 + theme(legend.position = "none"),
+                       pca_heat,
+                       labels = LETTERS[1:4])
+
+postscript(file.path(fig_dir, "batch-pca.eps"),
+           width = 2 * w, height = 2 * h)
+p_batch_1
+invisible(dev.off())
+
+png(file.path(fig_dir, "batch-pca.png"),
+           width = 2 * w, height = 2 * h, units = "in", res = 72)
+p_batch_1
+invisible(dev.off())
+
+# Further investigate correlation of infection batch with PC3 and PC5
+
+pc3_infection <- ggplot(pca_data, aes(x = infection, y = PC3, fill = treatment)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title = "PC3 varies by date of infection")
+
+pc3_status <- ggplot(pca_data, aes(x = reorder(individual, PC3), y = PC3, color = status)) +
+  geom_point() +
+  facet_wrap(~treatment) +
+  labs(title = "PC3 does not correlate with susceptibility status",
+       x = "Individual") +
+  theme(axis.text.x = element_text(angle = 90, size = rel(0.5)))
+
+pc5_infection <- pc3_infection %+% aes(y = PC5) +
+  labs(title = "PC5 varies by date of infection")
+
+pc5_status <- pc3_status %+% aes(x = reorder(individual, PC5), y = PC5) +
+  labs(title = "PC5 does not correlate with susceptibility status",
+       x = "Individual")
+
+p_batch_2 <- plot_grid(pc3_infection + theme(legend.position = "bottom"),
+                       pc5_infection  + theme(legend.position = "bottom"),
+                       pc3_status + theme(legend.position = "bottom"),
+                       pc5_status + theme(legend.position = "bottom"),
+                       labels = LETTERS[1:4])
+
+postscript(file.path(fig_dir, "batch-infection.eps"),
+           width = 2 * w, height = 2 * h)
+p_batch_2
+invisible(dev.off())
+
+png(file.path(fig_dir, "batch-infection.png"),
+    width = 2 * w, height = 2 * h, units = "in", res = 72)
+p_batch_2
 invisible(dev.off())
 
 # Differential expression with limma -------------------------------------------

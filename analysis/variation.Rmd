@@ -53,7 +53,7 @@ explained <- variances / sum(variances)
 plot(pca, main = "Variance per PC")
 ```
 
-Calculate the relationship between each recorded covariate and the top 5 PCs.
+Calculate the relationship between each recorded covariate and the top 6 PCs.
 
 ```{r pc-covariate-correlation}
 p_comps <- 1:6

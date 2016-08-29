@@ -286,6 +286,16 @@ rule remove_outliers:
             outliers = data + "outliers.txt"
     shell: "Rscript {input.script} {data}"
 
+# Check for technical batch effects
+rule batch:
+    input: counts = data + "counts-filtered.txt",
+           info = data + "experiment-info-filtered.txt",
+           script = code + "qc-batch.R"
+    output: pca = data + "results-pca.txt",
+            explained = data + "results-pca-explained.rds",
+            covariates = data + "results-pca-covariates.txt"
+    shell: "Rscript {input.script} {data}"
+
 # Differential expression analysis with limma
 rule limma:
     input: counts = data + "counts-filtered.txt",
@@ -308,10 +318,17 @@ rule create_figures:
     input: data +  "cpm-all.rds",
            data + "counts.txt",
            data + "counts-filtered.txt",
+           pca = data + "results-pca.txt",
+           explained = data + "results-pca-explained.rds",
+           covariates = data + "results-pca-covariates.txt",
            script = code + "create-figures.R"
     output: figure + "density-all-genes-all-samples.pdf",
             figure + "density-filt-genes-all-samples.pdf",
             figure + "density-filt-genes-filt-samples.pdf",
+            figure + "batch-pca.eps",
+            figure + "batch-pca.png",
+            figure + "batch-infection.eps",
+            figure + "batch-infection.png",
             figure + "ma-diff-after.pdf",
             figure + "ma-diff-before.pdf",
             figure + "ma-diff-treat.pdf",
