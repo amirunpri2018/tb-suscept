@@ -62,11 +62,6 @@ library("dplyr")
 library("GenomicRanges")
 library("ggplot2")
 library("cowplot")
-theme_set(theme_bw(base_size = 14))
-theme_update(panel.grid.minor.x = element_blank(),
-             panel.grid.minor.y = element_blank(),
-             panel.grid.major.x = element_blank(),
-             panel.grid.major.y = element_blank())
 ```
 
 Input the results of the model fit by limma.
@@ -107,9 +102,9 @@ Obtain the transcription start site (TSS) for each gene.
 
 ```{r obtain-tss}
 # Ensembl 83, Dec 2015, grch38.p5, hg38
-ensembl <- useMart(host = "dec2015.archive.ensembl.org",
-                   biomart = "ENSEMBL_MART_ENSEMBL",
-                   dataset = "hsapiens_gene_ensembl")
+# ensembl <- useMart(host = "dec2015.archive.ensembl.org",
+#                    biomart = "ENSEMBL_MART_ENSEMBL",
+#                    dataset = "hsapiens_gene_ensembl")
 tss_all_fname <- "../data/tss-all.rds"
 if (file.exists(tss_all_fname)) {
   tss_all <- readRDS(tss_all_fname)
@@ -159,6 +154,7 @@ if (file.exists(snp_coords_fname)) {
                          ifnotfound = "drop")
   saveRDS(snp_coords, file = snp_coords_fname)
 }
+stopifnot(mcols(snp_coords)$RefSNP_id %in% gwas_thye_ghana$SNP)
 ```
 
 Overlap the SNPs with the genes.
@@ -199,6 +195,7 @@ Add GWAS p-values.
 ```{r add-gwas-pval}
 rownames(gwas_thye_ghana) <- gwas_thye_ghana$SNP
 results$gwas_p <- gwas_thye_ghana[results$rsID, "PVAL"]
+stopifnot(!is.na(results$gwas_p))
 ```
 
 For each gene, assign the minimum p-value of all its nearby SNPs.
@@ -230,23 +227,31 @@ results <- merge(results, limma_coef, by.x = "gene", by.y = "row.names")
 Convert the coefficients to their absolute value.
 
 ```{r abs-val}
-results <- results %>%
-  mutate(infected = abs(infected), tb = abs(tb), infected.tb = abs(infected.tb),
-         Intercept = abs(Intercept))
+for (test in colnames(limma_coef)) {
+  results[, test] <- abs(results[, test])
+}
 ```
 
 Create categorical variables to identify genes with absolute effect sizes greater or less than 1.
 
 ```{r split-effect-size}
-results$de_infected <- ifelse(results$infected > 1, "|beta| > 1", "|beta| <= 1")
-results$de_tb <- ifelse(results$tb > 1, "|beta| > 1", "|beta| <= 1")
-results$de_infected.tb <- ifelse(results$infected.tb > 1, "|beta| > 1", "|beta| <= 1")
+for (test in colnames(limma_coef)) {
+  new_col <- paste0("de_", test)
+  results[, new_col] <- ifelse(results[, test] > 1, "|logFC| > 1",
+                               "|logFC| <= 1")
+  results[, new_col] <- factor(results[, new_col],
+                               levels = c("|logFC| <= 1", "|logFC| > 1"))
+}
+results %>% select(starts_with("de_")) %>% summary
 ```
 
 As a sanity check to confirm that our strategy of choosing the minimum SNP per gene is not biased, check that the mean expression level (i.e. the intercept term from the model) is not associated with lower p-values.
 
 ```{r enrich-intercept}
-test_intercept <- lm(gwas_p ~ Intercept, data = results)
+mean_expression_level <- fit$Amean[results$gene]
+stopifnot(results$gene == names(mean_expression_level))
+results$mean_expression_level <- mean_expression_level
+test_intercept <- lm(gwas_p ~ mean_expression_level, data = results)
 summary(test_intercept)
 ```
 
@@ -256,86 +261,110 @@ genes with higher mean expression (and thus with more statistical power to call 
 
 ## Results - Enrichment of GWAS p-values
 
-Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB?
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB in resistant individuals?
 
-```{r enrich-infected}
-dist_infected <- ggplot(results, aes(x = infected, y = gwas_p)) +
+```{r enrich-treat-resist}
+dist_treat_resist <- ggplot(results, aes(x = treat_resist, y = gwas_p)) +
   geom_point(alpha = 0.5) +
   geom_vline(xintercept = 1, color = "red") +
-  labs(x = "|beta| for infection", y = "GWAS p-value",
+  labs(x = "|logFC| treat_resist", y = "GWAS p-value",
        title = "GWAS p-value vs. DE effect size")
-wilcox_infected <- wilcox.test(gwas_p ~ de_infected, data = results)
-enrich_infected <- ggplot(results, aes(x = de_infected, y = gwas_p)) +
+wilcox_treat_resist <- wilcox.test(gwas_p ~ de_treat_resist, data = results)
+enrich_treat_resist <- ggplot(results, aes(x = de_treat_resist, y = gwas_p)) +
   geom_boxplot() +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_infected$p.value),
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_treat_resist$p.value),
        x = "DE effect size", y = "GWAS p-value")
-plot_grid(dist_infected, enrich_infected, nrow = 1)
+plot_grid(dist_treat_resist, enrich_treat_resist, nrow = 1)
 ```
 
-Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB?
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed following treatment with MTB in susceptible individuals?
 
-```{r enrich-tb}
-dist_tb <- dist_infected %+% aes(x = tb) +
-  labs(x = "|beta| for susceptibility status")
-wilcox_tb <- wilcox.test(gwas_p ~ de_tb, data = results)
-enrich_tb <- enrich_infected %+% aes(x = de_tb) +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_tb$p.value),
+```{r enrich-treat-suscept}
+dist_treat_suscept <- dist_treat_resist %+% aes(x = treat_suscept) +
+  labs(x = "|logFC| treat_suscept")
+wilcox_treat_suscept <- wilcox.test(gwas_p ~ de_treat_suscept, data = results)
+enrich_treat_suscept <- enrich_treat_resist %+% aes(x = de_treat_suscept) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_treat_suscept$p.value),
+       x = "DE effect size")
+plot_grid(dist_treat_suscept, enrich_treat_suscept, nrow = 1)
+```
+
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB in the noninfected state?
+
+```{r enrich-diff-before}
+dist_diff_before <- dist_treat_resist %+% aes(x = diff_before) +
+  labs(x = "|logFC| diff_before")
+wilcox_diff_before <- wilcox.test(gwas_p ~ de_diff_before, data = results)
+enrich_diff_before <- enrich_treat_resist %+% aes(x = de_diff_before) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_diff_before$p.value),
                        x = "DE effect size")
-plot_grid(dist_tb, enrich_tb, nrow = 1)
+plot_grid(dist_diff_before, enrich_diff_before, nrow = 1)
+```
+
+Is there an enrichment of GWAS p-values for SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB in the infected state?
+
+```{r enrich-diff-after}
+dist_diff_after <- dist_treat_resist %+% aes(x = diff_after) +
+  labs(x = "|logFC| diff_after")
+wilcox_diff_after <- wilcox.test(gwas_p ~ de_diff_after, data = results)
+enrich_diff_after <- enrich_treat_resist %+% aes(x = de_diff_after) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_diff_after$p.value),
+                       x = "DE effect size")
+plot_grid(dist_diff_after, enrich_diff_after, nrow = 1)
 ```
 
 Is there an enrichment of GWAS p-values for SNPs nearby genes in which the differential expression following treatment with MTB is different between individuals that are resistant or susceptible to TB?
 
-```{r enrich-infected.tb}
-dist_infected.tb <- dist_infected %+% aes(x = infected.tb) +
-  labs(x = "|beta| for interaction term")
-wilcox_infected.tb <- wilcox.test(gwas_p ~ de_infected.tb, data = results)
-enrich_infected.tb <- enrich_infected %+% aes(x = de_infected.tb) +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_infected.tb$p.value),
+```{r enrich-diff-treat}
+dist_diff_treat <- dist_treat_resist %+% aes(x = diff_treat) +
+  labs(x = "|logFC| diff_treat")
+wilcox_diff_treat <- wilcox.test(gwas_p ~ de_diff_treat, data = results)
+enrich_diff_treat <- enrich_treat_resist %+% aes(x = de_diff_treat) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_diff_treat$p.value),
                        x = "DE effect size")
-plot_grid(dist_infected.tb, enrich_infected.tb, nrow = 1)
+plot_grid(dist_diff_treat, enrich_diff_treat, nrow = 1)
 ```
 
 ## Investigating relationship between effect size and number of SNPs
 
 Is there an increase in GWAS SNPs nearby genes that are differentially expressed following treatment with MTB?
 
-```{r snps-infected}
-dist_snps_infected <- ggplot(results, aes(x = infected, y = n_snps)) +
+```{r snps-treat-resist}
+dist_snps_treat_resist <- ggplot(results, aes(x = treat_resist, y = n_snps)) +
   geom_point(alpha = 0.5) +
   geom_vline(xintercept = 1, color = "red") +
-  labs(x = "|beta| for infection", y = "Number of SNPs nearby gene",
+  labs(x = "|logFC| treat_resist", y = "Number of SNPs nearby gene",
        title = "Number of SNPs vs. DE effect size")
-wilcox_snps_infected <- wilcox.test(n_snps ~ de_infected, data = results)
-enrich_infected <- ggplot(results, aes(x = de_infected, y = n_snps)) +
+wilcox_snps_treat_resist <- wilcox.test(n_snps ~ de_treat_resist, data = results)
+enrich_treat_resist <- ggplot(results, aes(x = de_treat_resist, y = n_snps)) +
   geom_boxplot() +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_infected$p.value),
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_treat_resist$p.value),
        x = "DE effect size", y = "Number of SNPs nearby gene")
-plot_grid(dist_snps_infected, enrich_infected, nrow = 1)
+plot_grid(dist_snps_treat_resist, enrich_treat_resist, nrow = 1)
 ```
 
-Is there an increase in GWAS SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB?
+Is there an increase in GWAS SNPs nearby genes that are differentially expressed between individuals that are resistant or susceptible to TB in the noninfected state?
 
-```{r snps-tb}
-dist_snps_tb <- dist_snps_infected %+% aes(x = tb) +
-  labs(x = "|beta| for susceptibility status")
-wilcox_snps_tb <- wilcox.test(n_snps ~ de_tb, data = results)
-enrich_tb <- enrich_infected %+% aes(x = de_tb) +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_tb$p.value),
+```{r snps-diff-before}
+dist_snps_diff_before <- dist_snps_treat_resist %+% aes(x = diff_before) +
+  labs(x = "|logFC| diff_before")
+wilcox_snps_diff_before <- wilcox.test(n_snps ~ de_diff_before, data = results)
+enrich_diff_before <- enrich_treat_resist %+% aes(x = de_diff_before) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_diff_before$p.value),
        x = "DE effect size")
-plot_grid(dist_snps_tb, enrich_tb, nrow = 1)
+plot_grid(dist_snps_diff_before, enrich_diff_before, nrow = 1)
 ```
 
 Is there an increase in GWAS SNPs nearby genes in which the differential expression following treatment with MTB is different between individuals that are resistant or susceptible to TB?
 
-```{r snps-infected.tb}
-dist_snps_infected.tb <- dist_snps_infected %+% aes(x = infected.tb) +
-  labs(x = "|beta| for interaction term")
-wilcox_snps_infected.tb <- wilcox.test(n_snps ~ de_infected.tb, data = results)
-enrich_infected.tb <- enrich_infected %+% aes(x = de_infected.tb) +
-  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_infected.tb$p.value),
+```{r snps-diff-treat}
+dist_snps_diff_treat <- dist_snps_treat_resist %+% aes(x = diff_treat) +
+  labs(x = "|logFC| diff_treat")
+wilcox_snps_diff_treat <- wilcox.test(n_snps ~ de_diff_treat, data = results)
+enrich_diff_treat <- enrich_treat_resist %+% aes(x = de_diff_treat) +
+  labs(title = sprintf("Wilcox test p-value: %.2e", wilcox_snps_diff_treat$p.value),
                        x = "DE effect size")
-plot_grid(dist_snps_infected.tb, enrich_infected.tb, nrow = 1)
+plot_grid(dist_snps_diff_treat, enrich_diff_treat, nrow = 1)
 ```
 
 ## log-log plots and trend lines
@@ -344,28 +373,44 @@ I obtained significant results when splitting the data in two: genes with effect
 If I perform a linear regression, only the effect of treatment is statistically significant.
 It is easier to see why this is when viewing the log-log transformed plot, which is always the plot in the right panel below.
 
-Effect of treatment.
+Effect of treatment in resistant individuals.
 
-```{r log-infected}
-summary(lm(gwas_p ~ infected, data = results))
-plot_grid(dist_infected + geom_smooth(method = "lm"),
-          dist_infected + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```{r log-treat-resist}
+summary(lm(gwas_p ~ treat_resist, data = results))
+plot_grid(dist_treat_resist + geom_smooth(method = "lm"),
+          dist_treat_resist + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
 ```
 
-Effect of susceptibility status.
+Effect of treatment in susceptible individuals.
 
-```{r log-tb}
-summary(lm(gwas_p ~ tb, data = results))
-plot_grid(dist_tb + geom_smooth(method = "lm"),
-          dist_tb + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```{r log-treat-suscept}
+summary(lm(gwas_p ~ treat_suscept, data = results))
+plot_grid(dist_treat_suscept + geom_smooth(method = "lm"),
+          dist_treat_suscept + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```
+
+Effect of susceptibility status in noninfected state.
+
+```{r log-diff-before}
+summary(lm(gwas_p ~ diff_before, data = results))
+plot_grid(dist_diff_before + geom_smooth(method = "lm"),
+          dist_diff_before + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```
+
+Effect of susceptibility status in infected state.
+
+```{r log-diff-after}
+summary(lm(gwas_p ~ diff_after, data = results))
+plot_grid(dist_diff_after + geom_smooth(method = "lm"),
+          dist_diff_after + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
 ```
 
 Effect of interaction term.
 
-```{r log-infected.tb}
-summary(lm(gwas_p ~ infected.tb, data = results))
-plot_grid(dist_infected.tb + geom_smooth(method = "lm"),
-          dist_infected.tb + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
+```{r log-diff-treat}
+summary(lm(gwas_p ~ diff_treat, data = results))
+plot_grid(dist_diff_treat + geom_smooth(method = "lm"),
+          dist_diff_treat + geom_smooth(method = "lm") + scale_x_log10() + scale_y_log10())
 ```
 
 ## Session information
