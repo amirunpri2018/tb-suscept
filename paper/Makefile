@@ -1,10 +1,11 @@
 
-NAME := test
-BIB := sample.bib
+NAME := tb-suscept
+BIB := references
 
 all: $(NAME).pdf
 
-$(NAME).pdf: $(NAME).tex $(BIB)
+$(NAME).pdf: $(NAME).tex $(BIB).bib
+	python format-bibtex.py $(BIB).bib
 	pdflatex $(NAME)
 	bibtex $(NAME)
 	pdflatex $(NAME)

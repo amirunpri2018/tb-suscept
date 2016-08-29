@@ -9,6 +9,18 @@ import sys
 
 doc_class = "\documentclass[fleqn,10pt]{wlscirep}\n"
 
+# LaTeX macro for labeling supplementary tables and figures.
+# http://bytesizebio.net/2013/03/11/adding-supplementary-tables-and-figures-in-latex/
+label_supp = """
+\\newcommand{\\beginsupplement}{%
+ \\setcounter{table}{0}
+ \\renewcommand{\\thetable}{S\\arabic{table}}%
+ \\setcounter{figure}{0}
+ \\renewcommand{\\thefigure}{S\\arabic{figure}}%
+ }
+
+"""
+
 def convert_style_to_macro(style):
     if style == "Title":
         return "title"
@@ -51,6 +63,7 @@ if __name__ == "__main__":
     assert fname[-4:] == "docx", "Input file is Word document"
     assert os.path.exists(fname), "Input file exists"
     sys.stdout.write(doc_class)
+    sys.stdout.write(label_supp)
     d = docx.Document(fname)
     for line in d.paragraphs:
         out = ""
@@ -65,6 +78,8 @@ if __name__ == "__main__":
             out = write_abstract(out) + begin_document()
         elif style == "Heading 1":
             out = write_section(out)
+            if "Supplementary Information" in out:
+                out = "\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
         sys.stdout.write(out + "\n")
