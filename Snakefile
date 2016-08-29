@@ -338,6 +338,8 @@ rule create_figures:
             figure + "pval-diff-treat.pdf",
             figure + "pval-treat-resist.pdf",
             figure + "pval-treat-suscept.pdf",
+            figure + "limma.eps",
+            figure + "limma.png",
             figure + "class-prob-elastic-net-s0.05.pdf",
             figure + "class-prob-elastic-net-s0.15.pdf",
             figure + "class-prob-elastic-net-s0.1.pdf",

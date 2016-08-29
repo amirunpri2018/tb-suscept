@@ -200,7 +200,7 @@ plot_ma <- function(x, qval) {
             is.numeric(qval), qval <= 1, qval >= 0)
   x$highlight <- ifelse(x$qvalue < qval, "darkred", "gray75")
   ggplot(x, aes(x = AveExpr, y = logFC, color = highlight)) +
-  geom_point(size = 0.5, alpha = 0.5) +
+  geom_point(size = 0.5) +
   labs(x = "Average expression level", y = "Log fold change") +
   scale_color_identity()
 #   scale_color_gradient(low = "red", high = "white", limits = c(0, 0.25))
@@ -222,27 +222,33 @@ results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
 # Difference between susceptible and resistant individuals before treatment
 pdf(file.path(fig_dir, "ma-diff-before.pdf"),
     width = w, height = h, useDingbats = FALSE)
-plot_ma(results[["diff_before"]], qval = 0.1) +
+ma_diff_before <- plot_ma(results[["diff_before"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant individuals\nbefore treatment")
+  labs(title = "Difference between susceptible and resistant\nindividuals before treatment")
+ma_diff_before
 invisible(dev.off())
 pdf(file.path(fig_dir, "pval-diff-before.pdf"),
     width = w, height = h, useDingbats = FALSE)
-plot_pval_hist(results[["diff_before"]]) +
-  labs(title = "Difference between susceptible and resistant individuals\nbefore treatment")
+pval_diff_before <- plot_pval_hist(results[["diff_before"]]) +
+  ylim(0, 325) +
+  labs(title = "Difference between susceptible and resistant\nindividuals before treatment")
+pval_diff_before
 invisible(dev.off())
 
 # Difference between susceptible and resistant individuals after treatment
 pdf(file.path(fig_dir, "ma-diff-after.pdf"),
     width = w, height = h, useDingbats = FALSE)
-plot_ma(results[["diff_after"]], qval = 0.1) +
+ma_diff_after <- plot_ma(results[["diff_after"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant individuals\nafter treatment")
+  labs(title = "Difference between susceptible and resistant\nindividuals after treatment")
+ma_diff_after
 invisible(dev.off())
 pdf(file.path(fig_dir, "pval-diff-after.pdf"),
     width = w, height = h, useDingbats = FALSE)
-plot_pval_hist(results[["diff_after"]]) +
-  labs(title = "Difference between susceptible and resistant individuals\nafter treatment")
+pval_diff_after <- plot_pval_hist(results[["diff_after"]]) +
+  ylim(0, 325) +
+  labs(title = "Difference between susceptible and resistant\nindividuals after treatment")
+pval_diff_after
 invisible(dev.off())
 
 # Effect of treatment in resistant individuals
@@ -280,6 +286,23 @@ pdf(file.path(fig_dir, "pval-diff-treat.pdf"),
     width = w, height = h, useDingbats = FALSE)
 plot_pval_hist(results[["diff_treat"]]) +
   labs(title = "Difference in effect of treatment between\nsusceptible and resistant individuals")
+invisible(dev.off())
+
+# Multipanel figure
+p_limma <- plot_grid(pval_diff_before,
+                     pval_diff_after,
+                     ma_diff_before + labs(title = ""),
+                     ma_diff_after + labs(title = ""),
+                     labels = LETTERS[1:4])
+
+postscript(file.path(fig_dir, "limma.eps"),
+           width = 2 * w, height = 2 * h)
+p_limma
+invisible(dev.off())
+
+png(file.path(fig_dir, "limma.png"),
+    width = 2 * w, height = 2 * h, units = "in", res = 72)
+p_limma
 invisible(dev.off())
 
 # Venn diagram of DE gene overlap
