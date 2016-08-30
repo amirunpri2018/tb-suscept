@@ -120,7 +120,7 @@ if __name__ == "__main__":
         elif style == "Heading 1":
             out = write_section(out)
             if "Supplementary Information" in out:
-                out = "\\newpage\n\\beginsupplement\n" + out
+                out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
         sys.stdout.write(out + "\n")
