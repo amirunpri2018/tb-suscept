@@ -30,6 +30,17 @@ h <- 7
 #              panel.grid.major.x = element_blank(),
 #              panel.grid.major.y = element_blank())
 
+my_ggsave <- function(fname, dims = c(1, 1)) {
+  # Save the last plot using these defaults.
+  #
+  # fname - character string of base filename (no path)
+  # dims - multiplication factors of default width and height.
+  #        numeric vector of length 2: (width, height)
+  ggsave(fname, path = fig_dir,
+         width = w * dims[1], height = h * dims[2], units = "in",
+         dpi = 300)
+}
+
 # Filter genes -----------------------------------------------------------------
 # See code/qc-genes.R
 
@@ -297,16 +308,9 @@ p_limma <- plot_grid(pval_diff_before,
                      ma_diff_before + labs(title = ""),
                      ma_diff_after + labs(title = ""),
                      labels = letters[1:4])
-
-postscript(file.path(fig_dir, "limma.eps"),
-           width = 2 * w, height = 2 * h)
-p_limma
-invisible(dev.off())
-
-png(file.path(fig_dir, "limma.png"),
-    width = 2 * w, height = 2 * h, units = "in", res = 72)
-p_limma
-invisible(dev.off())
+my_ggsave("limma.eps", dims = c(2, 2))
+my_ggsave("limma.pdf", dims = c(2, 2))
+my_ggsave("limma.png", dims = c(2, 2))
 
 # Venn diagram of DE gene overlap
 # Not saving because they aren't very informative
@@ -384,15 +388,9 @@ gwas_slopes_gambia <- ggplot(gwas_lm[gwas_lm$population == "gambia", ],
 
 gwas_multi <- plot_grid(gwas_scatter, gwas_slopes_gambia, labels = letters[1:2])
 
-postscript(file.path(fig_dir, "gwas.eps"),
-           width = 2 * w, height = h)
-gwas_multi
-invisible(dev.off())
-
-png(file.path(fig_dir, "gwas.png"),
-    width = 2 * w, height = h, units = "in", res = 72)
-gwas_multi
-invisible(dev.off())
+my_ggsave("gwas.eps", dims = c(2, 1))
+my_ggsave("gwas.pdf", dims = c(2, 1))
+my_ggsave("gwas.png", dims = c(2, 1))
 
 # Correlation with number of SNPs per gene
 # cor(gwas_results$n_snps, gwas_results$gwas_p_gambia)
@@ -400,7 +398,6 @@ invisible(dev.off())
 #      xlab = "Number of SNPs nearby gene",
 #      ylab = "Minimum GWAS p-value",
 #      main = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs")
-
 
 # Classifier -------------------------------------------------------------------
 # see code/main-classifier.R

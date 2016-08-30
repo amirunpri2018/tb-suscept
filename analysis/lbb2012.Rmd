@@ -456,6 +456,22 @@ abline(h = 0.8, col = "blue")
 invisible(dev.off())
 ```
 
+```{r multi-pdf}
+pdf("../figure/classifier.pdf", width = 14, height = 7)
+par(mfrow = c(1, 2))
+plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
+                                         "red", "black"),
+     ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of current study")
+abline(h = 0.8, col = "blue")
+plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of Barreiro et al., 2012")
+abline(h = 0.8, col = "blue")
+invisible(dev.off())
+```
+
 ## Session information
 
 ```{r info}
