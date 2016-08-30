@@ -6,10 +6,10 @@ all: $(NAME).pdf
 
 $(NAME).pdf: $(NAME).tex $(BIB).bib
 	python format-bibtex.py $(BIB).bib
-	pdflatex $(NAME)
+	pdflatex -shell-escape $(NAME)
 	bibtex $(NAME)
-	pdflatex $(NAME)
-	pdflatex $(NAME)
+	pdflatex -shell-escape $(NAME)
+	pdflatex -shell-escape $(NAME)
 
 $(NAME).tex: $(NAME).docx
 	python build-paper.py $< > $@

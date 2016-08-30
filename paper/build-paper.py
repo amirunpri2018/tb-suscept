@@ -11,7 +11,8 @@ import pdb
 doc_class = "\documentclass[fleqn,10pt]{wlscirep}\n"
 
 # List of packages to be loaded in preamble
-packages = ["fixltx2e"]
+packages = ["fixltx2e",
+            "epstopdf"] # Convert EPS to PDF
 
 # LaTeX macro for labeling supplementary tables and figures.
 # http://bytesizebio.net/2013/03/11/adding-supplementary-tables-and-figures-in-latex/
