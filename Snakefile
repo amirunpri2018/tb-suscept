@@ -350,7 +350,7 @@ rule create_figures:
             figure + "pval-treat-suscept.pdf",
             figure + "limma.eps",
             figure + "limma.png",
-            figure + "gwas.pdf",
+            figure + "gwas.eps",
             figure + "gwas.png",
             figure + "class-prob-elastic-net-s0.05.pdf",
             figure + "class-prob-elastic-net-s0.15.pdf",

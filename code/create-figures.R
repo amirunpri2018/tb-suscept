@@ -199,10 +199,13 @@ plot_ma <- function(x, qval) {
   stopifnot(is.data.frame(x), c("logFC", "AveExpr", "qvalue") %in% colnames(x),
             is.numeric(qval), qval <= 1, qval >= 0)
   x$highlight <- ifelse(x$qvalue < qval, "darkred", "gray75")
-  ggplot(x, aes(x = AveExpr, y = logFC, color = highlight)) +
-  geom_point(size = 0.5) +
-  labs(x = "Average expression level", y = "Log fold change") +
-  scale_color_identity()
+  x$highlight <- factor(x$highlight, levels = c("darkred", "gray75"))
+  ggplot(x, aes(x = AveExpr, y = logFC, color = highlight, shape = highlight)) +
+    geom_point() +
+    labs(x = "Average expression level", y = "Log fold change") +
+    scale_color_identity(drop = FALSE) +
+    scale_shape_manual(values = c(16, 1), drop = FALSE) +
+    theme(legend.position = "none")
 #   scale_color_gradient(low = "red", high = "white", limits = c(0, 0.25))
 }
 
@@ -351,8 +354,8 @@ gwas_lm <- read.delim(file.path(data_dir, "results-gwas-lm.txt"),
                       stringsAsFactors = FALSE)
 
 gwas_scatter <- ggplot(gwas_results, aes(x = diff_before, y = gwas_p_gambia)) +
-  geom_point(alpha = 0.25) +
-  geom_smooth(method = "lm", col = "red") +
+  geom_point(shape = 1) +
+  geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "|logFC| between susceptible and resistant\nindividuals in the noninfected state",
        y = "GWAS p-value",
        title = "GWAS p-value vs. DE effect size")
@@ -381,7 +384,7 @@ gwas_slopes_gambia <- ggplot(gwas_lm[gwas_lm$population == "gambia", ],
 
 gwas_multi <- plot_grid(gwas_scatter, gwas_slopes_gambia, labels = letters[1:2])
 
-pdf(file.path(fig_dir, "gwas.pdf"),
+postscript(file.path(fig_dir, "gwas.eps"),
            width = 2 * w, height = h)
 gwas_multi
 invisible(dev.off())

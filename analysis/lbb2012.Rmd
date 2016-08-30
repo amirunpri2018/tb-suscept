@@ -321,7 +321,7 @@ plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
      ylim = c(0, 1), xlab = "Individual",
      ylab = "Predicted probability of TB resistance",
      main = "Classifier results of current study")
-abline(h = 0.9, col = "blue")
+abline(h = 0.8, col = "blue")
 ```
 
 ```{r training-barplot}
@@ -362,7 +362,7 @@ pred_testing <- pred_testing[order(pred_testing$contact), ]
 plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
      ylab = "Predicted probability of TB resistance",
      main = "Classifier results of Barreiro et al., 2012")
-abline(h = 0.9, col = "blue")
+abline(h = 0.8, col = "blue")
 ```
 
 ```{r testing-barplot}
@@ -419,6 +419,41 @@ clust_all <- rbind(clust_current, clust_lbb)
 d2 <- dist(clust_all)
 h2 <- hclust(d2)
 ggdendrogram(h2, rotate = TRUE)
+```
+
+## Mutlipanel figure
+
+```{r multi-eps}
+postscript("../figure/classifier.eps", width = 14, height = 7)
+par(mfrow = c(1, 2))
+plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
+                                         "red", "black"),
+     ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of current study")
+abline(h = 0.8, col = "blue")
+plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of Barreiro et al., 2012")
+abline(h = 0.8, col = "blue")
+invisible(dev.off())
+```
+
+```{r multi-png}
+png("../figure/classifier.png", width = 14, height = 7,
+    units = "in", res = 72)
+par(mfrow = c(1, 2))
+plot(pred_training$contact, col = ifelse(pred_training$obs == "tb",
+                                         "red", "black"),
+     ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of current study")
+abline(h = 0.8, col = "blue")
+plot(pred_testing$contact, ylim = c(0, 1), xlab = "Individual",
+     ylab = "Predicted probability of TB resistance",
+     main = "Classifier results of Barreiro et al., 2012")
+abline(h = 0.8, col = "blue")
+invisible(dev.off())
 ```
 
 ## Session information
