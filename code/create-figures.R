@@ -293,7 +293,7 @@ p_limma <- plot_grid(pval_diff_before,
                      pval_diff_after,
                      ma_diff_before + labs(title = ""),
                      ma_diff_after + labs(title = ""),
-                     labels = LETTERS[1:4])
+                     labels = letters[1:4])
 
 postscript(file.path(fig_dir, "limma.eps"),
            width = 2 * w, height = 2 * h)
@@ -341,6 +341,63 @@ venn_treat <- draw.triple.venn(
   alpha = c(0.5, 0.5, 0.5), col = "black", cex = 2, cat.cex = 1.5,
   euler.d = FALSE, scaled = FALSE, ind = FALSE)
 # grid.draw(venn_treat)
+
+# GWAS enrichment --------------------------------------------------------------
+# see code/main-gwas.R
+
+gwas_results <- read.delim(file.path(data_dir, "results-gwas.txt"),
+                           stringsAsFactors = FALSE)
+gwas_lm <- read.delim(file.path(data_dir, "results-gwas-lm.txt"),
+                      stringsAsFactors = FALSE)
+
+gwas_scatter <- ggplot(gwas_results, aes(x = diff_before, y = gwas_p_gambia)) +
+  geom_point(alpha = 0.25) +
+  geom_smooth(method = "lm", col = "red") +
+  labs(x = "|logFC| between susceptible and resistant\nindividuals in the noninfected state",
+       y = "GWAS p-value",
+       title = "GWAS p-value vs. DE effect size")
+
+# Remove interaction term b/c basically the same as noninfected state
+gwas_lm <- gwas_lm[gwas_lm$test != "diff_treat", ]
+gwas_lm$test <- factor(gwas_lm$test,
+                       levels = c("mean_expression_level",
+                                  "treat_suscept",
+                                  "treat_resist",
+                                  "diff_before",
+                                  "diff_after"),
+                       labels = c("Mean expression level",
+                                  "|logFC| between\ninfected and noninfected states\nin susceptible individuals",
+                                  "|logFC| between\ninfected and noninfected states\nin resistant individuals",
+                                  "|logFC| between\nsusceptible and resistant\nindividuals in the noninfected state",
+                                  "|logFC| between\nsusceptible and resistant\nindividuals in the infected state"))
+gwas_slopes_gambia <- ggplot(gwas_lm[gwas_lm$population == "gambia", ],
+                             aes(x = test, y = slope)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_linerange(aes(ymin = slope - slope_se, ymax = slope + slope_se)) +
+  labs(x = "", y = "Slope of best fit line (+/- standard error)",
+       title = "Relationship between GWAS p-value\nand |logFC| in DCs") +
+  coord_flip()
+
+gwas_multi <- plot_grid(gwas_scatter, gwas_slopes_gambia, labels = letters[1:2])
+
+pdf(file.path(fig_dir, "gwas.pdf"),
+           width = 2 * w, height = h)
+gwas_multi
+invisible(dev.off())
+
+png(file.path(fig_dir, "gwas.png"),
+    width = 2 * w, height = h, units = "in", res = 72)
+gwas_multi
+invisible(dev.off())
+
+# Correlation with number of SNPs per gene
+# cor(gwas_results$n_snps, gwas_results$gwas_p_gambia)
+# plot(gwas_results$n_snps, gwas_results$gwas_p_gambia,
+#      xlab = "Number of SNPs nearby gene",
+#      ylab = "Minimum GWAS p-value",
+#      main = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs")
+
 
 # Classifier -------------------------------------------------------------------
 # see code/main-classifier.R

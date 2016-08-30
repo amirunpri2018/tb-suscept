@@ -306,6 +306,14 @@ rule limma:
             results = data + "results-limma-stats.rds"
     shell: "Rscript {input.script} {data}"
 
+# Compare to GWAS results
+rule gwas:
+    input: fit = data + "results-limma-fit.rds",
+           script = code + "main-gwas.R"
+    output: results = data + "results-gwas.txt",
+            lm_stats = data + "results-gwas-lm.txt"
+    shell: "Rscript {input.script} {data}"
+
 # Build classifier with caret
 rule classifier:
     input: counts = data + "counts-filtered.txt",
@@ -321,6 +329,8 @@ rule create_figures:
            pca = data + "results-pca.txt",
            explained = data + "results-pca-explained.rds",
            covariates = data + "results-pca-covariates.txt",
+           gwas = data + "results-gwas.txt",
+           gwas_lm = data + "results-gwas-lm.txt",
            script = code + "create-figures.R"
     output: figure + "density-all-genes-all-samples.pdf",
             figure + "density-filt-genes-all-samples.pdf",
@@ -340,6 +350,8 @@ rule create_figures:
             figure + "pval-treat-suscept.pdf",
             figure + "limma.eps",
             figure + "limma.png",
+            figure + "gwas.pdf",
+            figure + "gwas.png",
             figure + "class-prob-elastic-net-s0.05.pdf",
             figure + "class-prob-elastic-net-s0.15.pdf",
             figure + "class-prob-elastic-net-s0.1.pdf",
