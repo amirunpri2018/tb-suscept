@@ -11,3 +11,9 @@ slurm*
 *png
 *eps
 data/
+# LaTeX
+*aux
+*bbl
+*blg
+*log
+*out
