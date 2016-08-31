@@ -153,9 +153,10 @@ my_ggsave("outliers.png", dims = c(2, 2))
 
 pca_data <- read.delim(file.path(data_dir, "results-pca.txt"),
                        stringsAsFactors = FALSE, row.names = 1)
-pca_data$status <- factor(pca_data$status, levels = c("contact", "tb"),
+pca_data$status <- factor(pca_data$status, levels = c("resist", "suscep"),
                           labels = c("resistant", "susceptible"))
-pca_data$treatment <- factor(pca_data$treatment, levels = c("none", "infected"))
+pca_data$treatment <- factor(pca_data$treatment, levels = c("noninf", "infect"),
+                             labels = c("noninfected", "infected"))
 explained <- readRDS(file.path(data_dir, "results-pca-explained.rds"))
 
 # PC1 versus PC2.
@@ -196,27 +197,23 @@ p_batch_1 <- plot_grid(pc1v2 + theme(legend.position = "none"),
                        pc3v4 + theme(legend.position = "none"),
                        pc5v6 + theme(legend.position = "none"),
                        pca_heat,
-                       labels = LETTERS[1:4])
+                       labels = letters[1:4])
 
-postscript(file.path(fig_dir, "batch-pca.eps"),
-           width = 2 * w, height = 2 * h)
-p_batch_1
-invisible(dev.off())
-
-png(file.path(fig_dir, "batch-pca.png"),
-           width = 2 * w, height = 2 * h, units = "in", res = 72)
-p_batch_1
-invisible(dev.off())
+my_ggsave("batch-pca.pdf", dims = c(2, 2))
+my_ggsave("batch-pca.png", dims = c(2, 2))
 
 # Further investigate correlation of infection batch with PC3 and PC5
 
 pc3_infection <- ggplot(pca_data, aes(x = infection, y = PC3, fill = treatment)) +
   geom_boxplot() +
+  scale_fill_discrete(name = "Treatment") +
   theme(axis.text.x = element_text(angle = 90)) +
-  labs(title = "PC3 varies by date of infection")
+  labs(title = "PC3 varies by date of infection",
+       x = "Date of infection experiment")
 
 pc3_status <- ggplot(pca_data, aes(x = reorder(individual, PC3), y = PC3, color = status)) +
   geom_point() +
+  scale_color_discrete(name = "Status") +
   facet_wrap(~treatment) +
   labs(title = "PC3 does not correlate with susceptibility status",
        x = "Individual") +
@@ -233,17 +230,10 @@ p_batch_2 <- plot_grid(pc3_infection + theme(legend.position = "bottom"),
                        pc5_infection  + theme(legend.position = "bottom"),
                        pc3_status + theme(legend.position = "bottom"),
                        pc5_status + theme(legend.position = "bottom"),
-                       labels = LETTERS[1:4])
+                       labels = letters[1:4])
 
-postscript(file.path(fig_dir, "batch-infection.eps"),
-           width = 2 * w, height = 2 * h)
-p_batch_2
-invisible(dev.off())
-
-png(file.path(fig_dir, "batch-infection.png"),
-    width = 2 * w, height = 2 * h, units = "in", res = 72)
-p_batch_2
-invisible(dev.off())
+my_ggsave("batch-infection.pdf", dims = c(2, 2))
+my_ggsave("batch-infection.png", dims = c(2, 2))
 
 # Differential expression with limma -------------------------------------------
 # see code/main-limma.R
