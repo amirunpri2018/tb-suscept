@@ -71,35 +71,35 @@ plot_densities <- function(x, include_median = TRUE, cutoff = NULL, ...) {
 
 # log2 cpm - all genes, all samples
 cpm_raw <- readRDS(file.path(data_dir, "cpm-all.rds"))
-pdf(file.path(fig_dir, "density-all-genes-all-samples.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_densities(cpm_raw, include_median = TRUE, cutoff = 0,
-               main = "All genes, all samples",
-               xlim = c(-11, 16), ylim = c(0, 0.25))
-invisible(dev.off())
-
 # log2 cpm - filtered genes, all samples
 counts <- read.delim(file.path(data_dir, "counts.txt"),
                      check.names = FALSE, row.names = 1)
 counts_cpm <- cpm(counts, log = TRUE)
-
-pdf(file.path(fig_dir, "density-filt-genes-all-samples.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_densities(counts_cpm, include_median = TRUE, cutoff = 0,
-               main = "Filtered genes, all samples",
-               xlim = c(-11, 16), ylim = c(0, 0.25))
-invisible(dev.off())
-
 # log2 cpm - filtered genes, filtered samples
 counts_filt <- read.delim(file.path(data_dir, "counts-filtered.txt"),
                           check.names = FALSE, row.names = 1)
 counts_filt_cpm <- cpm(counts_filt, log = TRUE)
-pdf(file.path(fig_dir, "density-filt-genes-filt-samples.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_densities(counts_filt_cpm, include_median = TRUE, cutoff = 0,
-               main = "Filtered genes, filtered samples",
-               xlim = c(-11, 16), ylim = c(0, 0.25))
-invisible(dev.off())
+
+for (device in c("png", "pdf")) {
+  if (device == "png") {
+    png(file.path(fig_dir, "gene-exp-distribution.png"),
+        width = 3 * w, height = h, units = "in", res = 300)
+  } else if (device == "pdf") {
+    pdf(file.path(fig_dir, "gene-exp-distribution.pdf"),
+        width = 3 * w, height = h, useDingbats = FALSE)
+  }
+  par(mfrow = c(1, 3), cex = 1.5)
+  plot_densities(cpm_raw, include_median = TRUE, cutoff = 0,
+                 main = "All genes, all samples",
+                 xlim = c(-11, 16), ylim = c(0, 0.25))
+  plot_densities(counts_cpm, include_median = TRUE, cutoff = 0,
+                 main = "Filtered genes, all samples",
+                 xlim = c(-11, 16), ylim = c(0, 0.25))
+  plot_densities(counts_filt_cpm, include_median = TRUE, cutoff = 0,
+                 main = "Filtered genes, filtered samples",
+                 xlim = c(-11, 16), ylim = c(0, 0.25))
+  invisible(dev.off())
+}
 
 # Batch effects ----------------------------------------------------------------
 # see code/qc-batch.R

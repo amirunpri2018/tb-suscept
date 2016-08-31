@@ -332,9 +332,8 @@ rule create_figures:
            gwas = data + "results-gwas.txt",
            gwas_lm = data + "results-gwas-lm.txt",
            script = code + "create-figures.R"
-    output: figure + "density-all-genes-all-samples.pdf",
-            figure + "density-filt-genes-all-samples.pdf",
-            figure + "density-filt-genes-filt-samples.pdf",
+    output: figure + "gene-exp-distribution.pdf",
+            figure + "gene-exp-distribution.png",
             figure + "batch-pca.eps",
             figure + "batch-pca.png",
             figure + "batch-infection.eps",
