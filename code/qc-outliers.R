@@ -16,17 +16,23 @@ stopifnot(dir.exists(data_dir))
 # Input
 counts <- read.delim(file.path(data_dir, "counts.txt"),
                      check.names = FALSE, row.names = 1)
-info <- read.delim(file.path(data_dir, "experiment-info.txt"), stringsAsFactors = FALSE)
-rownames(info) <- info$id
-info <- info %>% select(-id, -tube_ind)
-stopifnot(colnames(counts) == rownames(info))
+anno <- read.delim(file.path(data_dir, "experiment-info.txt"), stringsAsFactors = FALSE)
+rownames(anno) <- anno$id
+anno <- anno %>% select(-id, -tube_ind)
+stopifnot(colnames(counts) == rownames(anno))
 
 # Calculate log counts per million
 counts_cpm <- cpm(counts, log = TRUE)
 
 # Perform PCA
 pca <- prcomp(t(counts_cpm), scale. = TRUE)
-d <- cbind(info, pca$x)
+variances <- pca$sdev^2
+explained <- variances / sum(variances)
+d <- cbind(anno, pca$x)
+# Save PCA results for creating figures
+write.table(d, file = file.path(data_dir, "pca-outliers.txt"),
+            quote = FALSE, sep = "\t", col.names = NA)
+saveRDS(explained, file = file.path(data_dir, "explained-outliers.rds"))
 
 # Function for identifying outliers
 identify_outliers <- function(pc, multiplier) {
@@ -67,16 +73,16 @@ for (i in 2:6) {
 outliers <- unique(unlist(out_list))
 
 # Remove outliers
-outlier_index <- rownames(info) %in% outliers
-info <- info[!outlier_index, ]
+outlier_index <- rownames(anno) %in% outliers
+anno <- anno[!outlier_index, ]
 counts <- counts[, !outlier_index]
-stopifnot(sum(outlier_index) == length(outliers), nrow(info) == ncol(counts))
-# table(info$status, info$treatment)
+stopifnot(sum(outlier_index) == length(outliers), nrow(anno) == ncol(counts))
+# table(anno$status, anno$treatment)
 
 # Save filtered data
 write.table(counts, file = file.path(data_dir, "counts-filtered.txt"),
             quote = FALSE, sep = "\t", col.names = NA)
-write.table(info, file = file.path(data_dir, "experiment-info-filtered.txt"),
+write.table(anno, file = file.path(data_dir, "experiment-info-filtered.txt"),
             quote = FALSE, sep = "\t", col.names = NA)
 
 # Save outliers per PC

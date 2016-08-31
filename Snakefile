@@ -283,6 +283,8 @@ rule remove_outliers:
            script = code + "qc-outliers.R"
     output: counts = data + "counts-filtered.txt",
             info = data + "experiment-info-filtered.txt",
+            pca_outliers = data + "pca-outliers.txt",
+            explained_outliers = data + "explained-outliers.rds",
             outliers = data + "outliers.txt"
     shell: "Rscript {input.script} {data}"
 
@@ -326,6 +328,9 @@ rule create_figures:
     input: data +  "cpm-all.rds",
            data + "counts.txt",
            data + "counts-filtered.txt",
+           pca_outliers = data + "pca-outliers.txt",
+           explained_outliers = data + "explained-outliers.rds",
+           outliers = data + "outliers.txt",
            pca = data + "results-pca.txt",
            explained = data + "results-pca-explained.rds",
            covariates = data + "results-pca-covariates.txt",
@@ -334,6 +339,8 @@ rule create_figures:
            script = code + "create-figures.R"
     output: figure + "gene-exp-distribution.pdf",
             figure + "gene-exp-distribution.png",
+            figure + "outliers.pdf",
+            figure + "outliers.png",
             figure + "batch-pca.eps",
             figure + "batch-pca.png",
             figure + "batch-infection.eps",

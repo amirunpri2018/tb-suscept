@@ -1,7 +1,9 @@
 #!/usr/bin/env Rscript
 
 suppressPackageStartupMessages(library("plyr"))
+suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("gridExtra"))
 suppressPackageStartupMessages(library("edgeR"))
 suppressPackageStartupMessages(library("VennDiagram"))
 suppressPackageStartupMessages(library("ggbeeswarm"))
@@ -100,6 +102,51 @@ for (device in c("png", "pdf")) {
                  xlim = c(-11, 16), ylim = c(0, 0.25))
   invisible(dev.off())
 }
+
+# Remove outliers ----------------------------------------------------------------
+# see code/qc-outliers.R
+
+pca_outliers <- read.delim(file.path(data_dir, "pca-outliers.txt"),
+                           stringsAsFactors = FALSE, row.names = 1)
+explained_outliers <- readRDS(file.path(data_dir, "explained-outliers.rds"))
+outliers <- read.delim(file.path(data_dir, "outliers.txt"),
+                       stringsAsFactors = FALSE)
+outliers_simple <- outliers %>%
+  group_by(sample) %>%
+  summarize(PC = paste(sort(pc), collapse = ", ")) %>%
+  arrange(PC) %>%
+  rename(Sample = sample)
+outliers_simple
+# PCA
+
+# PC1 versus PC2.
+pc1v2_out <- ggplot(pca_outliers, aes(x = PC1, y = PC2, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained_outliers[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(explained_outliers[2] * 100, 2)))
+# PC3 versus PC4.
+pc3v4_out <- ggplot(pca_outliers, aes(x = PC3, y = PC4, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained_outliers[3] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 4, round(explained_outliers[4] * 100, 2)))
+# PC5 versus PC6.
+pc5v6_out <- ggplot(pca_outliers, aes(x = PC5, y = PC6, color = treatment)) +
+  geom_text(aes(label = individual)) +
+  labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained_outliers[5] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 6, round(explained_outliers[6] * 100, 2)))
+# Table of outliers
+outliers_grob <- tableGrob(outliers_simple,
+                           rows = rep("", nrow(outliers_simple)),
+                           theme = ttheme_default(base_size = 16))
+
+multi_outliers <- plot_grid(pc1v2_out + theme(legend.position = "none"),
+                            pc3v4_out + theme(legend.position = "none"),
+                            pc5v6_out + theme(legend.position = "none"),
+                            outliers_grob,
+                            labels = letters[1:4])
+
+my_ggsave("outliers.pdf", dims = c(2, 2))
+my_ggsave("outliers.png", dims = c(2, 2))
 
 # Batch effects ----------------------------------------------------------------
 # see code/qc-batch.R
