@@ -5,6 +5,7 @@ suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("ggplot2"))
 suppressPackageStartupMessages(library("gridExtra"))
 suppressPackageStartupMessages(library("edgeR"))
+suppressPackageStartupMessages(library("gplots"))
 suppressPackageStartupMessages(library("VennDiagram"))
 suppressPackageStartupMessages(library("ggbeeswarm"))
 suppressPackageStartupMessages(library("cowplot"))
@@ -117,6 +118,7 @@ outliers_simple <- outliers %>%
   arrange(PC) %>%
   rename(Sample = sample)
 outliers_simple
+
 # PCA
 
 # PC1 versus PC2.
@@ -147,6 +149,40 @@ multi_outliers <- plot_grid(pc1v2_out + theme(legend.position = "none"),
 
 my_ggsave("outliers.pdf", dims = c(2, 2))
 my_ggsave("outliers.png", dims = c(2, 2))
+
+# Hierarchical clustering
+
+# Data already loaded above:
+# counts_cpm - Filtered genes, all samples
+# counts_filt_cpm - Filtered genes, filtered samples
+stopifnot(ncol(counts_cpm) == 50,
+          ncol(counts_filt_cpm) == 50 - nrow(outliers_simple))
+
+for (device in c("png", "pdf")) {
+  if (device == "png") {
+    png(file.path(fig_dir, "heatmap-all-samples.png"),
+        width = w, height = h, units = "in", res = 300)
+  } else if (device == "pdf") {
+    pdf(file.path(fig_dir, "heatmap-all-samples.pdf"),
+        width = w, height = h, useDingbats = FALSE)
+  }
+  heatmap.2(cor(counts_cpm), trace = "none", margins = c(7, 7),
+            main = "All samples")
+  invisible(dev.off())
+}
+
+for (device in c("png", "pdf")) {
+  if (device == "png") {
+    png(file.path(fig_dir, "heatmap-no-outliers.png"),
+        width = w, height = h, units = "in", res = 300)
+  } else if (device == "pdf") {
+    pdf(file.path(fig_dir, "heatmap-no-outliers.pdf"),
+        width = w, height = h, useDingbats = FALSE)
+  }
+  heatmap.2(cor(counts_filt_cpm), trace = "none", margins = c(7, 7),
+            main = "After removing outliers")
+  invisible(dev.off())
+}
 
 # Batch effects ----------------------------------------------------------------
 # see code/qc-batch.R
