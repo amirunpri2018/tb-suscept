@@ -279,6 +279,7 @@ plot_ma <- function(x, qval) {
   #
   # x - data frame with topTable and ASH output
   #     (columns logFC, AveExpr, and qvalue)
+  # qval - qvalue cutoff for calling a gene DE
   #
   stopifnot(is.data.frame(x), c("logFC", "AveExpr", "qvalue") %in% colnames(x),
             is.numeric(qval), qval <= 1, qval >= 0)
@@ -293,115 +294,141 @@ plot_ma <- function(x, qval) {
 #   scale_color_gradient(low = "red", high = "white", limits = c(0, 0.25))
 }
 
-plot_pval_hist <- function(x) {
+plot_volcano <- function(x, qval) {
+  # Create volcano plot.
+  #
+  # x - data frame with topTable and ASH output
+  #     (columns logFC, P.Value, and qvalue)
+  # qval - qvalue cutoff for calling a gene DE
+  #
+  stopifnot(is.data.frame(x), c("logFC", "P.Value", "qvalue") %in% colnames(x),
+            is.numeric(qval), qval <= 1, qval >= 0)
+  x$highlight <- ifelse(x$qvalue < qval, "darkred", "gray75")
+  x$highlight <- factor(x$highlight, levels = c("darkred", "gray75"))
+  ggplot(x, aes(x = logFC, y = -log10(P.Value), color = highlight)) +
+    geom_point(shape = 1) +
+    labs(x = "Log fold change",
+         y = expression(-log[10] * " p-value")) +
+    scale_color_identity(drop = FALSE) +
+    theme(legend.position = "none")
+}
+
+plot_pval_hist <- function(x, qval) {
   # Create histogram of p-values.
   #
-  # x - data frame with topTable output (column P.Value)
+  # x - data frame with topTable and ash output (columns P.Value and qvalue)
+  # qval - qvalue cutoff for calling a gene DE
   #
-  stopifnot(is.data.frame(x), c("P.Value") %in% colnames(x))
-  ggplot(x, aes(x = P.Value)) +
-    geom_histogram(binwidth = 0.01) +
+  stopifnot(is.data.frame(x), c("P.Value", "qvalue") %in% colnames(x))
+  x$highlight <- ifelse(x$qvalue < qval, "darkred", "gray75")
+  x$highlight <- factor(x$highlight, levels = c("darkred", "gray75"))
+  ggplot(x, aes(x = P.Value, fill = highlight)) +
+    geom_histogram(position = "stack", binwidth = 0.01) +
+    scale_fill_identity(drop = FALSE) +
     labs(x = "p-value", y = "Number of genes")
 }
 
 results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
 
-# Difference between susceptible and resistant individuals before treatment
-pdf(file.path(fig_dir, "ma-diff-before.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-ma_diff_before <- plot_ma(results[["diff_before"]], qval = 0.1) +
+# Difference between susceptible and resistant individuals in the noninfected state
+title_status_ni <- "Difference between susceptible and resistant\nindividuals in the noninfected state"
+ma_status_ni <- plot_ma(results[["status_ni"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant\nindividuals before treatment")
-ma_diff_before
-invisible(dev.off())
-pdf(file.path(fig_dir, "pval-diff-before.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-pval_diff_before <- plot_pval_hist(results[["diff_before"]]) +
+  labs(title = title_status_ni)
+volc_status_ni <- plot_volcano(results[["status_ni"]], qval = 0.1) +
+  xlim(-3.5, 3.5) + ylim(0, 6.5) +
+  labs(title = title_status_ni)
+pval_status_ni <- plot_pval_hist(results[["status_ni"]], qval = 0.1) +
   ylim(0, 325) +
-  labs(title = "Difference between susceptible and resistant\nindividuals before treatment")
-pval_diff_before
-invisible(dev.off())
+  labs(title = title_status_ni)
 
-# Difference between susceptible and resistant individuals after treatment
-pdf(file.path(fig_dir, "ma-diff-after.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-ma_diff_after <- plot_ma(results[["diff_after"]], qval = 0.1) +
+# Difference between susceptible and resistant individuals in the infected state
+title_status_ii <- "Difference between susceptible and resistant\nindividuals in the infected state"
+ma_status_ii <- plot_ma(results[["status_ii"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
-  labs(title = "Difference between susceptible and resistant\nindividuals after treatment")
-ma_diff_after
-invisible(dev.off())
-pdf(file.path(fig_dir, "pval-diff-after.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-pval_diff_after <- plot_pval_hist(results[["diff_after"]]) +
+  labs(title = title_status_ii)
+volc_status_ii <- plot_volcano(results[["status_ii"]], qval = 0.1) +
+  xlim(-3.5, 3.5) + ylim(0, 6.5) +
+  labs(title = title_status_ii)
+pval_status_ii <- plot_pval_hist(results[["status_ii"]], qval = 0.1) +
   ylim(0, 325) +
-  labs(title = "Difference between susceptible and resistant\nindividuals after treatment")
-pval_diff_after
-invisible(dev.off())
+  labs(title = title_status_ii)
 
 # Effect of treatment in resistant individuals
-pdf(file.path(fig_dir, "ma-treat-resist.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_ma(results[["treat_resist"]], qval = 0.1) +
-  labs(title = "Effect of treatment in resistant individuals")
-invisible(dev.off())
-pdf(file.path(fig_dir, "pval-treat-resist.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_pval_hist(results[["treat_resist"]]) +
-  labs(title = "Effect of treatment in resistant individuals")
-invisible(dev.off())
+title_treat_resist <- "Effect of treatment in resistant individuals"
+ma_treat_resist <- plot_ma(results[["treat_resist"]], qval = 0.1) +
+  ylim(-8.5, 8.5) +
+  labs(title = title_treat_resist)
+volc_treat_resist <- plot_volcano(results[["treat_resist"]], qval = 0.1) +
+  xlim(-8.5, 8.5) + ylim(0, 45) +
+  labs(title = title_treat_resist)
+pval_treat_resist <- plot_pval_hist(results[["treat_resist"]], qval = 0.1) +
+  ylim(0, 9000) +
+  labs(title = title_treat_resist)
 
 # Effect of treatment in susceptible individuals
-pdf(file.path(fig_dir, "ma-treat-suscept.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_ma(results[["treat_suscept"]], qval = 0.1) +
-  labs(title = "Effect of treatment in susceptible individuals")
-invisible(dev.off())
-pdf(file.path(fig_dir, "pval-treat-suscept.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_pval_hist(results[["treat_suscept"]]) +
-  labs(title = "Effect of treatment in susceptible individuals")
-invisible(dev.off())
+title_treat_suscep <- "Effect of treatment in susceptible individuals"
+ma_treat_suscep <- plot_ma(results[["treat_suscep"]], qval = 0.1) +
+  ylim(-8.5, 8.5) +
+  labs(title = title_treat_suscep)
+volc_treat_suscep <- plot_volcano(results[["treat_suscep"]], qval = 0.1) +
+  xlim(-8.5, 8.5) + ylim(0, 45) +
+  labs(title = title_treat_suscep)
+pval_treat_suscep <- plot_pval_hist(results[["treat_suscep"]], qval = 0.1) +
+  ylim(0, 9000) +
+  labs(title = title_treat_suscep)
 
 # Difference in effect of treatment between susceptible and resistant
 # individuals
-pdf(file.path(fig_dir, "ma-diff-treat.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_ma(results[["diff_treat"]], qval = 0.1) +
-  labs(title = "Difference in effect of treatment between\nsusceptible and resistant individuals")
-invisible(dev.off())
-pdf(file.path(fig_dir, "pval-diff-treat.pdf"),
-    width = w, height = h, useDingbats = FALSE)
-plot_pval_hist(results[["diff_treat"]]) +
-  labs(title = "Difference in effect of treatment between\nsusceptible and resistant individuals")
-invisible(dev.off())
+title_interact <- "Difference in effect of treatment between\nsusceptible and resistant individuals"
+ma_interact <- plot_ma(results[["interact"]], qval = 0.1) +
+  ylim(-3.5, 3.5) +
+  labs(title = title_interact)
+volc_interact <- plot_volcano(results[["interact"]], qval = 0.1) +
+  xlim(-3.5, 3.5) + ylim(0, 6.5) +
+  labs(title = title_interact)
+pval_interact <- plot_pval_hist(results[["interact"]], qval = 0.1) +
+  ylim(0, 325) +
+  labs(title = title_interact)
 
-# Multipanel figure
-p_limma <- plot_grid(pval_diff_before,
-                     pval_diff_after,
-                     ma_diff_before + labs(title = ""),
-                     ma_diff_after + labs(title = ""),
+# Multipanel main figure
+limma_main <- plot_grid(pval_status_ni,
+                     pval_status_ii,
+                     volc_status_ni + labs(title = ""),
+                     volc_status_ii + labs(title = ""),
                      labels = letters[1:4])
 my_ggsave("limma.eps", dims = c(2, 2))
 my_ggsave("limma.pdf", dims = c(2, 2))
 my_ggsave("limma.png", dims = c(2, 2))
 
+# Multipanel supplemental figure
+limma_supp <- plot_grid(pval_treat_resist,
+                        pval_treat_suscep,
+                        volc_treat_resist + labs(title = ""),
+                        volc_treat_suscep + labs(title = ""),
+                        labels = letters[1:4])
+my_ggsave("limma-supp.pdf", dims = c(2, 2))
+my_ggsave("limma-supp.png", dims = c(2, 2))
+
 # Venn diagram of DE gene overlap
 # Not saving because they aren't very informative
-ash_diff_before <- results[["diff_before"]]$svalue < 0.1
-ash_diff_after <- results[["diff_after"]]$svalue < 0.1
-ash_treat_resist <- results[["treat_resist"]]$svalue < 0.1
-ash_treat_suscept <- results[["treat_suscept"]]$svalue < 0.1
-ash_diff_treat <- results[["diff_treat"]]$svalue < 0.1
+ash_status_ni <- results[["status_ni"]]$qvalue < 0.1
+ash_status_ii <- results[["status_ii"]]$qvalue < 0.1
+ash_treat_resist <- results[["treat_resist"]]$qvalue < 0.1
+ash_treat_suscep <- results[["treat_suscep"]]$qvalue < 0.1
+ash_interact <- results[["interact"]]$qvalue < 0.1
 # grid.newpage()
 venn_status <- draw.triple.venn(
-  area1 = sum(ash_diff_before),
-  area2 = sum(ash_diff_after),
-  area3 = sum(ash_diff_treat),
-  n12 = sum(ash_diff_before & ash_diff_after),
-  n23 = sum(ash_diff_after & ash_diff_treat),
-  n13 = sum(ash_diff_before & ash_diff_treat),
-  n123 = sum(ash_diff_before & ash_diff_after & ash_diff_treat),
-  category = c("before", "after", "response"),
+  area1 = sum(ash_status_ni),
+  area2 = sum(ash_status_ii),
+  area3 = sum(ash_interact),
+  n12 = sum(ash_status_ni & ash_status_ii),
+  n23 = sum(ash_status_ii & ash_interact),
+  n13 = sum(ash_status_ni & ash_interact),
+  n123 = sum(ash_status_ni & ash_status_ii & ash_interact),
+  category = c("Difference in noninfected state",
+               "Difference in infected state",
+               "Difference in response to infection"),
   #   fill = c("darkolivegreen3", "cadetblue3", "darkorchid"),
   alpha = c(0.5, 0.5, 0.5), col = "black", cex = 2, cat.cex = 1.5,
   euler.d = FALSE, scaled = FALSE, ind = FALSE)
@@ -409,14 +436,16 @@ venn_status <- draw.triple.venn(
 
 # grid.newpage()
 venn_treat <- draw.triple.venn(
-  area1 = sum(ash_diff_before),
+  area1 = sum(ash_status_ni),
   area2 = sum(ash_treat_resist),
-  area3 = sum(ash_treat_suscept),
-  n12 = sum(ash_diff_before & ash_treat_resist),
-  n23 = sum(ash_treat_resist & ash_treat_suscept),
-  n13 = sum(ash_diff_before & ash_treat_suscept),
-  n123 = sum(ash_diff_before & ash_treat_resist & ash_treat_suscept),
-  category = c("before", "Treatment in resist", "Treatment in suscept"),
+  area3 = sum(ash_treat_suscep),
+  n12 = sum(ash_status_ni & ash_treat_resist),
+  n23 = sum(ash_treat_resist & ash_treat_suscep),
+  n13 = sum(ash_status_ni & ash_treat_suscep),
+  n123 = sum(ash_status_ni & ash_treat_resist & ash_treat_suscep),
+  category = c("Difference in noninfected state",
+               "Effect of treatment in resistant individuals",
+               "Effect of treatment in susceptible individuals"),
   #   fill = c("darkolivegreen3", "cadetblue3", "darkorchid"),
   alpha = c(0.5, 0.5, 0.5), col = "black", cex = 2, cat.cex = 1.5,
   euler.d = FALSE, scaled = FALSE, ind = FALSE)

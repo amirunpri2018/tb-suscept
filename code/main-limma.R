@@ -25,8 +25,8 @@ stopifnot(colnames(counts) == rownames(anno))
 
 # Use the standard treatment-contrasts parametrization. See Ch. 9 of limma
 # User's Guide.
-anno$status <- factor(anno$status, levels = c("contact", "tb"))
-anno$treatment <- factor(anno$treatment, levels = c("none", "infected"))
+anno$status <- factor(anno$status, levels = c("resist", "suscep"))
+anno$treatment <- factor(anno$treatment, levels = c("noninf", "infect"))
 design <- model.matrix(~treatment + status + status:treatment,
                        data = anno)
 colnames(design)[1] <- "Intercept"
@@ -55,22 +55,22 @@ fit <- lmFit(v2, design, block = anno$individual,
 # Fit contrasts ----------------------------------------------------------------
 
 contrasts_mat <- makeContrasts(
-  # Difference between susceptible and resistant individuals before treatment
-  diff_before = tb,
-  # Difference between susceptible and resistant individuals after treatment
-  diff_after = tb + infected.tb,
+  # Difference between susceptible and resistant individuals in the noninfected state
+  status_ni = suscep,
+  # Difference between susceptible and resistant individuals in the infected state
+  status_ii = suscep + infect.suscep,
   # Effect of treatment in resistant individuals
-  treat_resist = infected,
+  treat_resist = infect,
   # Effect of treatment in susceptible individuals
-  treat_suscept = infected + infected.tb,
+  treat_suscep = infect + infect.suscep,
   # Difference in effect of treatment between susceptible and resistant
   # individuals
-  diff_treat = infected.tb,
+  interact = infect.suscep,
   levels = design)
 fit2 <- contrasts.fit(fit, contrasts_mat)
 fit2 <- eBayes(fit2)
 
-# Get model results
+# Get model results ------------------------------------------------------------
 
 get_results <- function(x, number = nrow(x$coefficients), sort.by = "none",
                         ...) {
