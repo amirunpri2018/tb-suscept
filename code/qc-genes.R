@@ -20,6 +20,15 @@ data_raw <- fread(file.path(data_dir, "subread-counts-per-sample.txt"),
 info <- read.delim(file.path(data_dir, "experiment-info.txt"),
                    stringsAsFactors = FALSE)
 
+# Update names
+data_raw <- data_raw %>%
+  mutate(original_initial = substr(individual, 1, 1),
+         original_num = substr(individual, 2, 3),
+         new_initial = ifelse(original_initial == "t", "s", "r"),
+         individual = paste0(new_initial, original_num),
+         status = ifelse(new_initial == "s", "suscep", "resist"),
+         treatment = ifelse(treatment == "none", "noninf", "infect")) %>%
+  select(-(original_initial:new_initial))
 # Sort
 data_raw <- data_raw %>% arrange(desc(status), individual, desc(treatment))
 stopifnot(data_raw$inindividual == info$individual,

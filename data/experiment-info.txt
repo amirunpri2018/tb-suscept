@@ -1,51 +1,51 @@
 id	individual	status	treatment	infection	arrival	extraction	master_mix	tube_ind	rin
-01-tb-none	t01	tb	none	2013-04-05	a1	e1	m1	101	10
-01-tb-infected	t01	tb	infected	2013-04-05	a1	e1	m1	101	10
-02-tb-none	t02	tb	none	2013-04-05	a2	e2	m1	102	9.9
-02-tb-infected	t02	tb	infected	2013-04-05	a2	e2	m1	102	9.5
-03-tb-none	t03	tb	none	2013-04-05	a3	e3	m2	103	9.9
-03-tb-infected	t03	tb	infected	2013-04-05	a3	e3	m2	103	9.6
-04-tb-none	t04	tb	none	2013-10-07	a4	e4	m3	LD104	7.7
-04-tb-infected	t04	tb	infected	2013-10-07	a4	e4	m3	LD104	8.6
-05-tb-none	t05	tb	none	2014-06-10	a4	e4	m3	1030-01 CA	8.8
-05-tb-infected	t05	tb	infected	2014-06-10	a4	e4	m3	1030-01 CA	9
-06-tb-none	t06	tb	none	2014-11-24	a4	e5	m2	1030-05 PJ	9
-06-tb-infected	t06	tb	infected	2014-11-24	a4	e5	m2	1030-05 PJ	10
-01-contact-none	c01	contact	none	2013-06-24	a1	e1	m1	DS202	10
-01-contact-infected	c01	contact	infected	2013-06-24	a1	e1	m1	DS202	10
-02-contact-none	c02	contact	none	2013-06-24	a1	e1	m1	LA201	8.1
-02-contact-infected	c02	contact	infected	2013-06-24	a1	e1	m1	LA201	9.5
-03-contact-none	c03	contact	none	2013-06-24	a1	e1	m1	LC203	9.9
-03-contact-infected	c03	contact	infected	2013-06-24	a1	e1	m1	LC203	10
-04-contact-none	c04	contact	none	2013-07-08	a1	e1	m1	CP004	8.9
-04-contact-infected	c04	contact	infected	2013-07-08	a1	e1	m1	CP004	10
-05-contact-none	c05	contact	none	2013-07-08	a2	e2	m1	Ci005	9.7
-05-contact-infected	c05	contact	infected	2013-07-08	a2	e2	m1	Ci005	9.7
-06-contact-none	c06	contact	none	2013-09-02	a2	e2	m1	DL007	9.7
-06-contact-infected	c06	contact	infected	2013-09-02	a2	e2	m1	DL007	9.9
-07-contact-none	c07	contact	none	2013-09-02	a2	e2	m1	FL006	9.5
-07-contact-infected	c07	contact	infected	2013-09-02	a2	e2	m1	FL006	9
-08-contact-none	c08	contact	none	2013-09-02	a2	e2	m1	FP008	9
-08-contact-infected	c08	contact	infected	2013-09-02	a2	e2	m1	FP008	9
-09-contact-none	c09	contact	none	2013-09-02	a3	e3	m2	MJ009	10
-09-contact-infected	c09	contact	infected	2013-09-02	a3	e3	m2	MJ009	10
-10-contact-none	c10	contact	none	2013-09-02	a3	e3	m2	MM010	9.5
-10-contact-infected	c10	contact	infected	2013-09-02	a3	e3	m2	MM010	9.6
-11-contact-none	c11	contact	none	2013-09-04	a3	e3	m2	GJ011	9.4
-11-contact-infected	c11	contact	infected	2013-09-04	a3	e3	m2	GJ011	9.6
-12-contact-none	c12	contact	none	2013-09-04	a3	e3	m2	HH012	9.7
-12-contact-infected	c12	contact	infected	2013-09-04	a3	e3	m2	HH012	9.7
-13-contact-none	c13	contact	none	2013-09-04	a4	e4	m3	13	9.2
-13-contact-infected	c13	contact	infected	2013-09-04	a4	e4	m3	13	9.4
-14-contact-none	c14	contact	none	2013-09-09	a4	e4	m3	SV014	9.6
-14-contact-infected	c14	contact	infected	2013-09-09	a4	e4	m3	SV014	9.8
-15-contact-none	c15	contact	none	2013-09-23	a4	e4	m3	HE015	9
-15-contact-infected	c15	contact	infected	2013-09-23	a4	e4	m3	HE015	9.1
-16-contact-none	c16	contact	none	2014-11-03	a4	e5	m2	AJ003	10
-16-contact-infected	c16	contact	infected	2014-11-03	a4	e5	m2	AJ003	10
-17-contact-none	c17	contact	none	2014-11-03	a4	e5	m2	VR002	9.3
-17-contact-infected	c17	contact	infected	2014-11-03	a4	e5	m2	VR002	10
-18-contact-none	c18	contact	none	2014-11-24	a4	e5	m2	1030-04 DG	10
-18-contact-infected	c18	contact	infected	2014-11-24	a4	e5	m2	1030-04 DG	9.7
-19-contact-none	c19	contact	none	2014-12-01	a4	e5	m2	2010-30 06 BT	10
-19-contact-infected	c19	contact	infected	2014-12-01	a4	e5	m2	2010-30 06 BT	10
+s01-suscep-noninf	s01	suscep	noninf	2013-04-05	a1	e1	m1	101	10
+s01-suscep-infect	s01	suscep	infect	2013-04-05	a1	e1	m1	101	10
+s02-suscep-noninf	s02	suscep	noninf	2013-04-05	a2	e2	m1	102	9.9
+s02-suscep-infect	s02	suscep	infect	2013-04-05	a2	e2	m1	102	9.5
+s03-suscep-noninf	s03	suscep	noninf	2013-04-05	a3	e3	m2	103	9.9
+s03-suscep-infect	s03	suscep	infect	2013-04-05	a3	e3	m2	103	9.6
+s04-suscep-noninf	s04	suscep	noninf	2013-10-07	a4	e4	m3	LD104	7.7
+s04-suscep-infect	s04	suscep	infect	2013-10-07	a4	e4	m3	LD104	8.6
+s05-suscep-noninf	s05	suscep	noninf	2014-06-10	a4	e4	m3	1030-01 CA	8.8
+s05-suscep-infect	s05	suscep	infect	2014-06-10	a4	e4	m3	1030-01 CA	9
+s06-suscep-noninf	s06	suscep	noninf	2014-11-24	a4	e5	m2	1030-05 PJ	9
+s06-suscep-infect	s06	suscep	infect	2014-11-24	a4	e5	m2	1030-05 PJ	10
+r01-resist-noninf	r01	resist	noninf	2013-06-24	a1	e1	m1	DS202	10
+r01-resist-infect	r01	resist	infect	2013-06-24	a1	e1	m1	DS202	10
+r02-resist-noninf	r02	resist	noninf	2013-06-24	a1	e1	m1	LA201	8.1
+r02-resist-infect	r02	resist	infect	2013-06-24	a1	e1	m1	LA201	9.5
+r03-resist-noninf	r03	resist	noninf	2013-06-24	a1	e1	m1	LC203	9.9
+r03-resist-infect	r03	resist	infect	2013-06-24	a1	e1	m1	LC203	10
+r04-resist-noninf	r04	resist	noninf	2013-07-08	a1	e1	m1	CP004	8.9
+r04-resist-infect	r04	resist	infect	2013-07-08	a1	e1	m1	CP004	10
+r05-resist-noninf	r05	resist	noninf	2013-07-08	a2	e2	m1	Ci005	9.7
+r05-resist-infect	r05	resist	infect	2013-07-08	a2	e2	m1	Ci005	9.7
+r06-resist-noninf	r06	resist	noninf	2013-09-02	a2	e2	m1	DL007	9.7
+r06-resist-infect	r06	resist	infect	2013-09-02	a2	e2	m1	DL007	9.9
+r07-resist-noninf	r07	resist	noninf	2013-09-02	a2	e2	m1	FL006	9.5
+r07-resist-infect	r07	resist	infect	2013-09-02	a2	e2	m1	FL006	9
+r08-resist-noninf	r08	resist	noninf	2013-09-02	a2	e2	m1	FP008	9
+r08-resist-infect	r08	resist	infect	2013-09-02	a2	e2	m1	FP008	9
+r09-resist-noninf	r09	resist	noninf	2013-09-02	a3	e3	m2	MJ009	10
+r09-resist-infect	r09	resist	infect	2013-09-02	a3	e3	m2	MJ009	10
+r10-resist-noninf	r10	resist	noninf	2013-09-02	a3	e3	m2	MM010	9.5
+r10-resist-infect	r10	resist	infect	2013-09-02	a3	e3	m2	MM010	9.6
+r11-resist-noninf	r11	resist	noninf	2013-09-04	a3	e3	m2	GJ011	9.4
+r11-resist-infect	r11	resist	infect	2013-09-04	a3	e3	m2	GJ011	9.6
+r12-resist-noninf	r12	resist	noninf	2013-09-04	a3	e3	m2	HH012	9.7
+r12-resist-infect	r12	resist	infect	2013-09-04	a3	e3	m2	HH012	9.7
+r13-resist-noninf	r13	resist	noninf	2013-09-04	a4	e4	m3	13	9.2
+r13-resist-infect	r13	resist	infect	2013-09-04	a4	e4	m3	13	9.4
+r14-resist-noninf	r14	resist	noninf	2013-09-09	a4	e4	m3	SV014	9.6
+r14-resist-infect	r14	resist	infect	2013-09-09	a4	e4	m3	SV014	9.8
+r15-resist-noninf	r15	resist	noninf	2013-09-23	a4	e4	m3	HE015	9
+r15-resist-infect	r15	resist	infect	2013-09-23	a4	e4	m3	HE015	9.1
+r16-resist-noninf	r16	resist	noninf	2014-11-03	a4	e5	m2	AJ003	10
+r16-resist-infect	r16	resist	infect	2014-11-03	a4	e5	m2	AJ003	10
+r17-resist-noninf	r17	resist	noninf	2014-11-03	a4	e5	m2	VR002	9.3
+r17-resist-infect	r17	resist	infect	2014-11-03	a4	e5	m2	VR002	10
+r18-resist-noninf	r18	resist	noninf	2014-11-24	a4	e5	m2	1030-04 DG	10
+r18-resist-infect	r18	resist	infect	2014-11-24	a4	e5	m2	1030-04 DG	9.7
+r19-resist-noninf	r19	resist	noninf	2014-12-01	a4	e5	m2	2010-30 06 BT	10
+r19-resist-infect	r19	resist	infect	2014-12-01	a4	e5	m2	2010-30 06 BT	10
