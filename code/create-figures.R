@@ -459,7 +459,9 @@ gwas_results <- read.delim(file.path(data_dir, "results-gwas.txt"),
 gwas_lm <- read.delim(file.path(data_dir, "results-gwas-lm.txt"),
                       stringsAsFactors = FALSE)
 
-gwas_scatter <- ggplot(gwas_results, aes(x = diff_before, y = gwas_p_gambia)) +
+# Gambia
+gwas_scatter_gambia <- ggplot(gwas_results,
+                              aes(x = status_ni, y = gwas_p_gambia)) +
   geom_point(shape = 1) +
   geom_smooth(method = "lm", col = "red", se = FALSE) +
   labs(x = "|logFC| between susceptible and resistant\nindividuals in the noninfected state",
@@ -467,15 +469,16 @@ gwas_scatter <- ggplot(gwas_results, aes(x = diff_before, y = gwas_p_gambia)) +
        title = "GWAS p-value vs. DE effect size")
 
 # Remove interaction term b/c basically the same as noninfected state
-gwas_lm <- gwas_lm[gwas_lm$test != "diff_treat", ]
+gwas_lm <- gwas_lm[gwas_lm$test != "interact", ]
+# Remove mean_expression_level b/c no longer clear this is actually an
+# informative comparison.
+gwas_lm <- gwas_lm[gwas_lm$test != "mean_expression_level", ]
 gwas_lm$test <- factor(gwas_lm$test,
-                       levels = c("mean_expression_level",
-                                  "treat_suscept",
+                       levels = c("treat_suscep",
                                   "treat_resist",
-                                  "diff_before",
-                                  "diff_after"),
-                       labels = c("Mean expression level",
-                                  "|logFC| between\ninfected and noninfected states\nin susceptible individuals",
+                                  "status_ni",
+                                  "status_ii"),
+                       labels = c("|logFC| between\ninfected and noninfected states\nin susceptible individuals",
                                   "|logFC| between\ninfected and noninfected states\nin resistant individuals",
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the noninfected state",
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the infected state"))
@@ -488,18 +491,45 @@ gwas_slopes_gambia <- ggplot(gwas_lm[gwas_lm$population == "gambia", ],
        title = "Relationship between GWAS p-value\nand |logFC| in DCs") +
   coord_flip()
 
-gwas_multi <- plot_grid(gwas_scatter, gwas_slopes_gambia, labels = letters[1:2])
+gwas_multi_gambia <- plot_grid(gwas_scatter_gambia,
+                        gwas_slopes_gambia,
+                        labels = letters[1:2])
 
 my_ggsave("gwas.eps", dims = c(2, 1))
 my_ggsave("gwas.pdf", dims = c(2, 1))
 my_ggsave("gwas.png", dims = c(2, 1))
 
+# Ghana
+gwas_scatter_ghana <- gwas_scatter_gambia %+% aes(y = gwas_p_ghana) +
+  labs(y = "GWAS p-value")
+
+gwas_slopes_ghana <- gwas_slopes_gambia %+% gwas_lm[gwas_lm$population == "ghana", ]
+
+gwas_multi_ghana <- plot_grid(gwas_scatter_ghana,
+                               gwas_slopes_ghana,
+                               labels = letters[1:2])
+
+my_ggsave("gwas-supp.pdf", dims = c(2, 1))
+my_ggsave("gwas-supp.png", dims = c(2, 1))
+
 # Correlation with number of SNPs per gene
 # cor(gwas_results$n_snps, gwas_results$gwas_p_gambia)
-# plot(gwas_results$n_snps, gwas_results$gwas_p_gambia,
-#      xlab = "Number of SNPs nearby gene",
-#      ylab = "Minimum GWAS p-value",
-#      main = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs")
+gwas_n_snps_gambia <- ggplot(gwas_results, aes(x = n_snps, y = gwas_p_gambia)) +
+  geom_point(shape = 1) +
+  geom_smooth(method = "lm",col = "red", se = FALSE) +
+  labs(x = "Number of SNPs nearby gene",
+       y = "Minimum GWAS p-value",
+       title = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs - Gambia")
+gwas_n_snps_ghana <- gwas_n_snps_gambia %+% aes(y = gwas_p_ghana) +
+  labs(y = "Minimum GWAS p-value",
+       title = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs - Ghana")
+
+n_snps_multi <- plot_grid(gwas_n_snps_gambia,
+                          gwas_n_snps_ghana,
+                          labels = letters[1:2])
+
+my_ggsave("gwas-n-snps.pdf", dims = c(2, 1))
+my_ggsave("gwas-n-snps.png", dims = c(2, 1))
 
 # Classifier -------------------------------------------------------------------
 # see code/main-classifier.R

@@ -55,7 +55,6 @@ if (file.exists(tss_all_fname)) {
                    mart = ensembl)
   saveRDS(tss_all, file = tss_all_fname)
 }
-head(tss_all)
 
 # One tss per gene
 tss <- tss_all %>%
@@ -63,9 +62,6 @@ tss <- tss_all %>%
   summarize(chr = chromosome_name[1],
             strand = strand[1],
             tss = if (strand == 1) min(transcription_start_site) else max(transcription_start_site))
-head(tss)
-
-
 
 # Window is +/- 50 kb
 window <- 50000
@@ -74,7 +70,6 @@ tss$end <- tss$tss + window
 tss$strand <- ifelse(tss$strand == 1, "+", "-")
 tss_gr <- makeGRangesFromDataFrame(tss, keep.extra.columns = TRUE)
 seqlevels(tss_gr) <- paste0("ch", seqlevels(tss_gr))
-tss_gr
 
 # 3. Assign the SNP with the lowest p-value
 
@@ -189,4 +184,3 @@ write.table(results, file = file.path(data_dir, "results-gwas.txt"),
 
 write.table(lm_out_df, file = file.path(data_dir, "results-gwas-lm.txt"),
             quote = FALSE, sep = "\t", row.names = FALSE)
-
