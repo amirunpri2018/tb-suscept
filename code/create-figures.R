@@ -482,35 +482,26 @@ gwas_lm$test <- factor(gwas_lm$test,
                                   "|logFC| between\ninfected and noninfected states\nin resistant individuals",
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the noninfected state",
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the infected state"))
-gwas_slopes_gambia <- ggplot(gwas_lm[gwas_lm$population == "gambia", ],
-                             aes(x = test, y = slope)) +
-  geom_point() +
+gwas_lm$population <- factor(gwas_lm$population, levels = c("gambia", "ghana"),
+                             labels = c("Gambia", "Ghana"))
+gwas_slopes <- ggplot(gwas_lm, aes(x = test, y = slope, color = population)) +
+  geom_point(position = position_dodge(width = .5)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_linerange(aes(ymin = slope - slope_se, ymax = slope + slope_se)) +
-  labs(x = "", y = "Slope of best fit line (+/- standard error)",
+  geom_linerange(aes(ymin = slope - 2 * slope_se, ymax = slope + 2 * slope_se),
+                 position = position_dodge(width = .5)) +
+  scale_color_discrete(name = "Population") +
+  labs(x = "", y = "Slope of best fit line (+/- 2 x standard error)",
        title = "Relationship between GWAS p-value\nand |logFC| in DCs") +
-  coord_flip()
+  coord_flip() +
+  theme(legend.position = "bottom")
 
 gwas_multi_gambia <- plot_grid(gwas_scatter_gambia,
-                        gwas_slopes_gambia,
+                        gwas_slopes,
                         labels = letters[1:2])
 
 my_ggsave("gwas.eps", dims = c(2, 1))
 my_ggsave("gwas.pdf", dims = c(2, 1))
 my_ggsave("gwas.png", dims = c(2, 1))
-
-# Ghana
-gwas_scatter_ghana <- gwas_scatter_gambia %+% aes(y = gwas_p_ghana) +
-  labs(y = "GWAS p-value")
-
-gwas_slopes_ghana <- gwas_slopes_gambia %+% gwas_lm[gwas_lm$population == "ghana", ]
-
-gwas_multi_ghana <- plot_grid(gwas_scatter_ghana,
-                               gwas_slopes_ghana,
-                               labels = letters[1:2])
-
-my_ggsave("gwas-supp.pdf", dims = c(2, 1))
-my_ggsave("gwas-supp.png", dims = c(2, 1))
 
 # Correlation with number of SNPs per gene
 # cor(gwas_results$n_snps, gwas_results$gwas_p_gambia)

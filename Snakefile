@@ -364,8 +364,6 @@ rule create_figures:
             figure + "gwas.eps",
             figure + "gwas.pdf",
             figure + "gwas.png",
-            figure + "gwas-supp.pdf",
-            figure + "gwas-supp.png",
             figure + "gwas-n-snps.pdf",
             figure + "gwas-n-snps.png"
     shell: "Rscript {input.script} {data} {figure}"
