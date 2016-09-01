@@ -276,6 +276,13 @@ rule filter_genes:
             cpm = data + "cpm-all.rds"
     shell: "Rscript {input.script} {data}"
 
+# Download gene annotation
+rule download_gene_annotation:
+    input: counts = data + "counts.txt",
+           script = code + "download-gene-annotation.R"
+    output: gene_anno = data + "gene-annotation.txt"
+    shell: "Rscript {input.script} {data}"
+
 # Remove outliers based on PCA
 rule remove_outliers:
     input: counts = data + "counts.txt",

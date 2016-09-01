@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Create exons file for for mapping reads to genes with Subread featureCounts.
 
 # Usage:
