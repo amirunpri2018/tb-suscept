@@ -323,6 +323,22 @@ rule gwas:
             lm_stats = data + "results-gwas-lm.txt"
     shell: "Rscript {input.script} {data}"
 
+# Combine with lbb2012
+rule combine_studies:
+    input: counts = data + "counts-filtered.txt",
+           info = data + "experiment-info-filtered.txt",
+           lbb = data + "Exp_final_Batch_corrected.Rdata",
+           script = code + "combine-studies.R"
+    output: combined_anno = data + "combined-annotation.txt",
+            combined_raw = data + "combined-raw.txt",
+            combined_norm = data + "combined-normalized.txt",
+            combined_regr = data + "combined-regressed.txt",
+            combined_pca = data + "combined-pca.txt",
+            combined_pca_exp = data + "combined-pca-explained.txt",    
+            combined_pca_regr = data + "combined-pca-regressed.txt",
+            combined_pca_regr_exp = data + "combined-pca-explained-regressed.txt"
+    shell: "Rscript {input.script} {data}"
+
 # Build classifier with caret
 rule classifier:
     input: counts = data + "counts-filtered.txt",
@@ -343,6 +359,14 @@ rule create_figures:
            covariates = data + "results-pca-covariates.txt",
            gwas = data + "results-gwas.txt",
            gwas_lm = data + "results-gwas-lm.txt",
+           combined_anno = data + "combined-annotation.txt",
+           combined_raw = data + "combined-raw.txt",
+           combined_norm = data + "combined-normalized.txt",
+           combined_regr = data + "combined-regressed.txt",
+           combined_pca = data + "combined-pca.txt",
+           combined_pca_exp = data + "combined-pca-explained.txt",    
+           combined_pca_regr = data + "combined-pca-regressed.txt",
+           combined_pca_regr_exp = data + "combined-pca-explained-regressed.txt",
            script = code + "create-figures.R"
     output: figure + "gene-exp-distribution.pdf",
             figure + "gene-exp-distribution.png",
