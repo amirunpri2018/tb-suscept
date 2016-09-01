@@ -549,7 +549,7 @@ extract_train_metrics <- function(x) {
 }
 # Step 1: Convert to list of data frames
 predict_tmp <- lapply(predictions, function(x) {
-    ldply(x, extract_train_metrics, .id = "svalue")
+    ldply(x, extract_train_metrics, .id = "qvalue")
   })
 # Step 2: Convert to data frame
 predict_df <- ldply(predict_tmp, .id = "method")
@@ -596,7 +596,7 @@ extract_class_probs <- function(x) {
 }
 # Step 1: Convert to list of data frames
 class_prob_tmp <- lapply(predictions, function(x) {
-  ldply(x, extract_class_probs, .id = "svalue")
+  ldply(x, extract_class_probs, .id = "qvalue")
 })
 # Step 2: Convert to data frame
 class_prob_df <- ldply(class_prob_tmp, .id = "method")
@@ -606,28 +606,28 @@ class_prob_df$method <- factor(class_prob_df$method,
                             labels = c("Elastic Net", "Support Vector Machine",
                                        "Random Forest"))
 class_prob_df$Observed <- factor(class_prob_df$obs,
-                                 levels = c("tb", "contact"),
+                                 levels = c("suscep", "resist"),
                                  labels = c("Susceptible", "Resistant"))
 for (method in levels(class_prob_df$method)) {
-  for (sval in unique(class_prob_df$svalue)) {
+  for (qval in unique(class_prob_df$qvalue)) {
     fname <- paste0("class-prob-", gsub(" ", "-", tolower(method)),
-                    "-", sval, ".pdf")
+                    "-", qval, ".pdf")
     pdf(file.path(fig_dir, fname),
         width = w, height = h, useDingbats = FALSE)
     d_tmp <- class_prob_df[class_prob_df$method == method &
-                             class_prob_df$svalue == sval, ]
+                             class_prob_df$qvalue == qval, ]
     # Order the samples by their classified probably of being resistant
-    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$contact)])
-    d_tmp <- d_tmp[order(d_tmp$contact), ]
+    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$resist)])
+    d_tmp <- d_tmp[order(d_tmp$resist), ]
     d_tmp$text_label <- substr(as.character(d_tmp$id), 1, 5)
     d_tmp$text_label[11:nrow(d_tmp)] <- ""
-    p <- ggplot(d_tmp, aes(x = id, y = contact)) +
+    p <- ggplot(d_tmp, aes(x = id, y = resist)) +
       geom_point(aes(color = Observed)) +
       geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
                 size = rel(2)) +
       labs(x = "Individual",
            y = "Assigned probability of being TB resistant",
-           title = paste(method, sval)) +
+           title = paste(method, qval)) +
       scale_x_discrete(labels = NULL) +
       ylim(0, 1) +
       theme(legend.position = c(0.75, 0.5),
@@ -642,12 +642,12 @@ for (method in levels(class_prob_df$method)) {
 predictions_lbb <- readRDS(file.path(data_dir, "classifier-predictions-lbb.rds"))
 
 predict_lbb_tmp <- lapply(predictions_lbb, function(x) {
-  ldply(x, .id = "svalue")
+  ldply(x, .id = "qvalue")
 })
 
 # Step 1: Convert to list of data frames
 predict_lbb_tmp <- lapply(predictions_lbb, function(x) {
-  ldply(x, .id = "svalue")
+  ldply(x, .id = "qvalue")
 })
 # Step 2: Convert to data frame
 predict_lbb_df <- ldply(predict_lbb_tmp, .id = "method")
@@ -658,20 +658,20 @@ predict_lbb_df$method <- factor(predict_lbb_df$method,
                                           "Random Forest"))
 predict_lbb_df$id <- rownames(predictions_lbb[[3]][[1]])
 for (method in levels(predict_lbb_df$method)) {
-  for (sval in unique(predict_lbb_df$svalue)) {
+  for (qval in unique(predict_lbb_df$qvalue)) {
     fname <- paste0("class-prob-lbb-", gsub(" ", "-", tolower(method)),
-                    "-", sval, ".pdf")
+                    "-", qval, ".pdf")
     pdf(file.path(fig_dir, fname),
         width = w, height = h, useDingbats = FALSE)
     d_tmp <- predict_lbb_df[predict_lbb_df$method == method &
-                              predict_lbb_df$svalue == sval, ]
+                              predict_lbb_df$qvalue == qval, ]
     # Order the samples by their classified probably of being resistant
-    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$contact)])
-    p <- ggplot(d_tmp, aes(x = id, y = contact)) +
+    d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$resist)])
+    p <- ggplot(d_tmp, aes(x = id, y = resist)) +
       geom_point() +
       labs(x = "Individual",
            y = "Assigned probability of being TB resistant",
-           title = paste(method, sval)) +
+           title = paste(method, qval)) +
       scale_x_discrete(labels = NULL) +
       ylim(0, 1) +
       theme(legend.position = c(0.75, 0.5),

@@ -2,17 +2,15 @@
 
 # Classify resistant versus susceptible individuals.
 
+# plyr is loaded by caret when running certain algorithms, recommended to load
+# before dplyr.
+suppressPackageStartupMessages(library("plyr"))
+suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("limma"))
 suppressPackageStartupMessages(library("caret"))
 suppressPackageStartupMessages(library("kernlab"))
 suppressPackageStartupMessages(library("glmnet"))
 suppressPackageStartupMessages(library("randomForest"))
-suppressPackageStartupMessages(library("C50"))
-suppressPackageStartupMessages(library("penalizedLDA"))
-# Loaded by caret when running certain algorithms, recommended to load before
-# dplyr.
-suppressPackageStartupMessages(library("plyr"))
-suppressPackageStartupMessages(library("dplyr"))
-suppressPackageStartupMessages(library("limma"))
 
 if(interactive()) {
   data_dir <- "../data"
@@ -35,10 +33,6 @@ lbb2012 <- Exp_final_Batch_corrected[, -1:-2]
 rownames(lbb2012) <- Exp_final_Batch_corrected$Ensembl_ID
 lbb2012 <- lbb2012[, grepl("neg", colnames(lbb2012))]
 lbb2012 <- t(lbb2012)
-
-
-
-
 
 # Functions
 
@@ -72,8 +66,8 @@ extract_kappa <- function(results, bestTune) {
 # Algorithms to try
 algos <- c("svmLinear", "glmnet", "rf")
 # getModelInfo(algos[3])[[algos[3]]]
-# svalue cutoffs
-sval_cut <- seq(0.05, 0.25, by = 0.05)
+# qvalue cutoffs
+qval_cut <- seq(0.05, 0.25, by = 0.05)
 
 # Use leave-one-out-cross-validation
 ctrl <- trainControl(method = "LOOCV", classProbs = TRUE, savePred = "final")
@@ -85,26 +79,26 @@ names(predictions_lbb) <- algos
 
 for (alg in algos) {
   checkInstall(getModelInfo(alg)$library)
-  predictions[[alg]] <- vector(length = length(sval_cut), mode = "list")
-  names(predictions[[alg]]) <- paste0("s", sval_cut)
-  predictions_lbb[[alg]] <- vector(length = length(sval_cut), mode = "list")
-  names(predictions_lbb[[alg]]) <- paste0("s", sval_cut)
-  for (cutoff in sval_cut) {
-    cutoff_name <- paste0("s", cutoff)
-    genes_for_classifer <- v$E[results[["diff_before"]]$svalue < cutoff, ]
+  predictions[[alg]] <- vector(length = length(qval_cut), mode = "list")
+  names(predictions[[alg]]) <- paste0("q", qval_cut)
+  predictions_lbb[[alg]] <- vector(length = length(qval_cut), mode = "list")
+  names(predictions_lbb[[alg]]) <- paste0("q", qval_cut)
+  for (cutoff in qval_cut) {
+    cutoff_name <- paste0("q", cutoff)
+    genes_for_classifer <- v$E[results[["status_ni"]]$qvalue < cutoff, ]
     genes_for_classifer <- t(genes_for_classifer)
     pnas_index <- colnames(genes_for_classifer) %in% colnames(lbb2012)
     genes_for_classifer <- genes_for_classifer[, pnas_index]
     genes_for_classifer <- as.data.frame(genes_for_classifer)
     genes_for_classifer$status <- anno$status
-    genes_for_classifer <- genes_for_classifer[anno$treatment == "none", ]
+    genes_for_classifer <- genes_for_classifer[anno$treatment == "noninf", ]
     fit <- train(status ~ ., data = genes_for_classifer, method = alg,
                  trControl = ctrl, metric = "Kappa")
     fit$num_genes <- ncol(genes_for_classifer) - 1
     data <- fit$pred[, "pred"]
     reference <- fit$pred[, "obs"]
-    fit$recall <- sensitivity(data, reference, positive = "tb")
-    fit$precision <- specificity(data, reference, negative = "contact")
+    fit$recall <- sensitivity(data, reference, positive = "suscep")
+    fit$precision <- specificity(data, reference, negative = "resist")
     fit$f1 <- calc_f1(fit$recall, fit$precision)
     fit$kappa <- extract_kappa(fit$results, fit$bestTune)
     fit$pred$id <- rownames(genes_for_classifer)[fit$pred$rowIndex]
