@@ -2,11 +2,6 @@
 
 # Classify resistant versus susceptible individuals.
 
-# plyr is loaded by caret when running certain algorithms, recommended to load
-# before dplyr.
-suppressPackageStartupMessages(library("plyr"))
-suppressPackageStartupMessages(library("dplyr"))
-suppressPackageStartupMessages(library("limma"))
 suppressPackageStartupMessages(library("caret"))
 suppressPackageStartupMessages(library("kernlab"))
 suppressPackageStartupMessages(library("glmnet"))
@@ -21,20 +16,33 @@ stopifnot(dir.exists(data_dir))
 
 set.seed(12345)
 
-# Input
-v <- readRDS(file.path(data_dir, "results-limma-voom.rds"))
-anno <- read.delim(file.path(data_dir, "experiment-info-filtered.txt"),
-                   stringsAsFactors = FALSE, row.names = 1)
-stopifnot(colnames(v$E) == rownames(anno))
-results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
-# Load Luis's data
-load(file.path(data_dir, "Exp_final_Batch_corrected.Rdata"))
-lbb2012 <- Exp_final_Batch_corrected[, -1:-2]
-rownames(lbb2012) <- Exp_final_Batch_corrected$Ensembl_ID
-lbb2012 <- lbb2012[, grepl("neg", colnames(lbb2012))]
-lbb2012 <- t(lbb2012)
+# Input ------------------------------------------------------------------------
 
-# Functions
+regressed <- read.delim(file.path(data_dir, "combined-regressed.txt"),
+                row.names = 1, check.names = FALSE)
+anno_comb <- read.delim(file.path(data_dir, "combined-annotation.txt"),
+                   stringsAsFactors = FALSE, row.names = 1)
+stopifnot(colnames(regressed) == rownames(anno_comb))
+results <- readRDS(file.path(data_dir, "combined-limma.rds"))
+stopifnot(rownames(regressed) == rownames(results[["suscept_ni"]]))
+
+# Split into training and test sets. Only include noninfected samples.
+training <- regressed[, anno_comb$study == "current" &
+                        anno_comb$treatment == "noninf"]
+anno_train <- anno_comb[anno_comb$study == "current" &
+                          anno_comb$treatment == "noninf", ]
+training <- data.frame(status = anno_train$status, t(training))
+
+testing <- regressed[, anno_comb$study == "lbb2012" &
+                       anno_comb$treatment == "noninf"]
+anno_test <- anno_comb[anno_comb$study == "lbb2012" &
+                       anno_comb$treatment == "noninf", ]
+testing <- data.frame(t(testing))
+
+# All potential genes for classifier
+genes_all <- rownames(results[["status_ni"]])
+
+# Scoring functions --------------------------------------------------------------------
 
 calc_f1 <- function(recall, precision) {
   # Calculate F1 score.
@@ -63,9 +71,11 @@ extract_kappa <- function(results, bestTune) {
   return(results_final$Kappa)
 }
 
-# Algorithms to try
+# Model ------------------------------------------------------------------------
+
 algos <- c("svmLinear", "glmnet", "rf")
 # getModelInfo(algos[3])[[algos[3]]]
+
 # qvalue cutoffs
 qval_cut <- seq(0.05, 0.25, by = 0.05)
 
@@ -80,37 +90,36 @@ names(predictions_lbb) <- algos
 for (alg in algos) {
   checkInstall(getModelInfo(alg)$library)
   predictions[[alg]] <- vector(length = length(qval_cut), mode = "list")
-  names(predictions[[alg]]) <- paste0("q", qval_cut)
+  names(predictions[[alg]]) <- sprintf("q%.2f", qval_cut)
   predictions_lbb[[alg]] <- vector(length = length(qval_cut), mode = "list")
-  names(predictions_lbb[[alg]]) <- paste0("q", qval_cut)
+  names(predictions_lbb[[alg]]) <- sprintf("q%.2f", qval_cut)
   for (cutoff in qval_cut) {
-    cutoff_name <- paste0("q", cutoff)
-    genes_for_classifer <- v$E[results[["status_ni"]]$qvalue < cutoff, ]
-    genes_for_classifer <- t(genes_for_classifer)
-    pnas_index <- colnames(genes_for_classifer) %in% colnames(lbb2012)
-    genes_for_classifer <- genes_for_classifer[, pnas_index]
-    genes_for_classifer <- as.data.frame(genes_for_classifer)
-    genes_for_classifer$status <- anno$status
-    genes_for_classifer <- genes_for_classifer[anno$treatment == "noninf", ]
-    fit <- train(status ~ ., data = genes_for_classifer, method = alg,
+    cutoff_name <- sprintf("q%.2f", cutoff)
+    genes_for_classifier <- genes_all[results[["status_ni"]]$qvalue < cutoff]
+    training_sub <- training[, c("status", genes_for_classifier)]
+    fit <- train(status ~ ., data = training_sub, method = alg,
                  trControl = ctrl, metric = "Kappa")
-    fit$num_genes <- ncol(genes_for_classifer) - 1
+    fit$num_genes <- length(genes_for_classifier)
     data <- fit$pred[, "pred"]
     reference <- fit$pred[, "obs"]
     fit$recall <- sensitivity(data, reference, positive = "suscep")
     fit$precision <- specificity(data, reference, negative = "resist")
     fit$f1 <- calc_f1(fit$recall, fit$precision)
     fit$kappa <- extract_kappa(fit$results, fit$bestTune)
-    fit$pred$id <- rownames(genes_for_classifer)[fit$pred$rowIndex]
+    fit$pred$id <- rownames(training_sub)[fit$pred$rowIndex]
+    fit$separation <- mean(fit$pred[fit$pred[, "obs"] == "resist", "resist"]) -
+                      mean(fit$pred[fit$pred[, "obs"] == "suscep", "resist"])
     predictions[[alg]][[cutoff_name]] <- fit
     # Predict in Barreiro et al., 2012
-    lbb2012_sub <- lbb2012[, colnames(lbb2012) %in% colnames(genes_for_classifer)]
-    stopifnot(ncol(lbb2012_sub) == ncol(genes_for_classifer) - 1)
-    predictions_lbb[[alg]][[cutoff_name]] <- predict(fit, lbb2012_sub,
-                                                     type = "prob")
+    testing_sub <- testing[, genes_for_classifier]
+    stopifnot(ncol(testing_sub) == ncol(training_sub) - 1)
+    result_test <- predict(fit, testing_sub, type = "prob")
+    rownames(result_test) <- rownames(testing_sub)
+    predictions_lbb[[alg]][[cutoff_name]] <- result_test
   }
 }
 
-# Save results
+# Save results -----------------------------------------------------------------
+
 saveRDS(predictions, file.path(data_dir, "classifier-predictions.rds"))
 saveRDS(predictions_lbb, file.path(data_dir, "classifier-predictions-lbb.rds"))

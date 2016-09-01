@@ -336,15 +336,18 @@ rule combine_studies:
             combined_pca = data + "combined-pca.txt",
             combined_pca_exp = data + "combined-pca-explained.txt",    
             combined_pca_regr = data + "combined-pca-regressed.txt",
-            combined_pca_regr_exp = data + "combined-pca-explained-regressed.txt"
+            combined_pca_regr_exp = data + "combined-pca-explained-regressed.txt",
+            combined_limma = data + "combined-limma.rds"
     shell: "Rscript {input.script} {data}"
 
 # Build classifier with caret
 rule classifier:
-    input: counts = data + "counts-filtered.txt",
-           info = data + "experiment-info-filtered.txt",
+    input: combined_anno = data + "combined-annotation.txt",
+           combined_regr = data + "combined-regressed.txt",
+           combined_limma = data + "combined-limma.rds",
            script = code + "main-classifier.R"
-    output: predictions = data + "classifier-predictions.rds"
+    output: predictions = data + "classifier-predictions.rds",
+            predictions_lbb = data + "classifier-predictions-lbb.rds"
     shell: "Rscript {input.script} {data}"
 
 rule create_figures:
@@ -367,6 +370,8 @@ rule create_figures:
            combined_pca_exp = data + "combined-pca-explained.txt",    
            combined_pca_regr = data + "combined-pca-regressed.txt",
            combined_pca_regr_exp = data + "combined-pca-explained-regressed.txt",
+           predictions = data + "classifier-predictions.rds",
+           predictions_lbb = data + "classifier-predictions-lbb.rds",
            script = code + "create-figures.R"
     output: figure + "gene-exp-distribution.pdf",
             figure + "gene-exp-distribution.png",
