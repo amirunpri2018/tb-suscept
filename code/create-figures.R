@@ -2,6 +2,7 @@
 
 suppressPackageStartupMessages(library("plyr"))
 suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("tidyr"))
 suppressPackageStartupMessages(library("ggplot2"))
 suppressPackageStartupMessages(library("gridExtra"))
 suppressPackageStartupMessages(library("edgeR"))
@@ -521,6 +522,81 @@ n_snps_multi <- plot_grid(gwas_n_snps_gambia,
 
 my_ggsave("gwas-n-snps.pdf", dims = c(2, 1))
 my_ggsave("gwas-n-snps.png", dims = c(2, 1))
+
+# Combine studies --------------------------------------------------------------
+# see code/combine-studies.R
+
+# Combined data
+exp_combined <- read.delim(file.path(data_dir, "combined-raw.txt"),
+                           row.names = 1, check.names = FALSE)
+anno_comb <- read.delim(file.path(data_dir, "combined-annotation.txt"),
+                        stringsAsFactors = FALSE, row.names = 1)
+
+# Normalized data
+exp_combined_norm <- read.delim(file.path(data_dir, "combined-normalized.txt"),
+                                row.names = 1, check.names = FALSE)
+combined_pca <- read.delim(file.path(data_dir, "combined-pca.txt"),
+                           row.names = 1, stringsAsFactors = FALSE)
+combined_explained <- readRDS(file.path(data_dir, "combined-pca-explained.txt"))
+
+# Regressed data
+regressed <- read.delim(file.path(data_dir, "combined-regressed.txt"),
+                        row.names = 1, check.names = FALSE)
+combined_pca_regr <- read.delim(file.path(data_dir, "combined-pca-regressed.txt"),
+                                row.names = 1, check.names = FALSE)
+combined_explained_regr <- readRDS(file.path(data_dir, "combined-pca-explained-regressed.txt"))
+
+# Plots of distributions
+dist_current_pre <- apply(exp_combined[, anno_comb$study == "current"], 1, median)
+dist_lbb2012_pre <- apply(exp_combined[, anno_comb$study == "lbb2012"], 1, median)
+dist_current_norm <- apply(exp_combined_norm[, anno_comb$study == "current"],
+                           1, median)
+dist_lbb2012_norm <- apply(exp_combined_norm[, anno_comb$study == "lbb2012"],
+                           1, median)
+dist_data <- gather(data.frame(dist_current_pre, dist_lbb2012_pre,
+                        dist_current_norm, dist_lbb2012_norm),
+                    key = "dist", value = "gene_exp")
+dist_data <- separate(dist_data, col = dist,
+                      into = c("delete", "study", "normalized")) %>% select(-delete)
+dist_data$study <- factor(dist_data$study, levels = c("current", "lbb2012"),
+                          labels = c("Current", "Barreiro et al., 2012"))
+dist_data$normalized <- factor(dist_data$normalized, levels = c("pre", "norm"),
+                               labels = c("Original", "Normalized N(0, 1)"))
+
+ggplot(dist_data, aes(x = gene_exp, color = study)) +
+  geom_density() +
+  facet_wrap(~normalized, scales = "free") +
+  labs(x = "Gene expression level", y = "Density",
+       title = "Normalization to compare gene expression\nmeasured with different technologies") +
+  theme(legend.position = "bottom")
+
+my_ggsave("combined-distributions.pdf", dims = c(2, 1))
+my_ggsave("combined-distributions.png", dims = c(2, 1))
+
+# PCA
+
+p_combined_pca <- ggplot(combined_pca, aes(x = PC1, y = PC2,
+                                           color = study, size = treatment)) +
+  geom_point(shape = 1) +
+  scale_color_discrete(name = "Study", breaks = c("current", "lbb2012"),
+                       labels = c("Current", "Barreiro et al., 2012")) +
+  scale_size_discrete(name = "Treatment", breaks = c("noninf", "infect"),
+                     labels = c("noninfected", "infected")) +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(combined_explained[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(combined_explained[2] * 100, 2)),
+       title = "PCA before batch correction")
+
+p_combined_pca_regr <- p_combined_pca %+% combined_pca_regr +
+  labs(x = sprintf("PC%d (%.2f%%)", 1, round(combined_explained_regr[1] * 100, 2)),
+       y = sprintf("PC%d (%.2f%%)", 2, round(combined_explained_regr[2] * 100, 2)),
+       title = "PCA after batch correction")
+
+combined_pca_multi <- plot_grid(p_combined_pca + theme(legend.position = c(.5, .5)),
+                                p_combined_pca_regr + theme(legend.position = "none"),
+                                labels = letters[1:2])
+
+my_ggsave("combined-pca.pdf", dims = c(2, 1))
+my_ggsave("combined-pca.png", dims = c(2, 1))
 
 # Classifier -------------------------------------------------------------------
 # see code/main-classifier.R

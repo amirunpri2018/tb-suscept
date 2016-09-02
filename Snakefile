@@ -394,5 +394,9 @@ rule create_figures:
             figure + "gwas.pdf",
             figure + "gwas.png",
             figure + "gwas-n-snps.pdf",
-            figure + "gwas-n-snps.png"
+            figure + "gwas-n-snps.png",
+            figure + "combined-distributions.pdf",
+            figure + "combined-distributions.png",
+            figure + "combined-pca.pdf",
+            figure + "combined-pca.png"
     shell: "Rscript {input.script} {data} {figure}"
