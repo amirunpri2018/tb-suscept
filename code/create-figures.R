@@ -612,6 +612,7 @@ extract_train_metrics <- function(x) {
            recall = x$recall,
            precision = x$precision,
            f1 = x$f1,
+           separation = x$separation,
            num_genes = x$num_genes))
 }
 # Step 1: Convert to list of data frames
@@ -625,7 +626,7 @@ predict_df$method <- factor(predict_df$method,
                             levels = c("glmnet", "svmLinear", "rf"),
                             labels = c("Elastic Net", "Support Vector Machine",
                                        "Random Forest"))
-metrics <- c("kappa", "recall", "precision", "f1")
+metrics <- c("kappa", "recall", "precision", "f1", "separation")
 .simpleCap <- function(x) {
   # from ?chartr
   s <- strsplit(x, " ")[[1]]
@@ -653,6 +654,11 @@ for (m in metrics) {
   print(p)
   invisible(dev.off())
 }
+
+# Save a nice version of separation comparison
+stopifnot(m == "separation")
+my_ggsave("classifier-compare.pdf", dims = c(3, 1))
+my_ggsave("classifier-compare.png", dims = c(3, 1))
 
 # Plot the class probabilites for the different models
 
@@ -686,7 +692,7 @@ for (method in levels(class_prob_df$method)) {
     # Order the samples by their classified probably of being resistant
     d_tmp$id <- factor(d_tmp$id, levels = d_tmp$id[order(d_tmp$resist)])
     d_tmp <- d_tmp[order(d_tmp$resist), ]
-    d_tmp$text_label <- substr(as.character(d_tmp$id), 1, 5)
+    d_tmp$text_label <- substr(as.character(d_tmp$id), 1, 3)
     d_tmp$text_label[11:nrow(d_tmp)] <- ""
     p <- ggplot(d_tmp, aes(x = id, y = resist)) +
       geom_point(aes(color = Observed)) +
@@ -747,3 +753,38 @@ for (method in levels(predict_lbb_df$method)) {
     invisible(dev.off())
   }
 }
+
+# Make nicer plots for paper
+qval <- "q0.05"
+class_prob_df$text_label <- substr(as.character(class_prob_df$id), 1, 3)
+
+# Elastic Net
+en <- class_prob_df[class_prob_df$method == "Elastic Net" &
+                         class_prob_df$qvalue == qval, ]
+
+p_base <- ggplot(en, aes(x = reorder(id, resist), y = resist)) +
+  geom_point() +
+  labs(x = "Individual",
+       y = "Assigned probability of being TB resistant") +
+  scale_x_discrete(labels = NULL) +
+  scale_y_continuous(limits = c(0, 1.01), breaks = seq(0, 1, by = 0.1)) +
+  theme(axis.ticks.x = element_blank())
+p_en <- p_base +
+  geom_point(aes(color = Observed)) +
+  geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+            size = rel(2)) +
+  theme(legend.position = c(0.75, 0.5)) +
+  labs(title = "Training classifier on current data")
+
+en_lbb <- predict_lbb_df[predict_lbb_df$method == "Elastic Net" &
+                           predict_lbb_df$qvalue == qval, ]
+
+p_en_lbb <- p_base %+% en_lbb +
+  labs(title = "Testing classifier on Barreiro et al. data")
+
+multi_en <- plot_grid(p_en,
+                      p_en_lbb,
+                      labels = letters[1:2])
+
+my_ggsave("classifier-en.pdf", dims = c(2, 1))
+my_ggsave("classifier-en.png", dims = c(2, 1))

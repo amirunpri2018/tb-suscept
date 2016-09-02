@@ -398,5 +398,9 @@ rule create_figures:
             figure + "combined-distributions.pdf",
             figure + "combined-distributions.png",
             figure + "combined-pca.pdf",
-            figure + "combined-pca.png"
+            figure + "combined-pca.png",
+            figure + "classifier-compare.pdf",
+            figure + "classifier-compare.png",
+            figure + "classifier-en.pdf",
+            figure + "classifier-en.png"    
     shell: "Rscript {input.script} {data} {figure}"
