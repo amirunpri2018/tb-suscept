@@ -764,6 +764,7 @@ en <- class_prob_df[class_prob_df$method == "Elastic Net" &
 
 p_base <- ggplot(en, aes(x = reorder(id, resist), y = resist)) +
   geom_point() +
+  geom_hline(yintercept = 0.75, color = "red", linetype = "dashed") +
   labs(x = "Individual",
        y = "Assigned probability of being TB resistant") +
   scale_x_discrete(labels = NULL) +
@@ -788,3 +789,75 @@ multi_en <- plot_grid(p_en,
 
 my_ggsave("classifier-en.pdf", dims = c(2, 1))
 my_ggsave("classifier-en.png", dims = c(2, 1))
+
+# Support Vector Machine
+svm <- class_prob_df[class_prob_df$method == "Support Vector Machine" &
+                      class_prob_df$qvalue == qval, ]
+
+p_svm <- p_base %+% svm +
+  geom_point(aes(color = Observed)) +
+  geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+            size = rel(2)) +
+  theme(legend.position = c(0.75, 0.5)) +
+  labs(title = "Training classifier on current data")
+
+svm_lbb <- predict_lbb_df[predict_lbb_df$method == "Support Vector Machine" &
+                          predict_lbb_df$qvalue == qval, ]
+
+p_svm_lbb <- p_base %+% svm_lbb +
+  labs(title = "Testing classifier on Barreiro et al. data")
+
+multi_svm <- plot_grid(p_svm,
+                      p_svm_lbb,
+                      labels = letters[1:2])
+
+my_ggsave("classifier-svm.pdf", dims = c(2, 1))
+my_ggsave("classifier-svm.png", dims = c(2, 1))
+
+# Random Forest
+rf <- class_prob_df[class_prob_df$method == "Random Forest" &
+                       class_prob_df$qvalue == qval, ]
+
+p_rf <- p_base %+% rf +
+  geom_point(aes(color = Observed)) +
+  geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+            size = rel(2)) +
+  theme(legend.position = c(0.75, 0.5)) +
+  labs(title = "Training classifier on current data")
+
+rf_lbb <- predict_lbb_df[predict_lbb_df$method == "Random Forest" &
+                            predict_lbb_df$qvalue == qval, ]
+
+p_rf_lbb <- p_base %+% rf_lbb +
+  labs(title = "Testing classifier on Barreiro et al. data")
+
+multi_rf <- plot_grid(p_rf,
+                       p_rf_lbb,
+                       labels = letters[1:2])
+
+my_ggsave("classifier-rf.pdf", dims = c(2, 1))
+my_ggsave("classifier-rf.png", dims = c(2, 1))
+
+# Compare expression of classifier genes between the two studies
+
+limma_comb <- readRDS(file.path(data_dir, "combined-limma.rds"))
+genes_q05 <- rownames(limma_comb[["status_ni"]][limma_comb[["status_ni"]]$qvalue < 0.05, ])
+stopifnot(length(genes_q05) == predict_df$num_genes[predict_df$qvalue == "q0.05"][1])
+# regressed and anno_comb were loaded above
+training_medians <- apply(regressed[genes_q05,
+                                    anno_comb$treatment == "noninf" &
+                                    anno_comb$study == "current"],
+                          1, median)
+testing_medians <- apply(regressed[genes_q05,
+                                   anno_comb$treatment == "noninf" &
+                                   anno_comb$study == "lbb2012"],
+                         1, median)
+p_class_exp <- ggplot(data.frame(training_medians, testing_medians),
+                      aes(x = training_medians, y = testing_medians)) +
+  geom_point(shape = 1) +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  labs(x = "Current study", y = "Barreiro et al., 2012",
+       title = "Comparing median expression levels\nof genes used in classifer")
+
+my_ggsave("classifier-exp.pdf")
+my_ggsave("classifier-exp.png")

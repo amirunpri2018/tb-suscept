@@ -402,5 +402,11 @@ rule create_figures:
             figure + "classifier-compare.pdf",
             figure + "classifier-compare.png",
             figure + "classifier-en.pdf",
-            figure + "classifier-en.png"    
+            figure + "classifier-en.png",
+            figure + "classifier-svm.pdf",
+            figure + "classifier-svm.png",
+            figure + "classifier-rf.pdf",
+            figure + "classifier-rf.png",
+            figure + "classifier-exp.pdf",
+            figure + "classifier-exp.png"
     shell: "Rscript {input.script} {data} {figure}"
