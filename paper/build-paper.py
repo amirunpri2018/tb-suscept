@@ -12,6 +12,7 @@ doc_class = "\documentclass[fleqn,10pt]{wlscirep}\n"
 
 # List of packages to be loaded in preamble
 packages = ["fixltx2e",
+            "textcomp", # for tilde: \texttildelow
             "epstopdf"] # Convert EPS to PDF
 
 # LaTeX macro for labeling supplementary tables and figures.
@@ -98,19 +99,45 @@ def use_packages(packages):
         result = result + "\\usepackage{" + p + "}\n"
     return result
 
+def convert_special_characters(text):
+    # Convert special characters to LaTeX format.
+    #
+    # Currently supports:
+    #   %    -> \%
+    #   ~    -> \texttidlelow (requires textcomp package)
+    #   <    -> \textless \, (the comma adds a space after it)
+    #   >    -> \textgreater \,
+    #
+    # Sources:
+    #   http://tex.stackexchange.com/questions/9363/how-does-one-insert-a-backslash-or-a-tilde-into-latex
+    #   http://tex.stackexchange.com/questions/10300/include-fewer-than-and-greater-than-inequality-symbols
+    # LaTeX macro for creating nice tilde
+    # Had difficulty getting this to work properly
+    # http://tex.stackexchange.com/a/9372
+    #
+    result = text.replace("%", "\%")
+    result = result.replace("~", "\\texttildelow")
+    result = result.replace("<", "\\textless \,")
+    result = result.replace(">", "\\textgreater \,")
+    return result
+
 if __name__ == "__main__":
     fname = sys.argv[1]
     assert fname[-4:] == "docx", "Input file is Word document"
     assert os.path.exists(fname), "Input file exists"
+    # Add preamble
     sys.stdout.write(doc_class)
     sys.stdout.write(use_packages(packages))
     sys.stdout.write(label_supp)
+    # Process input Word document
     d = docx.Document(fname)
     for line in d.paragraphs:
         out = ""
         for run in line.runs:
             out = out + convert_run(run)
         style = line.style.name
+        if style != "LaTeX":
+            out = convert_special_characters(out)
         if style == "Title":
             out = write_title(out)
         elif style == "Author":
