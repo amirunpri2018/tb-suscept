@@ -54,7 +54,7 @@ Next we performed a standard differential expression analysis using a linear mod
 \centering
 \includegraphics[width=\linewidth]{../figure/limma.pdf}
 \caption{
-Differential expression analysis. The top panel contains the distribution of unadjusted p-values after testing for differential expression between susceptible and resistant individuals in the (a) noninfected or (b) infected state. The bottom panel contains the corresponding MA plots for the (c) noninfected and (d) infected states. The x-axis is the average gene expression level and the y-axis is the log fold change in expression level between susceptible and resistant individuals. Red solid dots indicate genes which are significant differentially expressed after applying a multiple testing correction.
+Differential expression analysis. The top panel contains the distribution of unadjusted p-values after testing for differential expression between susceptible and resistant individuals in the (a) noninfected or (b) infected state. The bottom panel contains the corresponding volcano plots for the (c) noninfected and (d) infected states. The x-axis is the log fold change in gene expression level between susceptible and resistant individuals and the y-axis is the –log\textsubscript{10} p-value. Red indicates genes which are significant differentially expressed with a q-value less than 10\%.
 }
 \label{fig:limma}
 \end{figure}
@@ -66,7 +66,7 @@ We next sought to investigate whether the differentially expressed genes we had 
 \centering
 \includegraphics[width=\linewidth]{../figure/gwas.pdf}
 \caption{
-Comparison of differential expression and GWAS results. (a) The relationship between GWAS p-values \cite{Thye2010} and the absolute values of the log fold changes between susceptible and resistant individuals in the noninfected state. The red line is the least squares regression. (b) The slopes ($\pm$ standard error) of the regression lines for each test. Additionally it includes the comparison of the mean expression level to the GWAS p-values as a control. All slopes are significantly different than 0 (F-test \emph{P} \textless \, 0.05).
+Comparison of differential expression and GWAS results. (a) The relationship between GWAS p-values \cite{Thye2010} and the absolute values of the log fold changes between susceptible and resistant individuals in the noninfected state. The red line is the least squares regression. (b) The slopes ($\pm$ 2x standard error) of the regression lines for each test. The results from the GWAS in Gambia are in red and those from Ghana in blue. All slopes are significantly different than 0 (t-test \emph{P} \textless \, 0.05), except for the slope between the Ghana GWAS p-values and the absolute values of the log fold changes between susceptible and resistant individuals in the noninfected state.
 }
 \label{fig:gwas}
 \end{figure}
@@ -79,9 +79,9 @@ Unfortunately our current data set was too small to properly split into separate
 
 \begin{figure}[ht]
 \centering
-%\includegraphics[width=\linewidth]{../figure/classifier.pdf}
+\includegraphics[width=\linewidth]{../figure/classifier-svm.pdf}
 \caption{
-Classifying TB susceptible individuals. (left) The  estimates of predicted probability of TB resistance from the leave-one-out-cross-validation for individuals in the current study. The red open circles represent individuals known to be susceptible to TB. The horizontal blue line at a probability of 0.8 separates susceptible and resistant individuals. (right) The estimates of predicted probability of TB resistance from applying the classifier trained on the data from the current study to a test set of independently collected healthy individuals \cite{Barreiro2012}.
+Classifying TB susceptible individuals using a support vector machine algorithm. (a) The estimates of predicted probability of TB resistance from the leave-one-out-cross-validation for individuals in the current study. The red circles represent individuals known to be susceptible to TB, and blue those resistant to TB. The horizontal blue line at a probability of 0.75 separates susceptible and resistant individuals. (b) The estimates of predicted probability of TB resistance from applying the classifier trained on the data from the current study to a test set of independently collected healthy individuals \cite{Barreiro2012}.
 }
 \label{fig:classifier}
 \end{figure}
@@ -156,7 +156,7 @@ YG, LT, and LBB conceived of the study and designed the experiments. LT performe
 \centering
 \includegraphics[width=\linewidth]{../figure/gene-exp-distribution.pdf}
 \caption{
-Gene expression distributions before and after filtering.
+Gene expression distributions before and after filtering genes and samples. The log\textsubscript{2} counts per million (cpm) of each sample is plotted as a dashed gray line. The solid red line represents the median value across all the samples. The vertical solid blue line at $x = 0$ represents the cutoff used to filter lowly expressed genes based on their median log\textsubscript{2} cpm. The left panel is the data from all 19,800 genes and 50 samples, the middle panel is the data from the 11,336 genes remaining after removing lowly expressed genes, and the right panel is the data from 11,336 genes and the 44 samples remaining after removing outliers.
 }
 \label{fig:gene}
 \end{figure}
@@ -165,7 +165,7 @@ Gene expression distributions before and after filtering.
 \centering
 \includegraphics[width=\linewidth]{../figure/heatmap-all-samples.pdf}
 \caption{
-Heatmap of correlation matrix of samples.
+Heatmap of correlation matrix of samples. Each square represents the Pearson correlation between the log\textsubscript{2} cpm expression values of two samples. Red indicates a low correlation of zero and white represents a high correlation of 1. The dendrogram displays the results of hierarchical clustering with the complete linkage method. The outliers of the noninfected samples are s04-suscept-noninf, r02-resist-noninf, and r06-resist-noninf. The outliers of the infected samples are s01-suscep-infect, r06-resist-infect, and r18-resist-infect.
 }
 \label{fig:heat-all}
 \end{figure}
@@ -174,7 +174,7 @@ Heatmap of correlation matrix of samples.
 \centering
 \includegraphics[width=\linewidth]{../figure/heatmap-no-outliers.pdf}
 \caption{
-Heatmap of correlation matrix after removing outliers.
+Heatmap of correlation matrix after removing outliers. Each square represents the Pearson correlation between the log\textsubscript{2} cpm expression values of two samples. Red indicates a low correlation of zero and white represents a high correlation of 1. The dendrogram displays the results of hierarchical clustering with the complete linkage method.
 }
 \label{fig:heat-filt}
 \end{figure}
@@ -184,7 +184,7 @@ Heatmap of correlation matrix after removing outliers.
 \centering
 \includegraphics[width=\linewidth]{../figure/outliers.pdf}
 \caption{
-Remove outliers.
+Principal components analysis (PCA) to identify outliers. PC1 versus PC2 (a), PC3 versus PC4 (b), and PC5 versus PC6 (c). Each sample is represented by its 3-letter ID. “s” stands for susceptible and “r” for resistant, and the text is colored on the basis of treatment status (blue is noninfected; red is infected). The value is parentheses in each axis is the percentage of total variation accounted for by that PC. The outliers are listed in (d). These samples do not fall within 2 standard deviations of the mean value of the PCs listed in the right column. Note that a separate mean was calculated for the noninfected and infected samples for PC1 only.
 }
 \label{fig:outliers}
 \end{figure}
@@ -212,9 +212,45 @@ Check for confounding effect of infection batch. PC3 (a) and PC5 (b) varied by t
 \centering
 \includegraphics[width=\linewidth]{../figure/limma-supp.pdf}
 \caption{
-Effect of treatment.
+Effect of treatment with MTB. The top panel contains the distribution of unadjusted p-values after testing for differential expression between the noninfected and infected states in (a) resistant and (b) susceptible individuals. The bottom panel contains the corresponding volcano plots for the (c) resistant and (d) susceptible individuals. The x-axis is the log fold change in gene expression level between susceptible and resistant individuals and the y-axis is the –log\textsubscript{10} p-value. Red indicates genes which are significant differentially expressed with a q-value less than 10\%. Because of the extremely skewed p-value distribution, all genes are significantly differentially expressed at this false discovery rate.
 }
 \label{fig:limma-supp}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/gwas-n-snps.pdf}
+\caption{
+Relationship between the minimum GWAS p-value assigned to a gene and the number of SNPs nearby that gene. The x-axis is the number of SNPs tested in the GWAS that are located 50 kb up or downstream of the TSS of each gene. The y-axis is the minimum GWAS p-value of the SNPs nearby each gene. The red line is the least squares regression line. The slope is significantly different than zero (t-test \emph{P} \textless \, 0) for both the (a) Gambia and (b) Ghana studies.
+}
+\label{fig:gwas-n-snps}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/classifier-compare.pdf}
+\caption{
+Comparing the classification results of different methods and number of input genes. We compared 3 different machine learning methods (elastic net, support vector machine, random forest) and used 5 different sets of input genes. The input genes (x-axis) were obtained by varying the q-value cutoff for differential expression between susceptible and resistant individuals in the noninfected state from 5\% to 25\%. The evaluation metric (y-axis) was the difference of the mean assigned probability of being TB resistant between the known resistant and susceptible individuals in the current study.
+}
+\label{fig:class-compare}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/classifier-en.pdf}
+\caption{
+Classifying TB susceptible individuals using an elastic net algorithm. (a) The estimates of predicted probability of TB resistance from the leave-one-out-cross-validation for individuals in the current study. The red circles represent individuals known to be susceptible to TB, and blue those resistant to TB. The horizontal blue line at a probability of 0.75 almost separates susceptible and resistant individuals. (b) The estimates of predicted probability of TB resistance from applying the classifier trained on the data from the current study to a test set of independently collected healthy individuals \cite{Barreiro2012}.
+}
+\label{fig:class-en}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/classifier-rf.pdf}
+\caption{
+Classifying TB susceptible individuals using a random forest algorithm. (a) The estimates of predicted probability of TB resistance from the leave-one-out-cross-validation for individuals in the current study. The red circles represent individuals known to be susceptible to TB, and blue those resistant to TB. The horizontal blue line at a probability of 0.75 separates susceptible and resistant individuals. (b) The estimates of predicted probability of TB resistance from applying the classifier trained on the data from the current study to a test set of independently collected healthy individuals \cite{Barreiro2012}.
+}
+\label{fig:class-rf}
 \end{figure}
 
 \end{document}
