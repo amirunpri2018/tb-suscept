@@ -208,6 +208,14 @@ regimen of antibiotics for these individuals and also reduce the
 selective pressures on MTB to develop drug resistance.
 \section*{Methods}
 
+\subsection*{Ethics Statement}
+
+We recruited 25 subjects to donate a blood sample for use in our
+study. All methods were carried out in accordance with relevant
+guidelines and regulations. The experimental protocols were approved
+by the Institutional Review Boards of the University of Chicago
+(10-504-B) and the Institut Pasteur (IRB00006966). All study
+participants provided written informed consent.
 \subsection*{Sample collection}
 
 We collected whole blood samples from healthy Caucasian male
@@ -215,12 +223,17 @@ individuals living in France. The putatively resistant individuals
 tested positive for a latent TB infection in an interferon-$\gamma$
 release assay, but had never developed active TB. The putatively
 sensitive individuals had developed active TB in the past, but were
-currently healthy. Our protocol was approved by the Institutional
-Review Boards of the University of Chicago (10-504-B) and the Institut
-Pasteur (IRB00006966).
+currently healthy.
 \subsection*{Isolation and infection of dendritic cells}
 
-
+We isolated mononuclear cells from the whole blood samples using
+Ficoll-Paque centrifugation, extracted monocytes via CD14 positive
+selection, and differentiated the monocytes into dendritic cells (DCs)
+by culturing them for 5 days in RPMI 1640 (Invitrogen) supplemented
+with 10\% heat-inactivated FCS (Dutscher), L-glutamine (Invitrogen),
+GM-CSF (20 ng/mL; Immunotools), and IL-4 (20 ng/mL; Immunotools). Next
+we infected the DCs with \emph{Mycobacterium tuberculosis} (MTB) H37Rv
+at a multiplicity of infection of 1-to-1 for 18 hours.
 \subsection*{RNA extraction and sequencing}
 
 We extracted RNA using the Qiagen miRNeasy Kit and prepared sequencing
@@ -228,7 +241,8 @@ libraries using the Illumina TruSeq Kit. We sent the master mixes to
 the University of Chicago Functional Genomics Facility to be sequenced
 on an Illumina HiSeq 4000. We designed the batches for RNA extraction,
 library preparation, and sequencing to balance the experimental
-factors of interest and thus avoid potential technical confounders.
+factors of interest and thus avoid potential technical confounders
+(Supplementary Fig. \ref{fig:process}).
 \subsection*{Read mapping}
 
 We mapped reads to human genome hg38 (GRCh38) using Subread and
@@ -243,13 +257,12 @@ genes with a median log\textsubscript{2} counts per million (cpm) less
 than zero. This resulted in a final set of 11,336 genes for downstream
 analysis (Supplementary Fig. \ref{fig:gene}). Next we used principal
 components analysis (PCA) and hierarchical clustering to identify and
-remove 6 outliers (Supplementary Fig. \ref{fig:heat-all},
-\ref{fig:heat-filt}, \ref{fig:outliers}). We did this systematically
-by removing any sample that did not fall within the mean $\pm$ two
-standard deviations from the mean value of the first six PCs.
-Furthermore, for the first PC which separated the samples by
-treatment, we calculated a separate mean for the noninfected and
-infected samples.
+remove 6 outliers (Supplementary Fig. \ref{fig:heat-all}, \ref{fig
+:heat-filt}, \ref{fig:outliers}). We did this systematically by
+removing any sample that did not fall within the mean $\pm$ two
+standard deviations of the first six PCs. Furthermore, for the first
+PC which separated the samples by treatment, we calculated a separate
+mean for the noninfected and infected samples.
 
 After filtering lowly expressed genes and removing outliers, we
 recalculated the PCA to check for any potential confounding technical
@@ -258,10 +271,11 @@ major sources of variation in the data were from the biological
 factors of interest. PC1 was strongly correlated with the effect of
 treatment, and PCs 2-6 were correlated with inter-individual
 variation. The only concerning technical factor was the infection
-experiments, which were done in 12 separate batches. Infection batch
-correlated with PCs 3 and 5; however, we verified that this variation
-was not confounded with our primary outcome of interest, TB
-susceptibility (Supplementary Fig. \ref{fig:infection}).
+experiments, which were done in 12 separate batches (Supplementary
+Fig. \ref{fig:process}). Infection batch correlated with PCs 3 and 5;
+however, we verified that this variation was not confounded with our
+primary outcome of interest, TB susceptibility (Supplementary Fig.
+\ref{fig:infection}).
 \subsection*{Differential expression analysis}
 
 We used limma+voom \cite{Smyth2004, Law2014, Ritchie2015} to implement
@@ -273,12 +287,13 @@ where $\beta_{0}$ is the mean expression level in noninfected cells of
 resistant individuals, $\beta_{treat}$ is the fixed effect of
 treatment in resistant individuals, $\beta_{status}$ is the fixed
 effect of susceptibility status in noninfected cells,
-$\beta_{treat,status}$ is the fixed effect of treatment in susceptible
-individuals, and $I$ is the random effect of individual. The random
-individual effect was implemented using the limma function
+$\beta_{treat,status}$ is the fixed interaction effect of treatment in
+susceptible individuals, and $I$ is the random effect of individual.
+The random individual effect was implemented using the limma function
 duplicateCorrelation (cite paper). To jointly model the data with voom
 and duplicateCorrelation, we followed the recommended best practice of
-running both voom and duplicateCorrelation twice in succession.
+running both voom and duplicateCorrelation twice in succession (cite
+Lui2015).
 
 We used the model to test 4 separate hypotheses. We identified genes
 which were differentially expressed between infected and noninfected
@@ -290,67 +305,82 @@ between susceptible and resistant individuals in the noninfected state
 by testing $\beta_{status} = 0$, and genes which were differentially
 expressed between susceptible and resistant individuals in the
 infected state by testing $\beta_{status} + \beta_{treat,status} = 0$.
-We corrected for multiple testing using the adaptive shrinkage (ash)
-approached implemented in ashr (). An alternative to traditional false
-discovery rate (FDR) methods, ash is an empirical Bayesian method that
-estimates whether an observed effect size was assigned the correct
-sign (termed the local false sign rate) instead of attempting to
-estimate whether an observed effect size is different from zero
-\cite{Stephens2016}. We report differentially expressed genes as those
-with an s-value below 10\%, analogous to a 10\% q-value cutoff.
+We corrected for multiple testing using q-values estimated via
+adaptive shrinkage \cite{Stephens2016} and considered differentially
+expressed genes as those with a q-value less than 10\%.
 \subsection*{Comparison to GWAS results}
 
-The GWAS p-values were from a study conducted in the Gambia and Ghana
-populations \cite{Thye2010}. To compare our differential expression
-results to these genetic associations, we assigned each gene the
-p-value of the SNP with the minimum p-value out of all the SNPs
-located within 50 kb up or downstream of its transcription start site.
-Specifically, we obtained the genomic coordinates of the SNPs with the
-R/Bioconductor package SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched
-SNPs to nearby genes using GenomicRanges. X of the Y were assigned an
-association p-value. For each of the 4 hypotheses we tested, we
-performed least squares regression of the differential expression
-effect sizes (the log fold changes) and the assigned GWAS p-values. We
-assessed the statistical significance of these regressions using the
-standard F-test and reported the slope of each regression line (Fig.
-\ref{fig:gwas} for the Gambia GWAS; Supplementary Fig. X for the Ghana
-GWAS).
+The GWAS p-values were from a study of TB susceptibility conducted in
+The Gambia and Ghana \cite{Thye2010}. To compare our differential
+expression results to these genetic associations, we assigned each
+gene the p-value of the SNP with the minimum p-value out of all the
+SNPs located within 50 kb up or downstream of its transcription start
+site. Specifically, we obtained the genomic coordinates of the SNPs
+with the R/Bioconductor package SNPlocs.Hsapiens.dbSNP144.GRCh38 and
+matched SNPs to nearby genes using GenomicRanges. X of the 11,336 were
+assigned an association p-value. For each of the 4 hypotheses we
+tested, we performed least squares regression of the differential
+expression effect sizes (the log fold changes) and the assigned GWAS
+p-values. We assessed the statistical significance of these
+regressions using the standard t-test and reported the slope of each
+regression line (Fig. \ref{fig:gwas).  Lastly, we also observed a
+negative correlation between the GWAS p-value assigned to a gene and
+the number of SNPs tested nearby that gene (Supplementary Fig.
+\ref{gwas-n-snps}).
 \subsection*{Classifier}
 
-The training set included the X noninfected samples from this study
-with known susceptibility status. The test set included the 65
-noninfected samples from one of our previous studies in which the
-susceptibility status is unknown, and thus assumed to be similar to
-that in the general population (\texttildelow10\%)
-\cite{Barreiro2012}. Because the two studies are substantially
-different, we took multiple steps to make them comparable. First, we
-subset to include only those 9,450 genes which were assayed in both.
-Second, because the dynamic range obtained from RNA-seq (current
-study) and microarrays (previous study \cite{Barreiro2012}) are very
-different, we normalized the gene expression levels to a standard
-normal with $\mu = 0$ and $\sigma = 1$ (Supplementary Fig. SX). Third,
-we corrected for the large, expected batch effect between the two
-studies by regressing out the first principal component of the
-combined expression data using the limma function removeBatchEffect
-\cite{Ritchie2015} (Supplementary Fig. SX).
+The training set included the 44 high-quality noninfected samples from
+this study with known susceptibility status. The test set included the
+65 noninfected samples from one of our previous studies in which the
+susceptibility status is unknown \cite{Barreiro2012}, and thus assumed
+to be similar to that in the general population (\texttildelow10\%).
+Because the two studies are substantially different, we took multiple
+steps to make them comparable. First, we subset to include only those
+9,450 genes which were assayed in both. Second, because the dynamic
+range obtained from RNA-seq (current study) and microarrays (previous
+study \cite{Barreiro2012}) were very different, we normalized the gene
+expression levels to a standard normal with $\mu = 0$ and $\sigma = 1$
+(Supplementary Fig. SX). Third, we corrected for the large, expected
+batch effect between the two studies by regressing out the first
+principal component of the combined expression data using the limma
+function removeBatchEffect \cite{Ritchie2015} (Supplementary Fig. SX).
 
 To identify genes to use in the classifier, we performed a
 differential expression analysis on the normalized, batch-corrected
 data from the current study using the same approach described above
 (with the exception that we no longer used voom since the data were no
-longer counts). We tested for differential expression between
-susceptible and resistant individuals in the noninfected state and
-identified X genes at an s-value of 5\%. We used the R package caret
-(cite) to train an elastic net regression classifer (cite glmnet) and
-chose the model parameters using the kappa statistic. We reported the
-probability of being TB resistant for each sample in the training set
-using the estimate from leave-one-out-cross-validation (Fig.
-\ref{fig:classifier}a). We tested the classifier by predicting the
-probability of being TB resistant in the 65 healthy samples (Fig.
-\ref{fig:classifier}b).
+longer counts). Specifically, we tested for differential expression
+between susceptible and resistant individuals in the noninfected state
+and identified sets of genes to use in the classifer by varying the
+q-value cutoff. Cutoffs of 5\%, 10\%, 15\%, 20\%, and 25\%
+corresponded to gene set sizes of 99, 385, 947, 1,934, and 3,697,
+respectively. We used the R package caret (cite) to train 3 different
+machine learning models: elastic net (cite glmnet), support vector
+machine, and random forest (the parameters for each individual model
+were selected using the Kappa statistic). To assess the results of the
+model on the training data, we performed leave-one-out-cross-
+validation (LOOCV). In order to choose the model with the best
+performance, we calculated the difference between the mean of the
+LOOCV-estimated probabilities of being TB resistant for the samples
+known to be TB resistant and the corresponding mean for the samples
+known to be TB susceptible. This metric emphasized the ability to
+separate the susceptible and resistant individuals into two separate
+groups. Using this metric, the best performing model was the support
+vector machine with the 99 genes that are significantly differentially
+expressed at a q-value of 5\% (Supplementary Fig. \ref{fig:class-
+compare}); however, both the elastic net (Supplementary Fig. \ref{fig
+:class-en}) and random forest (Supplementary Fig. \ref{fig:class-rf})
+had similar performance. Lastly, we tested the classifier by
+predicting the probability of being TB resistant in the 65 healthy
+samples (Fig. \ref{fig:classifier}b). For evaluating the predictions
+on the test set of individuals with unknown susceptibility status, we
+used a relaxed cutoff of the probability of being TB resistant of
+0.75, which was based on the ability of the model at this cutoff to
+classify all TB susceptible individuals in the training set as
+susceptible with only 2 false positives.
 \subsection*{Software implementation}
 
-We automated our analysis using Python and Snakemake cite. Our
+We automated our analysis using Python and Snakemake (cite). Our
 processing pipeline used the general bioinformatics software FastQC,
 MultiQC, samtools, and bioawk. We used R for all statistics and data
 visualization. The computational resources were provided by the
@@ -358,6 +388,11 @@ University of Chicago Research Computing Center. All code is available
 for viewing and reuse at https://github.com/jdblischak/tb-suscept.
 \subsection*{Data availability}
 
+The raw fastq files have been deposited in NCBI's Gene Expression
+Omnibus (cite) and are accessible through GEO Series accession number
+GSEXXXXX (http://www.ncbi.nlm.nih.gov/geo/
+query/acc.cgi?acc=GSEXXXXX). The counts matrix and other summary data
+sets are available at https://github.com/jdblischak/tb-suscept/data.
 \section*{Acknowledgements}
 
 We thank T. Thye for sharing the GWAS data with us. This study was
@@ -380,6 +415,24 @@ authors reviewed the manuscript.
 \section*{Supplementary Information}
 
 \subsection*{Supplementary Figures}
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/processing.pdf}
+\caption{
+Batch processing. We designed the processing of the samples to
+minimize the introduction of technical batch effects. Specifically, we
+attempted to balance the processing of samples obtained from
+susceptible and resistant individuals. In the diagram, each box
+represents a batch. “Infection” labels the batches of the infection
+experiments, “Arrival” labels the batch shipments of cell lysates
+arrived in Chicago, USA from Paris, France, “Extraction” labels the
+batches of RNA extraction, “Master Mix” labels the batches of library
+preparation, and “Sequencing” labels the batches of flow cells.
+}
+\label{fig:process}
+\end{figure}
 
 
 \begin{figure}[ht]
@@ -409,8 +462,8 @@ Pearson correlation between the log\textsubscript{2} cpm expression
 values of two samples. Red indicates a low correlation of zero and
 white represents a high correlation of 1. The dendrogram displays the
 results of hierarchical clustering with the complete linkage method.
-The outliers of the noninfected samples are s04-suscept-noninf,
-r02-resist-noninf, and r06-resist-noninf. The outliers of the infected
+The outliers of the noninfected samples are s04-suscept-noninf, r02
+-resist-noninf, and r06-resist-noninf. The outliers of the infected
 samples are s01-suscep-infect, r06-resist-infect, and r18-resist-
 infect.
 }
