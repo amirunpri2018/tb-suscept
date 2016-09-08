@@ -98,20 +98,18 @@ assigned the SNP with the lowest p-value among all SNPs located within
 expressed genes are enriched for TB susceptibility loci, we expect a
 negative correlation between the absolute values of the log fold
 changes in our experiment and the GWAS p-values. Indeed, this is what
-we observed (results from Gambia GWAS in Fig. \ref{fig:gwas}, results
-from Ghana GWAS in Supplementary Fig. \ref{fig:ghana}). We fit a best
-fit linear line using least squares regression for each of our
-differential expression tests. Interestingly, we observed the steepest
-negative slopes for the tests comparing differential expression
-between susceptible and resistant individuals in the noninfected or
-infected states (Fig. \ref{fig:gwas}b). However, the slopes of the
-best fit lines for the tests of the effect of treatment in either
-resistant or susceptible individuals was were also negative.
-Reassuringly, we did not observe a negative relationship between the
-GWAS p-values and the mean expression levels (in fact it this had a
-positive slope). Therefore the negative slopes we observed were not an
-artifact due to the power to call differential expression in our
-experimental system.
+we observed (Fig. \ref{fig:gwas}). We fit a best fit linear line using
+least squares regression for each of our differential expression
+tests. Interestingly, we observed the steepest negative slopes for the
+tests comparing differential expression between susceptible and
+resistant individuals in the noninfected or infected states (Fig.
+\ref{fig:gwas}b). However, the slopes of the best fit lines for the
+tests of the effect of treatment in either resistant or susceptible
+individuals was were also negative. Reassuringly, we did not observe a
+negative relationship between the GWAS p-values and the mean
+expression levels (in fact it this had a positive slope). Therefore
+the negative slopes we observed were not an artifact due to the power
+to call differential expression in our experimental system.
 
 \begin{figure}[ht]
 \centering
@@ -257,9 +255,9 @@ genes with a median log\textsubscript{2} counts per million (cpm) less
 than zero. This resulted in a final set of 11,336 genes for downstream
 analysis (Supplementary Fig. \ref{fig:gene}). Next we used principal
 components analysis (PCA) and hierarchical clustering to identify and
-remove 6 outliers (Supplementary Fig. \ref{fig:heat-all}, \ref{fig
-:heat-filt}, \ref{fig:outliers}). We did this systematically by
-removing any sample that did not fall within the mean $\pm$ two
+remove 6 outliers (Supplementary Fig. \ref{fig:heat-all},
+\ref{fig:heat-filt}, \ref{fig:outliers}). We did this systematically
+by removing any sample that did not fall within the mean $\pm$ two
 standard deviations of the first six PCs. Furthermore, for the first
 PC which separated the samples by treatment, we calculated a separate
 mean for the noninfected and infected samples.
@@ -323,10 +321,10 @@ tested, we performed least squares regression of the differential
 expression effect sizes (the log fold changes) and the assigned GWAS
 p-values. We assessed the statistical significance of these
 regressions using the standard t-test and reported the slope of each
-regression line (Fig. \ref{fig:gwas).  Lastly, we also observed a
+regression line (Fig. \ref{fig:gwas}).  Lastly, we also observed a
 negative correlation between the GWAS p-value assigned to a gene and
 the number of SNPs tested nearby that gene (Supplementary Fig.
-\ref{gwas-n-snps}).
+\ref{fig:gwas-n-snps}).
 \subsection*{Classifier}
 
 The training set included the 44 high-quality noninfected samples from
@@ -358,26 +356,26 @@ respectively. We used the R package caret (cite) to train 3 different
 machine learning models: elastic net (cite glmnet), support vector
 machine, and random forest (the parameters for each individual model
 were selected using the Kappa statistic). To assess the results of the
-model on the training data, we performed leave-one-out-cross-
-validation (LOOCV). In order to choose the model with the best
-performance, we calculated the difference between the mean of the
-LOOCV-estimated probabilities of being TB resistant for the samples
-known to be TB resistant and the corresponding mean for the samples
-known to be TB susceptible. This metric emphasized the ability to
-separate the susceptible and resistant individuals into two separate
-groups. Using this metric, the best performing model was the support
-vector machine with the 99 genes that are significantly differentially
-expressed at a q-value of 5\% (Supplementary Fig. \ref{fig:class-
-compare}); however, both the elastic net (Supplementary Fig. \ref{fig
-:class-en}) and random forest (Supplementary Fig. \ref{fig:class-rf})
-had similar performance. Lastly, we tested the classifier by
-predicting the probability of being TB resistant in the 65 healthy
-samples (Fig. \ref{fig:classifier}b). For evaluating the predictions
-on the test set of individuals with unknown susceptibility status, we
-used a relaxed cutoff of the probability of being TB resistant of
-0.75, which was based on the ability of the model at this cutoff to
-classify all TB susceptible individuals in the training set as
-susceptible with only 2 false positives.
+model on the training data, we performed
+leave-one-out-cross-validation (LOOCV). In order to choose the model
+with the best performance, we calculated the difference between the
+mean of the LOOCV-estimated probabilities of being TB resistant for
+the samples known to be TB resistant and the corresponding mean for
+the samples known to be TB susceptible. This metric emphasized the
+ability to separate the susceptible and resistant individuals into two
+separate groups. Using this metric, the best performing model was the
+support vector machine with the 99 genes that are significantly
+differentially expressed at a q-value of 5\% (Supplementary Fig.
+\ref{fig:class-compare}); however, both the elastic net (Supplementary
+Fig. \ref{fig:class-en}) and random forest (Supplementary Fig.
+\ref{fig:class-rf}) had similar performance. Lastly, we tested the
+classifier by predicting the probability of being TB resistant in the
+65 healthy samples (Fig. \ref{fig:classifier}b). For evaluating the
+predictions on the test set of individuals with unknown susceptibility
+status, we used a relaxed cutoff of the probability of being TB
+resistant of 0.75, which was based on the ability of the model at this
+cutoff to classify all TB susceptible individuals in the training set
+as susceptible with only 2 false positives.
 \subsection*{Software implementation}
 
 We automated our analysis using Python and Snakemake (cite). Our
@@ -462,10 +460,10 @@ Pearson correlation between the log\textsubscript{2} cpm expression
 values of two samples. Red indicates a low correlation of zero and
 white represents a high correlation of 1. The dendrogram displays the
 results of hierarchical clustering with the complete linkage method.
-The outliers of the noninfected samples are s04-suscept-noninf, r02
--resist-noninf, and r06-resist-noninf. The outliers of the infected
-samples are s01-suscep-infect, r06-resist-infect, and r18-resist-
-infect.
+The outliers of the noninfected samples are s04-suscept-noninf,
+r02-resist-noninf, and r06-resist-noninf. The outliers of the infected
+samples are s01-suscep-infect, r06-resist-infect, and
+r18-resist-infect.
 }
 \label{fig:heat-all}
 \end{figure}

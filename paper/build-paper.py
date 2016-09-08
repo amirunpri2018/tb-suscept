@@ -151,9 +151,9 @@ if __name__ == "__main__":
                 out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
-        if style == "Normal":
-            sys.stdout.write(textwrap.fill(out) + "\n")
-        else:
-            sys.stdout.write(out + "\n")
+        elif style == "Normal":
+            out = textwrap.fill(out, break_long_words = False,
+                                break_on_hyphens = False)
+        sys.stdout.write(out + "\n")
 
     sys.stdout.write("\\end{document}\n")
