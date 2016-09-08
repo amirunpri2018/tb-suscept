@@ -3,6 +3,7 @@
 import docx
 import os
 import sys
+import textwrap
 import pdb
 
 # https://www.overleaf.com/latex/templates/template-for-submissions-to-scientific-reports/xyrztqvdccns#.V5Drne3L9z1
@@ -150,6 +151,9 @@ if __name__ == "__main__":
                 out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
-        sys.stdout.write(out + "\n")
+        if style == "Normal":
+            sys.stdout.write(textwrap.fill(out) + "\n")
+        else:
+            sys.stdout.write(out + "\n")
 
     sys.stdout.write("\\end{document}\n")
