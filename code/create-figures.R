@@ -8,7 +8,6 @@ suppressPackageStartupMessages(library("gridExtra"))
 suppressPackageStartupMessages(library("edgeR"))
 suppressPackageStartupMessages(library("gplots"))
 suppressPackageStartupMessages(library("VennDiagram"))
-suppressPackageStartupMessages(library("ggbeeswarm"))
 suppressPackageStartupMessages(library("cowplot"))
 
 if(interactive()) {
@@ -642,7 +641,7 @@ for (m in metrics) {
     facet_wrap(~method) +
     labs(x = "Number of genes",
          y = .simpleCap(m)) +
-    scale_x_continuous(breaks = predict_df$num_genes) +
+    scale_x_continuous(breaks = unique(predict_df$num_genes)) +
     ylim(0, 1) +
     theme_linedraw() +
     theme(legend.position = "none",
@@ -656,7 +655,22 @@ for (m in metrics) {
 }
 
 # Save a nice version of separation comparison
-stopifnot(m == "separation")
+class_compare <- ggplot(predict_df,
+                        aes(x = num_genes, y = separation, color = method)) +
+  geom_point() +
+  facet_wrap(~method) +
+  labs(x = "Number of genes",
+       y = "Difference in mean probability of TB resistance\nbetween resistant and susceptible individuals") +
+  scale_x_continuous(breaks = unique(predict_df$num_genes)) +
+  ylim(0, 1) +
+  theme_linedraw(base_size = 22) +
+  theme(legend.position = "none",
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        axis.text.x = element_text(angle = 300, vjust = 0.5))
+
 my_ggsave("classifier-compare.pdf", dims = c(3, 1))
 my_ggsave("classifier-compare.png", dims = c(3, 1))
 
