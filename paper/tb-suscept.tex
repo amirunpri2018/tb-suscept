@@ -75,7 +75,7 @@ states for resistant individuals at a q-value of 10\% and an absolute
 log fold change greater than 1. These genes included the important
 immune response factors \emph{IL12B}, \emph{REL}, and \emph{TNF}. Of
 most interest were genes which were DE between susceptible and
-resistant individuals in the noninfected and infected states (Fig.
+resistant individuals in the noninfected or infected states (Fig.
 \ref{fig:limma}). 645 genes were DE between resistant and susceptible
 individuals in the noninfected state at a q-value of 10\%, including
 \emph{ATPV1B2}, \emph{FEZ2}, \emph{PSMA2}, \emph{TNFRSF25}, and
@@ -103,7 +103,7 @@ significant differentially expressed with a q-value less than 10\%.
 We next sought to investigate whether the differentially expressed
 genes we had identified in our \emph{in vitro} experimental system
 were important for the genetic basis of TB susceptibility. To do this,
-we compared our results to a TB susceptibility GWAS conducted in The
+we compared our results to TB susceptibility GWAS conducted in The
 Gambia and Ghana \cite{Thye2010}. Specifically, for each gene we
 assigned the SNP with the lowest p-value among all SNPs located within
 50 kb of its transcription start site (TSS). If the differentially
@@ -117,23 +117,28 @@ comparing differential expression between susceptible and resistant
 individuals in the noninfected or infected states (Fig.
 \ref{fig:gwas}b). However, the slopes of the best fit lines for the
 tests of the effect of treatment in either resistant or susceptible
-individuals was were also negative.
+individuals were also negative. Of particular interest as potential
+genes involved in TB susceptibility are the genes with that had a
+p-value less than 0.01 in both The Gambia and Ghana GWAS and an
+absolute log fold change greater than 2 between susceptible and
+resistant individuals in the noninfected state (Fig. \ref{fig:gwas}a).
+Only 2 genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{../figure/gwas.pdf}
 \caption{
 Comparison of differential expression and GWAS results. (a) The
-relationship between GWAS p-values \cite{Thye2010} and the absolute
-values of the log fold changes between susceptible and resistant
-individuals in the noninfected state. The red line is the least
-squares regression. (b) The slopes ($\pm$ 2x standard error) of the
-regression lines for each test. The results from the GWAS in Gambia
-are in red and those from Ghana in blue. All slopes are significantly
-different than 0 (t-test \emph{P} \textless \, 0.05), except for the
-slope between the Ghana GWAS p-values and the absolute values of the
-log fold changes between susceptible and resistant individuals in the
-noninfected state.
+relationship between p-values from the GWAS in The Gambia
+\cite{Thye2010} and the absolute values of the log fold changes
+between susceptible and resistant individuals in the noninfected
+state. The red line is the least squares regression. (b) The slopes
+($\pm$ 2x standard error) of the regression lines for each test. The
+results from the GWAS in Gambia are in red and those from Ghana in
+blue. All slopes are significantly different than 0 (t-test \emph{P}
+\textless \, 0.05), except for the slope between the Ghana GWAS
+p-values and the absolute values of the log fold changes between
+susceptible and resistant individuals in the noninfected state.
 }
 \label{fig:gwas}
 \end{figure}
@@ -189,6 +194,8 @@ individuals \cite{Barreiro2012}.
 \end{figure}
 
 \section*{Discussion}
+
+Some ideas below…but not finished yet.
 
 We obtained dendritic cells (DCs) from individuals that were known to
 be susceptible or resistant to developing active tuberculosis (TB) and
@@ -262,14 +269,15 @@ mapped reads to these genes using featureCounts.
 First we filtered genes by their expression level by removing all
 genes with a median log\textsubscript{2} counts per million (cpm) less
 than zero. This resulted in a final set of 11,336 genes for downstream
-analysis (Supplementary Fig. \ref{fig:gene}). Next we used principal
-components analysis (PCA) and hierarchical clustering to identify and
-remove 6 outliers (Supplementary Fig. \ref{fig:heat-all},
-\ref{fig:heat-filt}, \ref{fig:outliers}). We did this systematically
-by removing any sample that did not fall within the mean $\pm$ two
-standard deviations of the first six PCs. Furthermore, for the first
-PC which separated the samples by treatment, we calculated a separate
-mean for the noninfected and infected samples.
+analysis (Supplementary Fig. \ref{fig:gene}, Supplementary Data S1).
+Next we used principal components analysis (PCA) and hierarchical
+clustering to identify and remove 6 outliers (Supplementary Fig.
+\ref{fig:heat-all}, \ref{fig:heat-filt}, \ref{fig:outliers}). We did
+this systematically by removing any sample that did not fall within
+the mean $\pm$ two standard deviations of the first six PCs.
+Furthermore, for the first PC which separated the samples by
+treatment, we calculated a separate mean for the noninfected and
+infected samples.
 
 After filtering lowly expressed genes and removing outliers, we
 recalculated the PCA to check for any potential confounding technical
@@ -302,19 +310,20 @@ and duplicateCorrelation, we followed the recommended best practice of
 running both voom and duplicateCorrelation twice in succession (cite
 Lui2015).
 
-We used the model to test 4 separate hypotheses. We identified genes
-which were differentially expressed between infected and noninfected
-DCs of resistant individuals by testing $\beta_{treat} = 0$, genes
-which were differentially expressed between infected and noninfected
-DCs of susceptible individuals by testing $\beta_{treat} +
-\beta_{treat,status} = 0$, genes which were differentially expressed
-between susceptible and resistant individuals in the noninfected state
-by testing $\beta_{status} = 0$, and genes which were differentially
-expressed between susceptible and resistant individuals in the
-infected state by testing $\beta_{status} + \beta_{treat,status} = 0$.
-We corrected for multiple testing using q-values estimated via
-adaptive shrinkage \cite{Stephens2016} and considered differentially
-expressed genes as those with a q-value less than 10\%.
+We used the model to test 4 separate hypotheses (Supplementary Data
+S2). We identified genes which were differentially expressed between
+infected and noninfected DCs of resistant individuals by testing
+$\beta_{treat} = 0$, genes which were differentially expressed between
+infected and noninfected DCs of susceptible individuals by testing
+$\beta_{treat} + \beta_{treat,status} = 0$, genes which were
+differentially expressed between susceptible and resistant individuals
+in the noninfected state by testing $\beta_{status} = 0$, and genes
+which were differentially expressed between susceptible and resistant
+individuals in the infected state by testing $\beta_{status} +
+\beta_{treat,status} = 0$. We corrected for multiple testing using
+q-values estimated via adaptive shrinkage \cite{Stephens2016} and
+considered differentially expressed genes as those with a q-value less
+than 10\%.
 \subsection*{Comparison to GWAS results}
 
 The GWAS p-values were from a study of TB susceptibility conducted in
@@ -324,20 +333,21 @@ gene the p-value of the SNP with the minimum p-value out of all the
 SNPs located within 50 kb up or downstream of its transcription start
 site. Specifically, we obtained the genomic coordinates of the SNPs
 with the R/Bioconductor package SNPlocs.Hsapiens.dbSNP144.GRCh38 and
-matched SNPs to nearby genes using GenomicRanges. X of the 11,336 were
-assigned an association p-value. For each of the 4 hypotheses we
+matched SNPs to nearby genes using GenomicRanges. 10,260 of the 11,336
+were assigned an association p-value. For each of the 4 hypotheses we
 tested, we performed least squares regression of the differential
 expression effect sizes (the log fold changes) and the assigned GWAS
 p-values. We assessed the statistical significance of these
 regressions using the standard t-test and reported the slope of each
-regression line (Fig. \ref{fig:gwas}).  Lastly, we also observed a
-negative correlation between the GWAS p-value assigned to a gene and
-the number of SNPs tested nearby that gene (Supplementary Fig.
-\ref{fig:gwas-n-snps}). However, we could not think of an explanation
-for why genes with a larger log fold change in our \emph{in vitro}
-experimental system would have more nearby genetic variation, and thus
-we do not believe this relationship biased our observation of a
-negative correlation between GWAS p-value and log fold change.
+regression line (Fig. \ref{fig:gwas}, Supplementary Data S3).  Lastly,
+we also observed a negative correlation between the GWAS p-value
+assigned to a gene and the number of SNPs tested nearby that gene
+(Supplementary Fig. \ref{fig:gwas-n-snps}). However, we could not
+think of an explanation for why genes with a larger log fold change in
+our \emph{in vitro} experimental system would have more nearby genetic
+variation, and thus we do not believe this relationship biased our
+observation of a negative correlation between GWAS p-value and log
+fold change.
 \subsection*{Classifier}
 
 The training set included the 44 high-quality noninfected samples from
@@ -380,16 +390,17 @@ ability to separate the susceptible and resistant individuals into two
 separate groups. Using this metric, the best performing model was the
 support vector machine with the 99 genes that are significantly
 differentially expressed at a q-value of 5\% (Supplementary Fig.
-\ref{fig:class-compare}); however, both the elastic net (Supplementary
-Fig. \ref{fig:class-en}) and random forest (Supplementary Fig.
-\ref{fig:class-rf}) had similar performance. Lastly, we tested the
-classifier by predicting the probability of being TB resistant in the
-65 healthy samples (Fig. \ref{fig:classifier}b). For evaluating the
-predictions on the test set of individuals with unknown susceptibility
-status, we used a relaxed cutoff of the probability of being TB
-resistant of 0.75, which was based on the ability of the model at this
-cutoff to classify all TB susceptible individuals in the training set
-as susceptible with only 2 false positives.
+\ref{fig:class-compare}, Supplementary Data S4); however, both the
+elastic net (Supplementary Fig. \ref{fig:class-en}) and random forest
+(Supplementary Fig. \ref{fig:class-rf}) had similar performance.
+Lastly, we tested the classifier by predicting the probability of
+being TB resistant in the 65 healthy samples (Fig.
+\ref{fig:classifier}b). For evaluating the predictions on the test set
+of individuals with unknown susceptibility status, we used a relaxed
+cutoff of the probability of being TB resistant of 0.75, which was
+based on the ability of the model at this cutoff to classify all TB
+susceptible individuals in the training set as susceptible with only 2
+false positives.
 \subsection*{Software implementation}
 
 We automated our analysis using Python and Snakemake (cite). Our
@@ -663,5 +674,73 @@ a test set of independently collected healthy individuals
 }
 \label{fig:class-rf}
 \end{figure}
+\clearpage\newpage
+\subsection*{Supplementary Data}
 
+\subsubsection*{Supplementary Data S1}
+
+Supplementary Data S1 contains the gene expression counts for the
+11,336 genes after filtering lowly expressed genes for all 50 samples.
+Each row is a gene labeled with its Ensembl gene ID. Each column is a
+sample. Each sample is labeled according to the pattern
+“x\#\#-status-treatment”, where x is “r” for resistant or “s” for
+susceptible, \#\# is the ID number, status is “resist” for resistant
+or “suscep” for susceptible, and treatment is “noninf” for noninfected
+or “infect” for infected. (tds)
+\subsubsection*{Supplementary Data S2}
+
+Supplementary Data S2 contains the results of the differential
+expression analysis with limma (Fig. \ref{fig:limma}). The workbook
+contains 4 sheets corresponding to the 4 tests performed. “status\_ni”
+is the test between resistant and susceptible individuals in the
+noninfected state, “status\_ii” is the test between resistant and
+susceptible individuals in the infected state, “treat\_resist” is the
+test between the noninfected and infected states for resistant
+individuals, and “treat\_suscep” is the test between the noninfected
+and infected states for susceptible individuals. Each sheet has the
+same columns. “id” is the Ensembl gene ID, “gene” is the gene name,
+“logFC” is the log fold change from limma, “AveExpr” is the average
+log expression from limma, “t” is the t-statistic from limma,
+“P.Value” is the p-value from limma, “adj.P.Val” is the adjusted
+p-value from limma, “qvalue” is the q-value calculated with adaptive
+shrinkage, “chr” is the chromosome where the gene is located,
+“description” is the description of the gene from Ensembl, “phenotype”
+is the associated phenotype(s) assigned my Ensembl, “go\_id” is the
+associated GO term(s) assigned by Ensembl, and “go\_description” is
+the corresponding name(s) of the GO term(s). (xlsx)
+\subsubsection*{Supplementary Data S3}
+
+Supplementary Data S3 contains the results of the GWAS comparison
+analysis (Fig. \ref{fig:gwas}). The first sheet “input-data” contains
+the data for the 10,260 genes which were assigned a SNP in the studies
+from The Gambia and Ghana. “gwas\_p\_ghana” is the minimum p-value
+from the GWAS in Ghana, “gwas\_p\_gambia” is the minimum p-value from
+the GWAS in The Gambia, and “n\_snps” is the number of GWAS SNPs
+within 50 kb of the transcription start site. The columns status\_ni,
+status\_ii, treat\_resist, and treat\_suscep refer to the tests
+described for Supplementary Data S2 and contain the absolute log fold
+changes for each comparison. All the other gene annotation columns are
+the same as described for Supplementary Data S2. The second sheet
+“regression-results” contains the results of the linear regression
+between the GWAS p-values and the log fold changes (or the number of
+SNPs). “t” is the t-statistic, “p” is the p-value, “slope” is the
+slope of the regression line, and “slope\_se” is the standard error of
+the slope. (xlsx)
+\subsubsection*{Supplementary Data S4}
+
+Supplementary Data S4 contains the results of the classifier analysis.
+Specifically it contains the results from the support vector machine
+using the genes with a qvalue less than 0.05 (Fig.
+\ref{fig:classifier}). The sheet “gene-list” contains information
+about the genes used for the classifier (the columns are described in
+the section for Supplementary Data S2). The sheet “training-input”
+contains the input gene expression data for training the model. The
+sheet “training-results” contains the results of the
+leave-one-out-cross-validation when training the model on the samples
+from the current study.  The sheet “testing-input” contains the input
+gene expression data for testing the model. The sheet
+“testing-results” contains the results from testing the model on the
+samples from Barreiro et al., 2012 \cite{Barreiro2012}. The column
+“prob\_tb\_resist” is the probability of being resistant to TB
+assigned by the model. (xlsx)
 \end{document}

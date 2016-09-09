@@ -7,6 +7,7 @@
 
 suppressPackageStartupMessages(library("openxlsx"))
 suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("data.table"))
 
 if(interactive()) {
   data_dir <- "../data"
@@ -54,3 +55,82 @@ results[["treat_resist"]] %>% filter(qvalue < .1, abs(logFC) > 1) %>% nrow()
 results[["treat_suscep"]] %>% filter(qvalue < .1, abs(logFC) > 1) %>% nrow()
 results[["status_ni"]] %>% filter(qvalue < .1) %>% nrow()
 results[["status_ii"]] %>% filter(qvalue < .1) %>% nrow()
+
+# S3 - gwas results ------------------------------------------------------------
+
+gwas <- read.delim(file.path(data_dir, "results-gwas.txt"),
+                   stringsAsFactors = FALSE)
+gwas <- gwas %>% select(-interact)
+gwas_lm <- read.delim(file.path(data_dir, "results-gwas-lm.txt"),
+                      stringsAsFactors = FALSE)
+# Remove interaction term b/c basically the same as noninfected state
+gwas_lm <- gwas_lm[gwas_lm$test != "interact", ]
+gwas_lm$population <- factor(gwas_lm$population, levels = c("gambia", "ghana"),
+                             labels = c("The Gambia", "Ghana"))
+# Add gene annotation
+gwas_anno <- merge(gwas, anno_gene,
+                   by.x = "gene", by.y = "ensembl_gene_id")
+stopifnot(nrow(gwas_anno) == nrow(gwas))
+gwas_anno <- gwas_anno %>% rename(id = gene,
+                                  chr = chromosome_name,
+                                  gene = external_gene_name,
+                                  go_description = go_descrip)
+
+s3 <- createWorkbook()
+addWorksheet(s3, sheetName = "input-data")
+writeData(s3, sheet = "input-data", gwas_anno)
+addWorksheet(s3, sheetName = "regression-results")
+writeData(s3, sheet = "regression-results", gwas_lm)
+saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
+             overwrite = TRUE)
+
+# For the paper:
+gwas_anno %>%
+  filter(gwas_p_gambia < .01, gwas_p_ghana < .01, status_ni > 2) %>%
+  select(gene, chr, status_ni, gwas_p_gambia, gwas_p_ghana, description)
+
+# S4 - classifier results ------------------------------------------------------------
+
+# Input data for modeling
+training <- fread(file.path(data_dir, "training-input.txt"), data.table = FALSE)
+testing <- fread(file.path(data_dir, "testing-input.txt")), data.table = FALSE)
+combined_results <- readRDS(file.path(data_dir, "combined-limma.rds"))
+genes_used_in_final_classifer <- rownames(combined_results[["status_ni"]])[combined_results[["status_ni"]]$qvalue < .05]
+training <- training %>% rename(id = V1) %>%
+  select(id, status, one_of(genes_used_in_final_classifer))
+testing <- testing %>% rename(id = V1) %>%
+  select(id, one_of(genes_used_in_final_classifer))
+
+# Results
+predictions <- readRDS(file.path(data_dir, "classifier-predictions.rds"))
+predictions_final <- predictions[["svmLinear"]][["q0.05"]]$pred %>%
+  select(id, obs, resist) %>%
+  rename(status = obs,
+         prob_tb_resist = resist)
+
+predictions_lbb <- readRDS(file.path(data_dir, "classifier-predictions-lbb.rds"))
+predictions_lbb_final <- predictions_lbb[["svmLinear"]][["q0.05"]] %>%
+  mutate(id = rownames(.)) %>%
+  select(id, resist) %>%
+  rename(prob_tb_resist = resist)
+
+# Gene information
+class_anno <- anno_gene %>% filter(ensembl_gene_id %in% genes_used_in_final_classifer) %>%
+  rename(id = ensembl_gene_id,
+         gene = external_gene_name,
+         chr = chromosome_name,
+         go_description = go_descrip)
+
+s4 <- createWorkbook()
+addWorksheet(s4, sheetName = "gene-list")
+writeData(s4, sheet = "gene-list", class_anno)
+addWorksheet(s4, sheetName = "training-data")
+writeData(s4, sheet = "training-data", training)
+addWorksheet(s4, sheetName = "training-results")
+writeData(s4, sheet = "training-results", predictions_final)
+addWorksheet(s4, sheetName = "testing-data")
+writeData(s4, sheet = "testing-data", testing)
+addWorksheet(s4, sheetName = "testing-results")
+writeData(s4, sheet = "testing-results", predictions_lbb_final)
+saveWorkbook(s4, file = file.path(data_dir, "Supplementary_Data_S4.xlsx"),
+             overwrite = TRUE)

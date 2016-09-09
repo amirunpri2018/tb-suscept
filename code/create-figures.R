@@ -469,10 +469,8 @@ gwas_scatter_gambia <- ggplot(gwas_results,
        title = "GWAS p-value vs. DE effect size")
 
 # Remove interaction term b/c basically the same as noninfected state
-gwas_lm <- gwas_lm[gwas_lm$test != "interact", ]
-# Remove mean_expression_level b/c no longer clear this is actually an
-# informative comparison.
-gwas_lm <- gwas_lm[gwas_lm$test != "mean_expression_level", ]
+gwas_lm <- gwas_lm[gwas_lm$test != "interact" &
+                   gwas_lm$test != "n_snps", ]
 gwas_lm$test <- factor(gwas_lm$test,
                        levels = c("treat_suscep",
                                   "treat_resist",
@@ -483,7 +481,7 @@ gwas_lm$test <- factor(gwas_lm$test,
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the noninfected state",
                                   "|logFC| between\nsusceptible and resistant\nindividuals in the infected state"))
 gwas_lm$population <- factor(gwas_lm$population, levels = c("gambia", "ghana"),
-                             labels = c("Gambia", "Ghana"))
+                             labels = c("The Gambia", "Ghana"))
 gwas_slopes <- ggplot(gwas_lm, aes(x = test, y = slope, color = population)) +
   geom_point(position = position_dodge(width = .5)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
@@ -510,7 +508,7 @@ gwas_n_snps_gambia <- ggplot(gwas_results, aes(x = n_snps, y = gwas_p_gambia)) +
   geom_smooth(method = "lm",col = "red", se = FALSE) +
   labs(x = "Number of SNPs nearby gene",
        y = "Minimum GWAS p-value",
-       title = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs - Gambia")
+       title = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs - The Gambia")
 gwas_n_snps_ghana <- gwas_n_snps_gambia %+% aes(y = gwas_p_ghana) +
   labs(y = "Minimum GWAS p-value",
        title = "Relationship between number of tested SNPs near gene\nand the minimum GWAS p-value of these SNPs - Ghana")

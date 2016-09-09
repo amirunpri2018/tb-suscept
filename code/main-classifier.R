@@ -123,3 +123,7 @@ for (alg in algos) {
 
 saveRDS(predictions, file.path(data_dir, "classifier-predictions.rds"))
 saveRDS(predictions_lbb, file.path(data_dir, "classifier-predictions-lbb.rds"))
+write.table(training, file = file.path(data_dir, "training-input.txt"),
+            quote = FALSE, sep = "\t", col.names = NA)
+write.table(testing, file = file.path(data_dir, "testing-input.txt"),
+            quote = FALSE, sep = "\t", col.names = NA)

@@ -78,6 +78,9 @@ def write_section(text):
 def write_subsection(text):
     return "\\subsection*{%s}\n"%(text)
 
+def write_subsubsection(text):
+    return "\\subsubsection*{%s}\n"%(text)
+
 def convert_run(run):
     result = run.text
     if run.font.subscript:
@@ -120,6 +123,10 @@ def convert_special_characters(text):
     result = result.replace("~", "\\texttildelow")
     result = result.replace("<", "\\textless \,")
     result = result.replace(">", "\\textgreater \,")
+    result = result.replace("#", "\#")
+    # Backslash escape _ only if it is not in a math equation
+    if "$" not in result:
+        result = result.replace("_", "\_")
     return result
 
 if __name__ == "__main__":
@@ -151,6 +158,10 @@ if __name__ == "__main__":
                 out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
+            if "Supplementary Data" in out:
+                out = "\\clearpage\\newpage\n" + out
+        elif style == "Heading 3":
+            out = write_subsubsection(out)
         elif style == "Normal":
             out = textwrap.fill(out, break_long_words = False,
                                 break_on_hyphens = False)

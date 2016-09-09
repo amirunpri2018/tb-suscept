@@ -41,9 +41,9 @@ gene_names <- rownames(fit$coefficients)
 # 1. Obtain the window of the TSS +/- 50 kb
 
 # Ensembl 83, Dec 2015, grch38.p5, hg38
-# ensembl <- useMart(host = "dec2015.archive.ensembl.org",
-#                    biomart = "ENSEMBL_MART_ENSEMBL",
-#                    dataset = "hsapiens_gene_ensembl")
+ensembl <- useMart(host = "dec2015.archive.ensembl.org",
+                   biomart = "ENSEMBL_MART_ENSEMBL",
+                   dataset = "hsapiens_gene_ensembl")
 tss_all_fname <- file.path(data_dir, "tss-all.rds")
 if (file.exists(tss_all_fname)) {
   tss_all <- readRDS(tss_all_fname)
@@ -148,14 +148,9 @@ for (test in colnames(limma_coef)) {
   results[, test] <- abs(results[, test])
 }
 
-# Add mean expression level
-mean_expression_level <- fit$Amean[results$gene]
-stopifnot(results$gene == names(mean_expression_level))
-results$mean_expression_level <- mean_expression_level
-
 # Linear regression
 lm_out <- list()
-for (test in c(colnames(limma_coef), "mean_expression_level")) {
+for (test in c(colnames(limma_coef), "n_snps")) {
   lm_out[[test]][["ghana"]] <- lm(results[, "gwas_p_ghana"] ~ results[, test])
   lm_out[[test]][["gambia"]] <- lm(results[, "gwas_p_gambia"] ~ results[, test])
 }
