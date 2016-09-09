@@ -33,7 +33,16 @@ for d in [scratch, external, fastq_dir, fastqc_dir, genome, bam_dir, counts_dir,
 
 # Targets ----------------------------------------------------------------------
 
-localrules: run_subread, prepare_subread, qc
+localrules: run_analysis, run_subread, prepare_subread, qc
+
+rule run_analysis:
+    input: figure + "limma.eps",
+           figure + "gwas.eps",
+           figure + "classifier-svm.eps",
+           data + "Supplementary_Data_S1.tds",
+           data + "Supplementary_Data_S2.xlsx",
+           data + "Supplementary_Data_S3.xlsx",
+           data + "Supplementary_Data_S4.xlsx"
 
 rule run_subread:
     input: data + "subread-counts-per-sample.txt", data + "total-counts.txt"
@@ -347,7 +356,9 @@ rule classifier:
            combined_limma = data + "combined-limma.rds",
            script = code + "main-classifier.R"
     output: predictions = data + "classifier-predictions.rds",
-            predictions_lbb = data + "classifier-predictions-lbb.rds"
+            predictions_lbb = data + "classifier-predictions-lbb.rds",
+            training = data + "training-input.txt",
+            testing = data + "testing-input.txt"
     shell: "Rscript {input.script} {data}"
 
 rule create_figures:
@@ -403,6 +414,7 @@ rule create_figures:
             figure + "classifier-compare.png",
             figure + "classifier-en.pdf",
             figure + "classifier-en.png",
+            figure + "classifier-svm.eps",
             figure + "classifier-svm.pdf",
             figure + "classifier-svm.png",
             figure + "classifier-rf.pdf",
@@ -410,3 +422,21 @@ rule create_figures:
             figure + "classifier-exp.pdf",
             figure + "classifier-exp.png"
     shell: "Rscript {input.script} {data} {figure}"
+
+rule create_supp_data:
+    input: data + "counts.txt",
+           data + "results-limma-stats.rds",
+           data + "gene-annotation.txt",
+           data + "results-gwas.txt",
+           data + "results-gwas-lm.txt",
+           data + "training-input.txt",
+           data + "testing-input.txt",
+           data + "combined-limma.rds",
+           data + "classifier-predictions.rds",
+           data + "classifier-predictions-lbb.rds",
+           script = code + "create-supp-data.R"
+    output: data + "Supplementary_Data_S1.tds",
+            data + "Supplementary_Data_S2.xlsx",
+            data + "Supplementary_Data_S3.xlsx",
+            data + "Supplementary_Data_S4.xlsx"
+    shell: "Rscript {input.script} {data}"

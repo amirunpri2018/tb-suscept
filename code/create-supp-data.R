@@ -93,7 +93,7 @@ gwas_anno %>%
 
 # Input data for modeling
 training <- fread(file.path(data_dir, "training-input.txt"), data.table = FALSE)
-testing <- fread(file.path(data_dir, "testing-input.txt")), data.table = FALSE)
+testing <- fread(file.path(data_dir, "testing-input.txt"), data.table = FALSE)
 combined_results <- readRDS(file.path(data_dir, "combined-limma.rds"))
 genes_used_in_final_classifer <- rownames(combined_results[["status_ni"]])[combined_results[["status_ni"]]$qvalue < .05]
 training <- training %>% rename(id = V1) %>%

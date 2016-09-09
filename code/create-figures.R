@@ -823,6 +823,7 @@ multi_svm <- plot_grid(p_svm,
                       p_svm_lbb,
                       labels = letters[1:2])
 
+my_ggsave("classifier-svm.eps", dims = c(2, 1))
 my_ggsave("classifier-svm.pdf", dims = c(2, 1))
 my_ggsave("classifier-svm.png", dims = c(2, 1))
 
