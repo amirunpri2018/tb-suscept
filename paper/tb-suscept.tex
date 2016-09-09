@@ -400,7 +400,10 @@ of individuals with unknown susceptibility status, we used a relaxed
 cutoff of the probability of being TB resistant of 0.75, which was
 based on the ability of the model at this cutoff to classify all TB
 susceptible individuals in the training set as susceptible with only 2
-false positives.
+false positives. As expected, the 99 genes used in the classifier had
+similar normalized, batch-corrected median expression levels in the
+noninfected state across both studies (Supplementary Fig.
+\ref{fig:class-exp}).
 \subsection*{Software implementation}
 
 We automated our analysis using Python and Snakemake (cite). Our
@@ -674,6 +677,20 @@ a test set of independently collected healthy individuals
 }
 \label{fig:class-rf}
 \end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/classifier-exp.pdf}
+\caption{
+Comparing gene expression between the two studies. After normalization
+and batch-correction, the median expression levels of the 99 genes
+used in the classifier were similar between the samples in the current
+study and those in Barreiro et al., 2012 \cite{Barreiro2012}. The
+dashed red line is the 1:1 line.
+}
+\label{fig:class-exp}
+\end{figure}
+
 \clearpage\newpage
 \subsection*{Supplementary Data}
 
