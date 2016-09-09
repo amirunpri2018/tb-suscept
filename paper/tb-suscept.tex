@@ -240,14 +240,16 @@ sensitive individuals had developed active TB in the past, but were
 currently healthy.
 \subsection*{Isolation and infection of dendritic cells}
 
-We isolated mononuclear cells from the whole blood samples using
-Ficoll-Paque centrifugation, extracted monocytes via CD14 positive
-selection, and differentiated the monocytes into dendritic cells (DCs)
-by culturing them for 5 days in RPMI 1640 (Invitrogen) supplemented
-with 10\% heat-inactivated FCS (Dutscher), L-glutamine (Invitrogen),
-GM-CSF (20 ng/mL; Immunotools), and IL-4 (20 ng/mL; Immunotools). Next
-we infected the DCs with \emph{Mycobacterium tuberculosis} (MTB) H37Rv
-at a multiplicity of infection of 1-to-1 for 18 hours.
+We performed these experiments as previously described
+\cite{Barreiro2012}. Briefly, we isolated mononuclear cells from the
+whole blood samples using Ficoll-Paque centrifugation, extracted
+monocytes via CD14 positive selection, and differentiated the
+monocytes into dendritic cells (DCs) by culturing them for 5 days in
+RPMI 1640 (Invitrogen) supplemented with 10\% heat-inactivated FCS
+(Dutscher), L-glutamine (Invitrogen), GM-CSF (20 ng/mL; Immunotools),
+and IL-4 (20 ng/mL; Immunotools). Next we infected the DCs with
+\emph{Mycobacterium tuberculosis} (MTB) H37Rv at a multiplicity of
+infection of 1-to-1 for 18 hours.
 \subsection*{RNA extraction and sequencing}
 
 We extracted RNA using the Qiagen miRNeasy Kit and prepared sequencing
@@ -259,11 +261,13 @@ factors of interest and thus avoid potential technical confounders
 (Supplementary Fig. \ref{fig:process}).
 \subsection*{Read mapping}
 
-We mapped reads to human genome hg38 (GRCh38) using Subread and
-discarded non-uniquely mapping reads. We downloaded the exon
-coordinates of 19,800 Ensembl protein-coding genes (Ensembl 83, Dec
-2015, GRCh38.p5) using the R/Bioconductor package biomaRt and assigned
-mapped reads to these genes using featureCounts.
+We mapped reads to human genome hg38 (GRCh38) using Subread
+\cite{Liao2013} and discarded non-uniquely mapping reads. We
+downloaded the exon coordinates of 19,800 Ensembl protein-coding genes
+(Ensembl 83, Dec 2015, GRCh38.p5) using the R/Bioconductor
+\cite{Huber2015} package biomaRt \cite{Durinck2005, Durinck2009} and
+assigned mapped reads to these genes using featureCounts
+\cite{Liao2014}.
 \subsection*{Quality control}
 
 First we filtered genes by their expression level by removing all
@@ -305,10 +309,10 @@ effect of susceptibility status in noninfected cells,
 $\beta_{treat,status}$ is the fixed interaction effect of treatment in
 susceptible individuals, and $I$ is the random effect of individual.
 The random individual effect was implemented using the limma function
-duplicateCorrelation (cite paper). To jointly model the data with voom
-and duplicateCorrelation, we followed the recommended best practice of
-running both voom and duplicateCorrelation twice in succession (cite
-Lui2015).
+duplicateCorrelation \cite{Smyth2005}. To jointly model the data with
+voom and duplicateCorrelation, we followed the recommended best
+practice of running both voom and duplicateCorrelation twice in
+succession \cite{Liu2015}.
 
 We used the model to test 4 separate hypotheses (Supplementary Data
 S2). We identified genes which were differentially expressed between
@@ -332,9 +336,10 @@ expression results to these genetic associations, we assigned each
 gene the p-value of the SNP with the minimum p-value out of all the
 SNPs located within 50 kb up or downstream of its transcription start
 site. Specifically, we obtained the genomic coordinates of the SNPs
-with the R/Bioconductor package SNPlocs.Hsapiens.dbSNP144.GRCh38 and
-matched SNPs to nearby genes using GenomicRanges. 10,260 of the 11,336
-were assigned an association p-value. For each of the 4 hypotheses we
+with the R/Bioconductor \cite{Huber2015} package
+SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched SNPs to nearby genes
+using GenomicRanges \cite{Lawrence2013}. 10,260 of the 11,336 were
+assigned an association p-value. For each of the 4 hypotheses we
 tested, we performed least squares regression of the differential
 expression effect sizes (the log fold changes) and the assigned GWAS
 p-values. We assessed the statistical significance of these
@@ -370,17 +375,18 @@ using the limma function removeBatchEffect \cite{Ritchie2015}
 To identify genes to use in the classifier, we performed a
 differential expression analysis on the normalized, batch-corrected
 data from the current study using the same approach described above
-(with the exception that we no longer used voom since the data were no
-longer counts). Specifically, we tested for differential expression
-between susceptible and resistant individuals in the noninfected state
-and identified sets of genes to use in the classifer by varying the
-q-value cutoff. Cutoffs of 5\%, 10\%, 15\%, 20\%, and 25\%
-corresponded to gene set sizes of 99, 385, 947, 1,934, and 3,697,
-respectively. We used the R package caret (cite) to train 3 different
-machine learning models: elastic net (cite glmnet), support vector
-machine, and random forest (the parameters for each individual model
-were selected using the Kappa statistic). To assess the results of the
-model on the training data, we performed
+(with the exception that we no longer used voom \cite{Law2014} since
+the data were no longer counts). Specifically, we tested for
+differential expression between susceptible and resistant individuals
+in the noninfected state and identified sets of genes to use in the
+classifer by varying the q-value cutoff. Cutoffs of 5\%, 10\%, 15\%,
+20\%, and 25\% corresponded to gene set sizes of 99, 385, 947, 1,934,
+and 3,697, respectively. We used the R package caret \cite{Kuhn2008}
+to train 3 different machine learning models: elastic net
+\cite{Friedman2010}, support vector machine \cite{Karatzoglou2004},
+and random forest \cite{Liaw2002} (the parameters for each individual
+model were selected using the Kappa statistic). To assess the results
+of the model on the training data, we performed
 leave-one-out-cross-validation (LOOCV). In order to choose the model
 with the best performance, we calculated the difference between the
 mean of the LOOCV-estimated probabilities of being TB resistant for
@@ -406,17 +412,18 @@ noninfected state across both studies (Supplementary Fig.
 \ref{fig:class-exp}).
 \subsection*{Software implementation}
 
-We automated our analysis using Python and Snakemake (cite). Our
-processing pipeline used the general bioinformatics software FastQC,
-MultiQC, samtools, and bioawk. We used R for all statistics and data
+We automated our analysis using Python and Snakemake
+\cite{Koster2012}. Our processing pipeline used the general
+bioinformatics software FastQC, MultiQC \cite{Ewels2016}, samtools
+\cite{Li2009}, and bioawk. We used R for all statistics and data
 visualization. The computational resources were provided by the
 University of Chicago Research Computing Center. All code is available
 for viewing and reuse at https://github.com/jdblischak/tb-suscept.
 \subsection*{Data availability}
 
 The raw fastq files have been deposited in NCBI's Gene Expression
-Omnibus (cite) and are accessible through GEO Series accession number
-GSEXXXXX (http://www.ncbi.nlm.nih.gov/geo/
+Omnibus \cite{Edgar2002} and are accessible through GEO Series
+accession number GSEXXXXX (http://www.ncbi.nlm.nih.gov/geo/
 query/acc.cgi?acc=GSEXXXXX). The counts matrix and other summary data
 sets are available at https://github.com/jdblischak/tb-suscept/data.
 \section*{Acknowledgements}

@@ -43,7 +43,7 @@ for k in keys:
     out = "@%s{%s,\n"%(entrytype, entry["ID"])
     if entrytype == "article":
         for field in ["author", "year", "title", "journal", "volume", "number",
-                      "pages", "doi"]:
+                      "pages"]:
             # For consortia, encase author name in double brackets so that the
             # full name is used instead of parsing it into a first and last name
             if field == "author" and "," not in entry["author"]:
@@ -58,6 +58,8 @@ for k in keys:
                 continue
             out = out + "%s = {%s},\n"%(field, entry[field])
 
+    if "doi" in entry.keys():
+        out = out + "%s = {%s},\n"%("doi", entry["doi"])
     out = out.rstrip(",\n") + "\n}\n"
     bibtex_output.write(out)
 
