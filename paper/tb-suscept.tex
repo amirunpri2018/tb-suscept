@@ -33,7 +33,7 @@
 \affil[*]{Correspondence should be addressed to YG (gilad@uchicago.edu) and LBB (luis.barreiro@umontreal.ca).}
 
 \begin{abstract}
-Write abstract here…
+Interestingly, we identified 645 genes which were differentially expressed between susceptible and resistant individuals in the noninfected state, including \emph{ATPV1B2}, \emph{FEZ2}, and \emph{PSMA2}. Furthermore, we found that these differentially expressed genes were enriched for low GWAS p-values and could be used to classify susceptible and resistant individuals.
 \end{abstract}
 \begin{document}
 \flushbottom
@@ -199,27 +199,78 @@ Some ideas below…but not finished yet.
 
 We obtained dendritic cells (DCs) from individuals that were known to
 be susceptible or resistant to developing active tuberculosis (TB) and
-measured genome-wide gene expression levels 18 hours post-infection
-with \emph{Mycobacterium tuberculosis} (MTB) and noninfected controls.
-Interestingly, we identified X genes which were differentially
-expressed between susceptible and resistant individuals in the
-noninfected state, including X, Y, and Z (Fig. \ref{fig:limma}.
-Furthermore, we found that these differentially expressed genes were
-enriched for low GWAS p-values (Fig. \ref{fig:gwas}) and could be used
-to classify susceptible and resistant individuals.
+measured genome-wide gene expression levels in noninfected DCs and DCs
+infected with \emph{Mycobacterium tuberculosis} (MTB) for 18 hours. As
+expected, there were large changes in gene expression due to MTB
+infection inf both resistant and susceptible individuals
+(Supplementary Fig. \ref{fig:limma-supp}). More interestingly, we
+identified 645 genes which were differentially expressed between
+susceptible and resistant individuals in the noninfected state;
+whereas, we did not observe any differentially expressed genes between
+susceptible and resistant individuals in the infected state (Fig.
+\ref{fig:limma}). This suggests that the differences in the
+transcriptomes between DCs of resistant and susceptible individuals
+are present pre-infection and affect the initial response to MTB, but
+by 18 hours their gene expression profiles have converged to the same
+gene regulatory network to fight the active infection. While we chose
+to measure gene expression 18 hours post-infection because this
+timepoint was previously found to have a large change in genome-wide
+gene expression levels \cite{Tailleux2008}, future studies
+investigating the difference in the innate immune response between
+individuals resistant and susceptible to TB may want to focus on
+earlier timepoints when these differences may still persist.
 
-Previous work in TB \cite{Thuong2008}
+To our knowledge, our study is only the second to perform an \emph{in
+vitro} MTB infection of innate immune cells isolated from individuals
+known to be susceptible to MTB. However, there are substantial
+differences between our study and that of Thuong et al., 2008
+\cite{Thuong2008}. First, they isolated and infected macrophages, the
+primary target host cell in which MTB resides; whereas, we infected
+DCs, which play a larger role in stimulating the adaptive immune
+response to MTB. Second, the susceptible individuals in their study
+had an active TB infection at the time there cells were isolated;
+whereas, our individuals had recovered from a past TB infection.
+Third, we collected samples from a larger number resistant individuals
+(19 versus 4), increasing our power to distinguish between the gene
+expression profiles of susceptible and resistant individuals. Thus
+while similarly motivated, our results complement those of Thuong et
+al. rather than replicate them.
+
 Previous work using gene expression to understand susceptibility
 \cite{Bryant2014}
 
-Overall our promising results in this small study suggest that
-collecting blood samples from a larger cohort of susceptible
-individuals would enable building a gene expression based classifier
-able to confidently assess risk of TB susceptibility. By reducing the
-number of resistant individuals receiving treatment for a latent TB
-infection, we can eliminate the adverse health effects of a 6 month
-regimen of antibiotics for these individuals and also reduce the
-selective pressures on MTB to develop drug resistance.
+Previous attempts to use gene expression based classifiers in the
+context of TB have focused on predicting the status of an infection
+from whole blood samples \cite{Berry2010, OGarra2013, Blankley2014}.
+In this application, the goal is either to detect individuals in an
+early stage of an active TB infection when antibiotic intervention
+would be most effective or to monitor the effectiveness of a treatment
+regimen \cite{Maertzdorf2015}. In contrast, our aim was not to
+distinguish between an active or latent infection, but instead to be
+able to determine susceptibility status before individuals have an
+active TB infection. Even with our small sample size, we were able to
+successfully train a classier with high sensitivity and decent
+specificity. Because such a classification of susceptibility status
+could affect the decision of whether or not to take antibiotics to
+treat a latent TB infection, false negatives (susceptible individuals
+mistakenly classified as resistant) would be much more harmful than
+false positives (resistant individuals mistakenly classified as
+susceptible), which is why we emphasized sensitivity over specificity.
+Importantly, when we applied our classifier to an independent set of
+noninfected DCs isolated from healthy individuals of unknown
+susceptibility status, our model predicted \texttildelow11\% of the
+individuals were susceptible TB, which reassuringly is similar to the
+average in the general population of \texttildelow10\%. Despite this
+success, our results must be interpreted cautiously as a
+proof-of-principle due to our very small sample size of only 5
+susceptible individuals. Thus overall our promising results in this
+small study suggest that collecting blood samples from a larger cohort
+of susceptible individuals would enable building a gene expression
+based classifier able to confidently assess risk of TB susceptibility.
+By reducing the number of resistant individuals receiving treatment
+for a latent TB infection, we can eliminate the adverse health effects
+of a 6 month regimen of antibiotics for these individuals and also
+reduce the selective pressures on MTB to develop drug resistance.
 \section*{Methods}
 
 \subsection*{Ethics Statement}
