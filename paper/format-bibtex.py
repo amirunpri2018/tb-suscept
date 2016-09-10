@@ -56,7 +56,10 @@ for k in keys:
         for field in fields_all:
             if not field.islower():
                 continue
-            out = out + "%s = {%s},\n"%(field, entry[field])
+            if field == "author" and "," not in entry["author"]:
+                out = out + "%s = {{%s}},\n"%(field, entry[field])
+            else:
+                out = out + "%s = {%s},\n"%(field, entry[field])
 
     if "doi" in entry.keys():
         out = out + "%s = {%s},\n"%("doi", entry["doi"])

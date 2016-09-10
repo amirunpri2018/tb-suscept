@@ -463,20 +463,24 @@ noninfected state across both studies (Supplementary Fig.
 \ref{fig:class-exp}).
 \subsection*{Software implementation}
 
-We automated our analysis using Python and Snakemake
-\cite{Koster2012}. Our processing pipeline used the general
-bioinformatics software FastQC, MultiQC \cite{Ewels2016}, samtools
-\cite{Li2009}, and bioawk. We used R for all statistics and data
-visualization. The computational resources were provided by the
-University of Chicago Research Computing Center. All code is available
-for viewing and reuse at https://github.com/jdblischak/tb-suscept.
+We automated our analysis using Python (https://www.python.org/) and
+Snakemake \cite{Koster2012}. Our processing pipeline used the general
+bioinformatics software FastQC
+(http://www.bioinformatics.babraham.ac.uk/projects/fastqc/), MultiQC
+\cite{Ewels2016}, samtools \cite{Li2009}, and bioawk
+(https://github.com/lh3/bioawk). We used R \cite{R2015} for all
+statistics and data visualization. The computational resources were
+provided by the University of Chicago Research Computing Center. All
+code is available for viewing and reuse at
+https://github.com/jdblischak/tb-suscept.
 \subsection*{Data availability}
 
 The raw fastq files have been deposited in NCBI's Gene Expression
 Omnibus \cite{Edgar2002} and are accessible through GEO Series
 accession number GSEXXXXX (http://www.ncbi.nlm.nih.gov/geo/
-query/acc.cgi?acc=GSEXXXXX). The counts matrix and other summary data
-sets are available at https://github.com/jdblischak/tb-suscept/data.
+query/acc.cgi?acc=GSEXXXXX). The RNA-seq gene counts and other summary
+data sets are included as Supplementary Data and are also available
+for download at https://github.com/jdblischak/tb-suscept/data.
 \section*{Acknowledgements}
 
 We thank T. Thye for sharing the GWAS data with us. This study was
