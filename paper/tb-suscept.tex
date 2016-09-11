@@ -95,11 +95,11 @@ with \emph{Mycobacterium }\emph{tuberculosis} (MTB) or a mock control.
 To measure genome-wide gene expression levels, we sequenced the RNA at
 18 hours post-infection, using a processing pipeline designed to
 minimize the introduction of unwanted technical variation, and
-obtained a mean of X $\pm$ X million raw reads per sample. We
-performed quality control analyses to remove non-expressed genes
-(Supplementary Fig. \ref{fig:gene}), identify and remove outliers
-(Supplementary Fig. \ref{fig:outliers}), and check for confounding
-batch effects (Supplementary Fig. \ref{fig:batch},
+obtained a mean ($\pm$ SEM) of 48 $\pm$ 6 million raw reads per
+sample. We performed quality control analyses to remove non-expressed
+genes (Supplementary Fig. \ref{fig:gene}), identify and remove
+outliers (Supplementary Fig. \ref{fig:outliers}), and check for
+confounding batch effects (Supplementary Fig. \ref{fig:batch},
 \ref{fig:infection}). Ultimately 6 samples were removed from all
 downstream analyses (Supplementary Fig. \ref{fig:outliers}).
 
@@ -173,8 +173,8 @@ relationship between p-values from the GWAS in The Gambia
 \cite{Thye2010} and the absolute values of the log fold changes
 between susceptible and resistant individuals in the noninfected
 state. The red line is the least squares regression. (b) The slopes
-($\pm$ 2x standard error) of the regression lines for each test. The
-results from the GWAS in Gambia are in red and those from Ghana in
+(with 95\% confidence interval) of the regression lines for each test.
+The results from the GWAS in Gambia are in red and those from Ghana in
 blue. All slopes are significantly different than 0 (t-test \emph{P}
 \textless \, 0.05), except for the slope between the Ghana GWAS
 p-values and the absolute values of the log fold changes between
@@ -235,8 +235,6 @@ individuals \cite{Barreiro2012}.
 
 \section*{Discussion}
 
-Some ideas below…but not finished yet.
-
 We obtained dendritic cells (DCs) from individuals that were known to
 be susceptible or resistant to developing active tuberculosis (TB) and
 measured genome-wide gene expression levels in noninfected DCs and DCs
@@ -260,13 +258,26 @@ investigating the difference in the innate immune response between
 individuals resistant and susceptible to TB may want to focus on
 earlier timepoints when these differences may still persist.
 
-Autophagy is a defense mechanism \cite{Deretic2014,
-Castrejon-Jimenez2015}. FEZ2 suppresses autophagy \cite{Spang2014}.
-Other RAB GTPases
-
-Acidification with ATPv subunits
-
-MHC presentation with proteasome subunits
+Among the 645 genes which were differentially expressed between
+resistant and susceptible individuals in the noninfected state, there
+were many interesting genes involved in important innate immune
+activies critical for fighting MTB and other pathogens: autophagy
+\cite{Deretic2014, Castrejon-Jimenez2015}, phagolysosomal
+acidification, and antigen processing. \emph{FEZ2}, a suppressor of
+autophagosome formation \cite{Spang2014}, is downregulated when DCs
+are infected with MTB; however, it has increased expression in
+susceptible individuals compared to resistant in the noninfected
+state. ATP6V1B2, a subunit of the proton transporter responsible for
+acidifying phagolysosomes \cite{Sturgill-Koszycki1994, Hornef2002,
+Hestvik2005}, has increased expression in susceptible individuals
+compared to resistant in the noninfected state. Lastly, 9 subunits of
+the proteasome, which is critical for processing of MTB antigens to be
+presented via major histocompatibility complex (MHC) class I molecules
+\cite{Flynn1992, Grotzke2009, Grotzke2010, LindestamArlehamn2014},
+have increased expression in susceptible individuals compared to
+resistant in the noninfected state. Thus these genes are candidates
+for future functional studies investigating the mechanisms of TB
+susceptibility.
 
 To our knowledge, our study is only the second to perform an \emph{in
 vitro} MTB infection of innate immune cells isolated from individuals
