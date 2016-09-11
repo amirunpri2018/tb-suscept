@@ -67,7 +67,9 @@ def write_author(text):
         return result
 
 def write_abstract(text):
-    return "\\begin{abstract}\n%s\n\\end{abstract}\n"%(text)
+    wrapped = textwrap.fill(text, break_long_words = False,
+                            break_on_hyphens = False)
+    return "\\begin{abstract}\n%s\n\\end{abstract}\n"%(wrapped)
 
 def begin_document():
     return "\\begin{document}\n\\flushbottom\n\\maketitle\n\\thispagestyle{empty}\n"
