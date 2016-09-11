@@ -32,9 +32,9 @@ total_per_sample <- total %>%
 mean_per_stage <- total_per_sample %>%
   group_by(stage) %>%
   summarize(mean_counts = mean(counts),
-            sem_counts = sd(counts) / n(),
+            sem_counts = sd(counts) / sqrt(n()),
             mean_counts_mil = mean(counts_mil),
-            sem_counts_mil = sd(counts_mil) / n())
+            sem_counts_mil = sd(counts_mil) / sqrt(n()))
 
 # Save results -----------------------------------------------------------------
 

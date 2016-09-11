@@ -117,7 +117,6 @@ outliers_simple <- outliers %>%
   summarize(PC = paste(sort(pc), collapse = ", ")) %>%
   arrange(PC) %>%
   rename(Sample = sample)
-outliers_simple
 
 # PCA
 
@@ -485,10 +484,10 @@ gwas_lm$population <- factor(gwas_lm$population, levels = c("gambia", "ghana"),
 gwas_slopes <- ggplot(gwas_lm, aes(x = test, y = slope, color = population)) +
   geom_point(position = position_dodge(width = .5)) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_linerange(aes(ymin = slope - 2 * slope_se, ymax = slope + 2 * slope_se),
+  geom_linerange(aes(ymin = slope - 1.96 * slope_se, ymax = slope + 1.96 * slope_se),
                  position = position_dodge(width = .5)) +
   scale_color_discrete(name = "Population") +
-  labs(x = "", y = "Slope of best fit line (+/- 2 x standard error)",
+  labs(x = "", y = "Slope of best fit line (with 95% CI)",
        title = "Relationship between GWAS p-value\nand |logFC| in DCs") +
   coord_flip() +
   theme(legend.position = "bottom")
