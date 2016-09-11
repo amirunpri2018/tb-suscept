@@ -54,21 +54,21 @@ Approximately a third of the world’s population has been infected with
 MTB, but most are asymptomatic. While these naturally resistant
 individuals are able to avoid active disease, MTB persists in a
 dormant state inside their innate immune cells, known as a latent TB
-infection. In contrast, approximately 10\% of individuals will develop
-active TB after infection with MTB. Unfortunately, we are currently
-unable to predict if an individual is susceptible. While twin and
-family studies have indicated a heritable component of TB
-susceptibility \cite{Kallmann1943, Comstock1978, Cobat2010,
-Moller2010}, genome wide association studies (GWAS) have only
-identified a few loci with low effect size \cite{Thye2010,
-Mahasirimongkol2012, Thye2012, Png2012, Chimusa2014, Curtis2015,
-Sobota2016}. Due to the highly polygenic architecture, it may be
-informative to examine differences between susceptible and resistant
-individuals at a higher level of organization, e.g. gene regulatory
-networks. In fact, past studies have successfully identified gene
-expression differences in innate immune cells isolated from
-individuals known be susceptible or resistant to an infectious disease
-\cite{Thuong2008, Bryant2014}.
+infection \cite{Munoz2015}. In contrast, approximately 10\% of
+individuals will develop active TB after infection with MTB
+\cite{North2004, OGarra2013}. Unfortunately, we are currently unable
+to predict if an individual is susceptible. While twin and family
+studies have indicated a heritable component of TB susceptibility
+\cite{Kallmann1943, Comstock1978, Cobat2010, Moller2010}, genome wide
+association studies (GWAS) have only identified a few loci with low
+effect size \cite{Thye2010, Mahasirimongkol2012, Thye2012, Png2012,
+Chimusa2014, Curtis2015, Sobota2016}. Due to the highly polygenic
+architecture, it may be informative to examine differences between
+susceptible and resistant individuals at a higher level of
+organization, e.g. gene regulatory networks. In fact, past studies
+have successfully identified gene expression differences in innate
+immune cells isolated from individuals known be susceptible or
+resistant to an infectious disease \cite{Thuong2008, Bryant2014}.
 
 These differences in gene expression in innate immune cells have the
 potential to classify individuals based on their susceptibility to
@@ -158,11 +158,11 @@ individuals in the noninfected or infected states (Fig.
 \ref{fig:gwas}b). However, the slopes of the best fit lines for the
 tests of the effect of treatment in either resistant or susceptible
 individuals were also negative. Of particular interest as potential
-genes involved in TB susceptibility are the genes with that had a
-p-value less than 0.01 in both The Gambia and Ghana GWAS and an
-absolute log fold change greater than 2 between susceptible and
-resistant individuals in the noninfected state (Fig. \ref{fig:gwas}a).
-Only 2 genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
+genes involved in TB susceptibility are the genes that had a p-value
+less than 0.01 in both The Gambia and Ghana GWAS and an absolute log
+fold change greater than 2 between susceptible and resistant
+individuals in the noninfected state (Fig. \ref{fig:gwas}a). Only 2
+genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
 
 \begin{figure}[ht]
 \centering
@@ -283,6 +283,54 @@ Third, we collected samples from a larger number resistant individuals
 expression profiles of susceptible and resistant individuals. Thus
 while similarly motivated, our results complement those of Thuong et
 al. rather than replicate them.
+
+Promisingly we observed that the genes that are differentially
+expressed in our \emph{in vitro} experimental system, either by
+susceptibility status or the effect of treatment, are enriched for
+lower GWAS p-values (Fig. \ref{fig:gwas}). This suggests that such
+\emph{in vitro} approaches are informative for interrogating the
+genetic basis of disease susceptibility. That being said, we
+recognized multiple caveats with this analysis. First, assigning SNPs
+to their nearest gene on the linear chromosome was an imperfect
+assumption since regulatory variants can have longer range effects.
+Second, the negative slopes of the least squares regression line were
+quite small because there were many SNPs with low p-values nearby
+genes with low effect sizes in our experiment. It is possible that
+these variants contribute to TB susceptibility by affecting gene
+expression in other cell types or environmental conditions.
+
+Not only did this analysis identify a global enrichment of TB
+susceptibility loci, by intersecting our DE results and the GWAS we
+were able to identify two genes which were marginally significant in
+both. Interestingly, both of these genes have prior evidence of
+playing important roles in MTB infection. \emph{CCL1} is a chemokine
+that stimulates migration of monocytes \cite{Miller1992}. In our
+study, it was upregulated in susceptible individuals compared to
+resistant in both the noninfected and infected states (but did not
+reach statistical significance in either) and was statistically
+significantly upregulated with MTB treatment. The previous
+differential expression study of TB susceptibility mentioned above
+found that \emph{CCL1} was upregulated to a greater extent 4 hours
+post MTB-infection in macrophages isolated from individuals with an
+active TB infection (i.e. susceptible) compared to individuals with a
+latent TB infection (i.e. resistant) \cite{Thuong2008}. Additionally
+they performed a candidate gene association study and found that SNPs
+nearby \emph{CCL1} were associated with TB susceptibility. In a
+previous study from our lab, we discovered that \emph{CCL1} was one of
+only 288 genes that were differentially expressed in macrophages 48
+hours post-infection with MTB and related mycobacterial species but
+not unrelated virulent bacteria \cite{Blischak2015}. \emph{UNC13A} is
+involved in vesicle formation \cite{Sudhof2004}. In our study, it was
+downregulated in susceptible individuals compared to resistant in both
+the noninfected and infected states (but did not reach statistical
+significance in either) and was statistically significantly
+upregulated with MTB treatment. In our past study mapping expression
+quantitative trait loci (eQTLs) in DCs 18 hours post-infection with
+MTB, \emph{UNC13A} was one of only 98 genes which was associated with
+an eQTL post-infection but not pre-infection, which we called an
+MTB-specific eQTL \cite{Barreiro2012}. Thus our new results increased
+the evidence that \emph{CCL1} and \emph{UNC13A} play important roles
+in TB susceptibility.
 
 Previous attempts to use gene expression based classifiers in the
 context of TB have focused on predicting the status of an infection
