@@ -1,3 +1,4 @@
+
 # Snakefile
 
 # To run on RCC Midway:
@@ -42,7 +43,8 @@ rule run_analysis:
            data + "Supplementary_Data_S1.tds",
            data + "Supplementary_Data_S2.xlsx",
            data + "Supplementary_Data_S3.xlsx",
-           data + "Supplementary_Data_S4.xlsx"
+           data + "Supplementary_Data_S4.xlsx",
+           data + "mean-counts-per-stage.txt"
 
 rule run_subread:
     input: data + "subread-counts-per-sample.txt", data + "total-counts.txt"
@@ -275,6 +277,13 @@ rule count_gather:
         outfile.close()
 
 # Analysis
+
+# Calculate the mean number of reads per sample per processing stage
+rule counts_per_stage:
+    input: data + "total-counts.txt",
+           script = code + "count-reads.R"
+    output: data + "mean-counts-per-stage.txt"
+    shell: "Rscript {input.script} {data}"
 
 # Filter lowly expressed genes
 rule filter_genes:
