@@ -10,10 +10,10 @@
  \renewcommand{\thefigure}{S\arabic{figure}}%
  }
 
-\title{Identifying gene regulatory signature in individuals susceptible to tuberculosis }
+\title{Gene expression profiling predicts susceptibility to tuberculosis}
 
 
-\author[1,2]{John D. Blischak}
+\author[1,2,*]{John D. Blischak}
 \author[3]{Ludovic Tailleux}
 \author[1]{Marsha Myrthil}
 \author[4,5,*]{Luis B. Barreiro}
@@ -30,37 +30,31 @@
 
 
 
-\affil[*]{Correspondence should be addressed to YG (gilad@uchicago.edu) and LBB (luis.barreiro@umontreal.ca).}
+\affil[*]{Correspondence should be addressed to JDB (jdblischak@uchicago.edu), YG (gilad@uchicago.edu), and LBB (luis.barreiro@umontreal.ca).}
 
 \begin{abstract}
-\textbf{Tuberculosis is a deadly infectious disease}\textbf{,}\textbf{
-which kills millions of people every year. The causative pathogen,
-}\textbf{\emph{Mycobacterium tuberculosis}}\textbf{ (MTB), is
-estimated to have infected up to a third of the world’s population;
-however, only approximately 10\% of healthy individuals progress to
-active TB disease. Despite evidence for heritability, }\textbf{it is
-not}\textbf{ currently }\textbf{possible}\textbf{ to predict whether a
-healthy person is susceptible to TB. }\textbf{To explore approaches to
-classify susceptibility}\textbf{ to TB}\textbf{, w}\textbf{e
-}\textbf{infected }\textbf{dendritic cells (DCs) from individuals
-known to be susceptible or resistant to TB with MTB, and measured
-genome-wide gene expression levels}\textbf{ in infected and uninfected
-cells}\textbf{. }\textbf{W}\textbf{e }\textbf{found}\textbf{
-}\textbf{that gene expression }\textbf{differences}\textbf{ between
-susceptible and resistant individuals }\textbf{were}\textbf{ primarily
-present in the non}\textbf{-}\textbf{infected }\textbf{cells}\textbf{.
-Intersecting our results with genome wide association analyses (GWAS),
-we demonstrated an enrichment of low GWAS p-values for the
-differential}\textbf{ly}\textbf{ expressed genes}\textbf{,}\textbf{
-and also identified two interesting candidate genes:
-}\textbf{\emph{CCL1}}\textbf{ and }\textbf{\emph{UNC13A}}\textbf{.
-}\textbf{Lastly, we trained a classifier based on the gene expression
-levels in the non}\textbf{-}\textbf{infected state and demonstrated
-}\textbf{decent}\textbf{ performance on our data and an independent
-data set. Overall, our promising results from this small study suggest
-that }\textbf{training a classifier on a larger cohort could enable us
-to accurately predict TB susceptibility}\textbf{, which would inform
-the prevention and treatment of TB infections}\textbf{.}
+Tuberculosis is a deadly infectious disease, which kills millions of
+people every year. The causative pathogen, \emph{Mycobacterium
+tuberculosis} (MTB), is estimated to have infected up to a third of
+the world’s population; however, only approximately 10\% of healthy
+individuals progress to active TB disease. Despite evidence for
+heritability, it is not currently possible to predict whether a
+healthy person is susceptible to TB. To explore approaches to classify
+susceptibility to TB, we infected dendritic cells (DCs) from
+individuals known to be susceptible or resistant to TB with MTB, and
+measured genome-wide gene expression levels in infected and uninfected
+cells. We found that gene expression differences between susceptible
+and resistant individuals were primarily present in the non-infected
+cells. Intersecting our results with genome wide association analyses
+(GWAS), we demonstrated an enrichment of low GWAS p-values for the
+differentially expressed genes, and also identified two interesting
+candidate genes: \emph{CCL1} and \emph{UNC13A}. Lastly, we trained a
+classifier based on the gene expression levels in the non-infected
+state and demonstrated decent performance on our data and an
+independent data set. Overall, our promising results from this small
+study suggest that training a classifier on a larger cohort could
+enable us to accurately predict TB susceptibility, which would inform
+the prevention and treatment of TB infections.
 \end{abstract}
 \begin{document}
 \flushbottom
@@ -92,10 +86,11 @@ effect size \cite{Thye2010, Mahasirimongkol2012, Thye2012, Png2012,
 Chimusa2014, Curtis2015, Sobota2016}. Due to the highly polygenic
 architecture, it may be informative to examine differences between
 susceptible and resistant individuals at a higher level of
-organization, e.g. gene regulatory networks. Indeed, a previous study
-has successfully identified gene expression differences in innate
-immune cells isolated from individuals known be susceptible or
-resistant to an infectious disease \cite{Thuong2008, Bryant2014}.
+organization, e.g. gene regulatory networks. Indeed, past studies have
+successfully identified gene expression differences in innate immune
+cells isolated from individuals known be susceptible or resistant to
+an infectious disease, including tuberculosis \cite{Thuong2008} and
+acute rheumatic fever \cite{Bryant2014}.
 
 These differences in gene expression in innate immune cells have the
 potential to classify individuals based on their susceptibility to
@@ -104,7 +99,7 @@ study reporting such an attempt. In this study, we isolated innate
 immune cells from individuals that are resistant or susceptible to TB
 and infected them with MTB. We discovered that the gene expression
 differences between resistant and susceptible innate immune cells were
-present primarily in the noninfected state, that these differentially
+present primarily in the non-infected state, that these differentially
 expressed genes were enriched for nearby SNPs with low p-values in TB
 susceptibility GWAS, and furthermore that these gene expression levels
 could be used to classify individuals based on their susceptibility
@@ -140,7 +135,7 @@ resistant and susceptible individuals (Supplementary Fig.
 identified 3,486 differentially expressed (DE) genes between the
 non-infected and infected states at a q-value of 10\% and an arbitrary
 absolute log-fold change greater than 1. Similarly, 3,789 genes were
-DE between the non-infected and infected states for resistant
+DE between the non-infected and infected states for susceptible
 individuals at a q-value of 10\% and an absolute log fold change
 greater than 1. The DE genes included the important immune response
 factors \emph{IL12B}, \emph{REL}, and \emph{TNF}. While the treatment
@@ -151,8 +146,8 @@ resistant individuals in either the non-infected or infected states
 and susceptible individuals in the non-infected state at a q-value of
 10\%, including \emph{ATPV1B2}, \emph{FEZ2}, \emph{PSMA2},
 \emph{TNFRSF25}, and \emph{TRIM38}. In contrast, no genes were DE
-between resistant and susceptible individuals in the non-infected
-state (q-value of 10\%).
+between resistant and susceptible individuals in the infected state
+(q-value of 10\%).
 
 \begin{figure}[p]
 \centering
@@ -161,8 +156,8 @@ state (q-value of 10\%).
 Differential expression analysis. The top panel contains the
 distribution of unadjusted p-values after testing for differential
 expression between susceptible and resistant individuals in the (a)
-noninfected or (b) infected state. The bottom panel contains the
-corresponding volcano plots for the (c) noninfected and (d) infected
+non-infected or (b) infected state. The bottom panel contains the
+corresponding volcano plots for the (c) non-infected and (d) infected
 states. The x-axis is the log fold change in gene expression level
 between susceptible and resistant individuals and the y-axis is the
 –log\textsubscript{10} p-value. Red indicates genes which are
@@ -193,7 +188,7 @@ individuals were also negative. Of particular interest as potential
 genes involved in TB susceptibility were the genes that had a p-value
 less than 0.01 in both The Gambia and Ghana GWAS and an absolute log
 fold change greater than 2 between susceptible and resistant
-individuals in the noninfected state (Fig. \ref{fig:gwas}a). Only 2
+individuals in the non-infected state (Fig. \ref{fig:gwas}a). Only 2
 genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
 
 \begin{figure}[ht]
@@ -203,14 +198,14 @@ genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
 Comparison of differential expression and GWAS results. (a) The
 relationship between p-values from the GWAS in The Gambia
 \cite{Thye2010} and the absolute values of the log fold changes
-between susceptible and resistant individuals in the noninfected
+between susceptible and resistant individuals in the non-infected
 state. The red line is the least squares regression. (b) The slopes
 (with 95\% confidence interval) of the regression lines for each test.
 The results from the GWAS in Gambia are in red and those from Ghana in
 blue. All slopes are significantly different than 0 (t-test \emph{P}
 \textless \, 0.05), except for the slope between the Ghana GWAS
 p-values and the absolute values of the log fold changes between
-susceptible and resistant individuals in the noninfected state.
+susceptible and resistant individuals in the non-infected state.
 }
 \label{fig:gwas}
 \end{figure}
@@ -346,7 +341,9 @@ genes with low effect sizes in our experiment. It is possible that
 these variants contribute to TB susceptibility by affecting gene
 expression in other cell types or environmental conditions. Third, the
 individuals in our study were Europeans; whereas, the GWAS were
-conducted in Africans. Nevertheless…
+conducted in Africans. Nevertheless, considering these limitations, it
+was encouraging that we were still able to detect evidence of the
+genetic basis of TB susceptibility in this system.
 
 Not only did this analysis identify a global enrichment of TB
 susceptibility loci, but by intersecting our DE results and the GWAS
@@ -355,7 +352,7 @@ which were marginally significant in both. Interestingly, both of
 these genes have prior evidence of playing important roles in MTB
 infection. \emph{CCL1} is a chemokine that stimulates migration of
 monocytes \cite{Miller1992}. In our study, it was upregulated in
-susceptible individuals compared to resistant in both the noninfected
+susceptible individuals compared to resistant in both the non-infected
 and infected states (but did not reach statistical significance in
 either) and was statistically significantly upregulated with MTB
 treatment. The previous differential expression study of TB
@@ -371,7 +368,7 @@ differentially expressed in macrophages 48 hours post-infection with
 MTB and related mycobacterial species but not unrelated virulent
 bacteria \cite{Blischak2015}. \emph{UNC13A} is involved in vesicle
 formation \cite{Sudhof2004}. In our study, it was downregulated in
-susceptible individuals compared to resistant in both the noninfected
+susceptible individuals compared to resistant in both the non-infected
 and infected states (but did not reach statistical significance in
 either) and was statistically significantly upregulated with MTB
 treatment. In our past study mapping expression quantitative trait
@@ -382,7 +379,6 @@ eQTL \cite{Barreiro2012}. Thus our new results increased the evidence
 that \emph{CCL1} and \emph{UNC13A} play important roles in TB
 susceptibility.
 
-\textbf{Subtitle? }
 Previous attempts to use gene expression based classifiers in the
 context of TB have focused on predicting the status of an infection
 rather than the susceptibility status of an individual
@@ -397,7 +393,7 @@ infection. Even with our small sample size, we were able to
 successfully train a classier with high sensitivity and decent
 specificity. Because such a classification of susceptibility status
 could affect the decision of whether or not to take antibiotics to
-treat a latent MTB infection \cite{Munoz2015}, false negatives
+treat a latent TB infection \cite{Munoz2015}, false negatives
 (susceptible individuals mistakenly classified as resistant) would be
 much more harmful than false positives (resistant individuals
 mistakenly classified as susceptible), which is why we emphasized
@@ -480,7 +476,7 @@ clustering to identify and remove 6 outliers (Supplementary Fig.
 this systematically by removing any sample that did not fall within
 two standard deviations of the mean for the first six PCs.
 Furthermore, for the first PC which separated the samples by
-treatment, we calculated a separate mean for the noninfected and
+treatment, we calculated a separate mean for the non-infected and
 infected samples.
 
 After filtering lowly expressed genes and removing outliers, we
@@ -502,10 +498,10 @@ the following linear model to test for differential expression:
 \begin{equation} \label{eq:limma}
 Y\ \sim \beta_{0} + X_{treat}\beta_{treat} + X_{status}\beta_{status} + X_{treat,status}\beta_{treat,status} + I + \epsilon
 \end{equation}
-where $\beta_{0}$ is the mean expression level in noninfected cells of
-resistant individuals, $\beta_{treat}$ is the fixed effect of
+where $\beta_{0}$ is the mean expression level in non-infected cells
+of resistant individuals, $\beta_{treat}$ is the fixed effect of
 treatment in resistant individuals, $\beta_{status}$ is the fixed
-effect of susceptibility status in noninfected cells,
+effect of susceptibility status in non-infected cells,
 $\beta_{treat,status}$ is the fixed interaction effect of treatment in
 susceptible individuals, and $I$ is the random effect of individual.
 The random individual effect was implemented using the limma function
@@ -516,11 +512,11 @@ succession \cite{Liu2015}.
 
 We used the model to test 4 separate hypotheses (Supplementary Data
 S2). We identified genes which were differentially expressed (DE)
-between infected and noninfected DCs of resistant individuals by
+between infected and non-infected DCs of resistant individuals by
 testing $\beta_{treat} = 0$, genes which were DE between infected and
-noninfected DCs of susceptible individuals by testing $\beta_{treat} +
-\beta_{treat,status} = 0$, genes which were DE between susceptible and
-resistant individuals in the noninfected state by testing
+non-infected DCs of susceptible individuals by testing $\beta_{treat}
++ \beta_{treat,status} = 0$, genes which were DE between susceptible
+and resistant individuals in the non-infected state by testing
 $\beta_{status} = 0$, and genes which were DE between susceptible and
 resistant individuals in the infected state by testing $\beta_{status}
 + \beta_{treat,status} = 0$. We corrected for multiple testing using
@@ -554,21 +550,22 @@ observation of a negative correlation between GWAS p-value and log
 fold change.
 \subsection*{Classifier}
 
-The training set included the 44 high-quality noninfected samples from
-this study with known susceptibility status. The test set included the
-65 noninfected samples from one of our previous studies in which the
-susceptibility status is unknown \cite{Barreiro2012}, and thus assumed
-to be similar to that in the general population (\texttildelow10\%).
-Because the two studies are substantially different, we took multiple
-steps to make them comparable. First, we subset to include only those
-9,450 genes which were assayed in both. Second, because the dynamic
-range obtained from RNA-seq (current study) and microarrays (previous
-study \cite{Barreiro2012}) were very different, we normalized the gene
-expression levels to a standard normal with $\mu = 0$ and $\sigma = 1$
-(Supplementary Fig. \ref{fig:combined-dist}). Third, we corrected for
-the large, expected batch effect between the two studies by regressing
-out the first PC of the combined expression data using the limma
-function removeBatchEffect \cite{Ritchie2015} (Supplementary Fig.
+The training set included the 44 high-quality non-infected samples
+from this study with known susceptibility status. The test set
+included the 65 non-infected samples from one of our previous studies
+in which the susceptibility status is unknown \cite{Barreiro2012}, and
+thus assumed to be similar to that in the general population
+(\texttildelow10\%). Because the two studies are substantially
+different, we took multiple steps to make them comparable. First, we
+subset to include only those 9,450 genes which were assayed in both.
+Second, because the dynamic range obtained from RNA-seq (current
+study) and microarrays (previous study \cite{Barreiro2012}) were very
+different, we normalized the gene expression levels to a standard
+normal with $\mu = 0$ and $\sigma = 1$ (Supplementary Fig.
+\ref{fig:combined-dist}). Third, we corrected for the large, expected
+batch effect between the two studies by regressing out the first PC of
+the combined expression data using the limma function
+removeBatchEffect \cite{Ritchie2015} (Supplementary Fig.
 \ref{fig:combined-pca}).
 
 To identify genes to use in the classifier, we performed a
@@ -577,7 +574,7 @@ data from the current study using the same approach described above
 (with the exception that we no longer used voom \cite{Law2014} since
 the data were no longer counts). Specifically, we tested for
 differential expression between susceptible and resistant individuals
-in the noninfected state and identified sets of genes to use in the
+in the non-infected state and identified sets of genes to use in the
 classifier by varying the q-value cutoff. Cutoffs of 5\%, 10\%, 15\%,
 20\%, and 25\% corresponded to gene set sizes of 99, 385, 947, 1,934,
 and 3,697, respectively. We used the R package caret \cite{Kuhn2008}
@@ -607,7 +604,7 @@ based on the ability of the model at this cutoff to classify all TB
 susceptible individuals in the training set as susceptible with only 2
 false positives. As expected, the 99 genes used in the classifier had
 similar normalized, batch-corrected median expression levels in the
-noninfected state across both studies (Supplementary Fig.
+non-infected state across both studies (Supplementary Fig.
 \ref{fig:class-exp}).
 \subsection*{Software implementation}
 
@@ -644,7 +641,7 @@ YG, LT, and LBB conceived of the study and designed the experiments.
 LT coordinated sample collection and performed the infection
 experiments. MM extracted the RNA and prepared the sequencing
 libraries. JDB analyzed the results. LBB and YG supervised the
-project. JDB and YG wrote the original draft. All authors reviewed the
+project. JDB wrote the original draft. All authors reviewed the
 manuscript.
 
 \bibliography{references}
@@ -703,7 +700,7 @@ Pearson correlation between the log\textsubscript{2} cpm expression
 values of two samples. Red indicates a low correlation of zero and
 white represents a high correlation of 1. The dendrogram displays the
 results of hierarchical clustering with the complete linkage method.
-The outliers of the noninfected samples are s04-suscept-noninf,
+The outliers of the non-infected samples are s04-suscept-noninf,
 r02-resist-noninf, and r06-resist-noninf. The outliers of the infected
 samples are s01-suscep-infect, r06-resist-infect, and
 r18-resist-infect.
@@ -734,11 +731,11 @@ Principal components analysis (PCA) to identify outliers. PC1 versus
 PC2 (a), PC3 versus PC4 (b), and PC5 versus PC6 (c). Each sample is
 represented by its 3-letter ID. “s” stands for susceptible and “r” for
 resistant, and the text is colored on the basis of treatment status
-(blue is noninfected; red is infected). The value is parentheses in
+(blue is non-infected; red is infected). The value is parentheses in
 each axis is the percentage of total variation accounted for by that
 PC. The outliers are listed in (d). These samples do not fall within 2
 standard deviations of the mean value of the PCs listed in the right
-column. Note that a separate mean was calculated for the noninfected
+column. Note that a separate mean was calculated for the non-infected
 and infected samples for PC1 only.
 }
 \label{fig:outliers}
@@ -751,7 +748,7 @@ and infected samples for PC1 only.
 \caption{
 Check for technical batch effects using principal components analysis
 (PCA). (a) PC1 versus PC2. The text labels are the individual
-identifiers. Red indicates noninfected samples and blue indicates
+identifiers. Red indicates non-infected samples and blue indicates
 infected. (b) PC3 versus PC4. The colors indicate the different
 infection batches. (c) PC5 versus PC6. The colors indicate the
 different infection batches. (d) The Pearson correlation of PCs 1-6
@@ -766,7 +763,7 @@ correlations vary from 0 (white) to 1 (red).
 \includegraphics[width=\linewidth]{../figure/batch-infection.pdf}
 \caption{
 Check for confounding effect of infection batch. PC3 (a) and PC5 (b)
-varied by the date of infection. Noninfected samples are in red and
+varied by the date of infection. Non-infected samples are in red and
 infected samples in blue. Importantly, however, this technical
 variation arising from infection batch did not correlate with the
 susceptibility status of the individuals (c and d). Resistant
@@ -781,7 +778,7 @@ individuals are in red and susceptible individuals in blue.
 \caption{
 Effect of treatment with MTB. The top panel contains the distribution
 of unadjusted p-values after testing for differential expression
-between the noninfected and infected states in (a) resistant and (b)
+between the non-infected and infected states in (a) resistant and (b)
 susceptible individuals. The bottom panel contains the corresponding
 volcano plots for the (c) resistant and (d) susceptible individuals.
 The x-axis is the log fold change in gene expression level between
@@ -830,10 +827,10 @@ normalizing each sample to a standard normal distribution.
 Principal components analysis (PCA) of combined data sets. (a) PC1
 versus PC2 of the combined data set of the RNA-seq data from the
 current study (red) and the microarray data from Barreiro et al., 2012
-\cite{Barreiro2012} (blue). The large circles are noninfected samples,
-and the small circles are infected samples. The value in parentheses
-is the percentage of the total variation accounted for by that PC. (b)
-The same data after regressing the original PC1 in (a).
+\cite{Barreiro2012} (blue). The large circles are non-infected
+samples, and the small circles are infected samples. The value in
+parentheses is the percentage of the total variation accounted for by
+that PC. (b) The same data after regressing the original PC1 in (a).
 }
 \label{fig:combined-pca}
 \end{figure}
@@ -847,7 +844,7 @@ of input genes. We compared 3 different machine learning methods
 (elastic net, support vector machine, random forest) and used 5
 different sets of input genes. The input genes (x-axis) were obtained
 by varying the q-value cutoff for differential expression between
-susceptible and resistant individuals in the noninfected state from
+susceptible and resistant individuals in the non-infected state from
 5\% to 25\%. The evaluation metric (y-axis) was the difference of the
 mean assigned probability of being TB resistant between the known
 resistant and susceptible individuals in the current study.
@@ -915,18 +912,18 @@ Each row is a gene labeled with its Ensembl gene ID. Each column is a
 sample. Each sample is labeled according to the pattern
 “x\#\#-status-treatment”, where x is “r” for resistant or “s” for
 susceptible, \#\# is the ID number, status is “resist” for resistant
-or “suscep” for susceptible, and treatment is “noninf” for noninfected
-or “infect” for infected. (tds)
+or “suscep” for susceptible, and treatment is “noninf” for
+non-infected or “infect” for infected. (tds)
 \subsubsection*{Supplementary Data S2}
 
 Supplementary Data S2 contains the results of the differential
 expression analysis with limma (Fig. \ref{fig:limma}). The workbook
 contains 4 sheets corresponding to the 4 tests performed. “status\_ni”
 is the test between resistant and susceptible individuals in the
-noninfected state, “status\_ii” is the test between resistant and
+non-infected state, “status\_ii” is the test between resistant and
 susceptible individuals in the infected state, “treat\_resist” is the
-test between the noninfected and infected states for resistant
-individuals, and “treat\_suscep” is the test between the noninfected
+test between the non-infected and infected states for resistant
+individuals, and “treat\_suscep” is the test between the non-infected
 and infected states for susceptible individuals. Each sheet has the
 same columns. “id” is the Ensembl gene ID, “gene” is the gene name,
 “logFC” is the log fold change from limma, “AveExpr” is the average
