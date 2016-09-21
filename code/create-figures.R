@@ -523,12 +523,20 @@ my_ggsave("gwas-n-snps.png", dims = c(2, 1))
 
 # Make enrichment plot for Gambia GWAS and status_ni
 enrich_gambia_status_ni <- read.delim(file.path(data_dir,
-                                      "gambia-status_ni-enrichment.txt"))
+                                                "gambia-status_ni-enrichment.txt"))
 
 # par(mfrow = c(1, 2))
 plot(enrich_gambia_status_ni[, 1], type = "l", col = "red",
      ylim = c(min(enrich_gambia_status_ni, na.rm = TRUE),
-              max(enrich_gambia_status_ni, na.rm = TRUE)))
+              max(enrich_gambia_status_ni, na.rm = TRUE)),
+     ylab = "Fold enrichment of GWAS P < 0.05",
+     xlab = "Effect size cutoff (number of genes)",
+     xaxt = "n")
+n <- nrow(enrich_gambia_status_ni)
+spacing <- seq(1, n, by = 50)
+axis(side = 1, at = (1:n)[spacing], padj = 0.5,
+     labels = paste0(round(x$intervals[, 1], digits = 2),
+                     "\n(", x$sizes[, 1], ")")[spacing])
 apply(enrich_gambia_status_ni[, -1], 2, lines, col = "grey75")
 lines(enrich_gambia_status_ni[, 1], col = "red")
 abline(h = enrich_gambia_status_ni[nrow(enrich_gambia_status_ni), 1],
@@ -550,7 +558,10 @@ for (gwas in c("gambia", "ghana")) {
                                             paste(gwas, test, "enrichment.txt",
                                                   sep = "-")))
     }
-    record_max <- apply(enrich_result, 2, max, na.rm = TRUE)
+    # record_max <- apply(enrich_result, 2, max, na.rm = TRUE)
+    library("flux")
+    # http://artax.karlin.mff.cuni.cz/r-help/library/flux/html/auc.html
+    record_max <- apply(enrich_result, 2, function(r) auc(x = 1:length(r), y = r))
     gwas2_list[[gwas]][[test]] <- record_max
     gwas2_signif[paste(gwas, test, sep = "-")] <-
       sum(record_max[-1] > record_max[1]) / length(record_max[-1])
@@ -561,22 +572,35 @@ gwas2_list[["gambia"]] <- data.frame(status_ni = gwas2_list[["gambia"]][["status
                                      treat_resist = gwas2_list[["gambia"]][["treat_resist"]],
                                      treat_suscep = gwas2_list[["gambia"]][["treat_suscep"]])
 gwas2_list[["ghana"]] <- data.frame(status_ni = gwas2_list[["ghana"]][["status_ni"]],
-                                     status_ii = gwas2_list[["ghana"]][["status_ii"]],
-                                     treat_resist = gwas2_list[["ghana"]][["treat_resist"]],
-                                     treat_suscep = gwas2_list[["ghana"]][["treat_suscep"]])
+                                    status_ii = gwas2_list[["ghana"]][["status_ii"]],
+                                    treat_resist = gwas2_list[["ghana"]][["treat_resist"]],
+                                    treat_suscep = gwas2_list[["ghana"]][["treat_suscep"]])
 
-boxplot(gwas2_list[["gambia"]])
+boxplot(gwas2_list[["gambia"]],
+        ylab = "Area under fold enrichment curve",
+        names = c("suscep v resist\n(noninf)",
+                  "suscep v resist\n(infect)",
+                  "infect v. noninf\n(resist)",
+                  "infect v. noninf\n(suscep)"))
 points(1:4, gwas2_list[["gambia"]][1, ], col = "red", pch = 19)
 mtext("b", side = 3, line = -1, adj = 0, outer = TRUE, font = 2)
 
 # Make enrichment plot for Ghana GWAS and status_ni
 enrich_ghana_status_ni <- read.delim(file.path(data_dir,
-                                                "ghana-status_ni-enrichment.txt"))
+                                               "ghana-status_ni-enrichment.txt"))
 
 # par(mfrow = c(1, 2))
 plot(enrich_ghana_status_ni[, 1], type = "l", col = "red",
      ylim = c(min(enrich_ghana_status_ni, na.rm = TRUE),
-              max(enrich_ghana_status_ni, na.rm = TRUE)))
+              max(enrich_ghana_status_ni, na.rm = TRUE)),
+     ylab = "Fold enrichment of GWAS P < 0.05",
+     xlab = "Effect size cutoff (number of genes)",
+     xaxt = "n")
+n <- nrow(enrich_ghana_status_ni)
+spacing <- seq(1, n, by = 50)
+axis(side = 1, at = (1:n)[spacing], padj = 0.5,
+     labels = paste0(round(x$intervals[, 1], digits = 2),
+                     "\n(", x$sizes[, 1], ")")[spacing])
 apply(enrich_ghana_status_ni[, -1], 2, lines, col = "grey75")
 lines(enrich_ghana_status_ni[, 1], col = "red")
 abline(h = enrich_ghana_status_ni[nrow(enrich_ghana_status_ni), 1],
@@ -584,7 +608,12 @@ abline(h = enrich_ghana_status_ni[nrow(enrich_ghana_status_ni), 1],
 mtext("a", side = 3, line = -1, adj = 0, outer = TRUE, font = 2)
 
 
-boxplot(gwas2_list[["ghana"]])
+boxplot(gwas2_list[["ghana"]],
+        ylab = "Area under fold enrichment curve",
+        names = c("suscep v resist\n(noninf)",
+                  "suscep v resist\n(infect)",
+                  "infect v. noninf\n(resist)",
+                  "infect v. noninf\n(suscep)"))
 points(1:4, gwas2_list[["ghana"]][1, ], col = "red", pch = 19)
 mtext("b", side = 3, line = -1, adj = 0, outer = TRUE, font = 2)
 

@@ -240,37 +240,37 @@ enrich_full <- function(x, y, cutoff, xmin, xmax, m = 50,
               sizes = mat_sizes))
 }
 
-x <- enrich_full(x = results$gwas_p_gambia,
-            y = results$status_ni,
-            cutoff = 1,
-            xmin = 0, xmax = 1,
-            m = 50,
-            x_direction = "lesser",
-            cutoff_direction = "greater")
+x <- enrich_full(x = results$status_ni,
+                 y = results$gwas_p_gambia,
+                 cutoff = .05,
+                 xmin = 0, xmax = 1,
+                 m = 25,
+                 x_direction = "greater",
+                 cutoff_direction = "lesser")
 
 # http://stackoverflow.com/a/12135122
 specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
 
 for (gwas in c("gambia", "ghana")) {
-  for (test in colnames(fit$coef)[1:4]) {
+  for (test in c("status_ni", "status_ii", "treat_resist", "treat_suscep")) {
     fname_base <- file.path(data_dir, paste(gwas, test, sep = "-"))
     print(fname_base)
     if (gwas == "gambia") {
-      enrich_result <- enrich_full(x = results$gwas_p_gambia,
-                                   y = results[, test],
-                                   cutoff = 1,
+      enrich_result <- enrich_full(x = results[, test],
+                                   y = results$gwas_p_gambia,
+                                   cutoff = .05,
                                    xmin = 0, xmax = 1,
-                                   m = 50,
-                                   x_direction = "lesser",
-                                   cutoff_direction = "greater")
+                                   m = 25,
+                                   x_direction = "greater",
+                                   cutoff_direction = "lesser")
     } else if (gwas == "ghana") {
-      enrich_result <- enrich_full(x = results$gwas_p_ghana,
-                                   y = results[, test],
-                                   cutoff = 1,
+      enrich_result <- enrich_full(x = results[, test],
+                                   y = results$gwas_p_ghana,
+                                   cutoff = .05,
                                    xmin = 0, xmax = 1,
-                                   m = 50,
-                                   x_direction = "lesser",
-                                   cutoff_direction = "greater")
+                                   m = 25,
+                                   x_direction = "greater",
+                                   cutoff_direction = "lesser")
     }
     # enrichment values
     write.table(specify_decimal(enrich_result$enrichment, k = 5),
