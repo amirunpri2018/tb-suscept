@@ -179,3 +179,102 @@ write.table(results, file = file.path(data_dir, "results-gwas.txt"),
 
 write.table(lm_out_df, file = file.path(data_dir, "results-gwas-lm.txt"),
             quote = FALSE, sep = "\t", row.names = FALSE)
+
+# Enrichment analysis ----------------------------------------------------------
+
+# Set seed for permutations
+set.seed(12345)
+
+enrich <- function(x, y, cutoff, xmin, xmax, breaks = 10,
+                   x_direction = "greater", cutoff_direction = "greater") {
+  intervals <- seq(xmin, xmax, length.out = breaks)
+  enrichment <- numeric(length = breaks)
+  sizes <- numeric(length = breaks)
+  for (i in seq_along(intervals)) {
+    if (x_direction == "greater") {
+      y_sub <- y[x > intervals[i]]
+    } else {
+      y_sub <- y[x < intervals[i]]
+    }
+    sizes[i] <- length(y_sub)
+    # browser()
+    if (cutoff_direction == "greater") {
+      enrichment[i] <- sum(y_sub > cutoff) / sizes[i]
+    } else {
+      enrichment[i] <- sum(y_sub < cutoff) / sizes[i]
+    }
+  }
+  return(data.frame(enrichment = enrichment, intervals = intervals, sizes = sizes))
+}
+
+enrich_full <- function(x, y, cutoff, xmin, xmax, breaks = 10,
+                        x_direction = "greater", cutoff_direction = "greater",
+                        iterations = 100) {
+  mat_enrichment <- matrix(nrow = breaks, ncol = iterations + 1)
+  mat_intervals <- matrix(nrow = breaks, ncol = iterations + 1)
+  mat_sizes <- matrix(nrow = breaks, ncol = iterations + 1)
+  main <- enrich(x = x, y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
+                 breaks = breaks, x_direction = x_direction,
+                 cutoff_direction = cutoff_direction)
+  mat_enrichment[, 1] <- main$enrichment
+  mat_intervals[, 1] <- main$intervals
+  mat_sizes[, 1] <- main$sizes
+  # browser()
+  for (iter in 1:iterations) {
+    permuted <- enrich(x = sample(x), y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
+                       breaks = breaks, x_direction = x_direction,
+                       cutoff_direction = cutoff_direction)
+    mat_enrichment[, iter + 1] <- permuted$enrichment
+    mat_intervals[, iter + 1] <- permuted$intervals
+    mat_sizes[, iter + 1] <- permuted$sizes
+  }
+  return(list(enrichment = mat_enrichment, intervals = mat_intervals,
+              sizes = mat_sizes))
+}
+
+x <- enrich_full(x = results$gwas_p_gambia,
+            y = results$status_ni,
+            cutoff = 1,
+            xmin = 0, xmax = 1,
+            breaks = 25,
+            x_direction = "lesser",
+            cutoff_direction = "greater")
+
+# http://stackoverflow.com/a/12135122
+specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+
+for (gwas in c("gambia", "ghana")) {
+  for (test in colnames(fit$coef)[1:4]) {
+    fname_base <- file.path(data_dir, paste(gwas, test, sep = "-"))
+    print(fname_base)
+    if (gwas == "gambia") {
+      enrich_result <- enrich_full(x = results$gwas_p_gambia,
+                                   y = results[, test],
+                                   cutoff = 1,
+                                   xmin = 0, xmax = 1,
+                                   breaks = 25,
+                                   x_direction = "lesser",
+                                   cutoff_direction = "greater")
+    } else if (gwas == "ghana") {
+      enrich_result <- enrich_full(x = results$gwas_p_ghana,
+                                   y = results[, test],
+                                   cutoff = 1,
+                                   xmin = 0, xmax = 1,
+                                   breaks = 25,
+                                   x_direction = "lesser",
+                                   cutoff_direction = "greater")
+    }
+    # enrichment values
+    write.table(specify_decimal(enrich_result$enrichment, k = 5),
+                file = paste0(fname_base, "-enrichment.txt"),
+                quote = FALSE, sep = "\t", row.names = FALSE)
+    # interval values
+    write.table(specify_decimal(enrich_result$intervals, k = 5),
+                file = paste0(fname_base, "-intervals.txt"),
+                quote = FALSE, sep = "\t", row.names = FALSE)
+    # size values
+    write.table(enrich_result$sizes,
+                file = paste0(fname_base, "-sizes.txt"),
+                quote = FALSE, sep = "\t", row.names = FALSE)
+  }
+}
