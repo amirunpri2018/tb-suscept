@@ -190,6 +190,11 @@ enrich <- function(x, y, cutoff, xmin, xmax, breaks = 10,
   intervals <- seq(xmin, xmax, length.out = breaks)
   enrichment <- numeric(length = breaks)
   sizes <- numeric(length = breaks)
+  if (cutoff_direction == "greater") {
+    background_enrich <- sum(y > cutoff) / length(y)
+  } else {
+    background_enrich <- sum(y < cutoff) / length(y)
+  }
   for (i in seq_along(intervals)) {
     if (x_direction == "greater") {
       y_sub <- y[x > intervals[i]]
@@ -199,9 +204,9 @@ enrich <- function(x, y, cutoff, xmin, xmax, breaks = 10,
     sizes[i] <- length(y_sub)
     # browser()
     if (cutoff_direction == "greater") {
-      enrichment[i] <- sum(y_sub > cutoff) / sizes[i]
+      enrichment[i] <- sum(y_sub > cutoff) / sizes[i] / background_enrich
     } else {
-      enrichment[i] <- sum(y_sub < cutoff) / sizes[i]
+      enrichment[i] <- sum(y_sub < cutoff) / sizes[i] / background_enrich
     }
   }
   return(data.frame(enrichment = enrichment, intervals = intervals, sizes = sizes))
