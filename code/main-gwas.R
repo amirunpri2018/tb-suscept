@@ -185,11 +185,13 @@ write.table(lm_out_df, file = file.path(data_dir, "results-gwas-lm.txt"),
 # Set seed for permutations
 set.seed(12345)
 
-enrich <- function(x, y, cutoff, xmin, xmax, breaks = 10,
+library("Hmisc")
+enrich <- function(x, y, cutoff, xmin, xmax, m = 50,
                    x_direction = "greater", cutoff_direction = "greater") {
-  intervals <- seq(xmin, xmax, length.out = breaks)
-  enrichment <- numeric(length = breaks)
-  sizes <- numeric(length = breaks)
+  # intervals <- seq(xmin, xmax, length.out = breaks)
+  intervals <- cut2(x, m = m, onlycuts = TRUE)
+  enrichment <- numeric(length = length(intervals))
+  sizes <- numeric(length = length(intervals))
   if (cutoff_direction == "greater") {
     background_enrich <- sum(y > cutoff) / length(y)
   } else {
@@ -212,22 +214,23 @@ enrich <- function(x, y, cutoff, xmin, xmax, breaks = 10,
   return(data.frame(enrichment = enrichment, intervals = intervals, sizes = sizes))
 }
 
-enrich_full <- function(x, y, cutoff, xmin, xmax, breaks = 10,
+enrich_full <- function(x, y, cutoff, xmin, xmax, m = 50,
                         x_direction = "greater", cutoff_direction = "greater",
                         iterations = 100) {
-  mat_enrichment <- matrix(nrow = breaks, ncol = iterations + 1)
-  mat_intervals <- matrix(nrow = breaks, ncol = iterations + 1)
-  mat_sizes <- matrix(nrow = breaks, ncol = iterations + 1)
+
   main <- enrich(x = x, y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
-                 breaks = breaks, x_direction = x_direction,
+                 m = m, x_direction = x_direction,
                  cutoff_direction = cutoff_direction)
+  mat_enrichment <- matrix(nrow = nrow(main), ncol = iterations + 1)
+  mat_intervals <- matrix(nrow = nrow(main), ncol = iterations + 1)
+  mat_sizes <- matrix(nrow = nrow(main), ncol = iterations + 1)
   mat_enrichment[, 1] <- main$enrichment
   mat_intervals[, 1] <- main$intervals
   mat_sizes[, 1] <- main$sizes
   # browser()
   for (iter in 1:iterations) {
     permuted <- enrich(x = sample(x), y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
-                       breaks = breaks, x_direction = x_direction,
+                       m = m, x_direction = x_direction,
                        cutoff_direction = cutoff_direction)
     mat_enrichment[, iter + 1] <- permuted$enrichment
     mat_intervals[, iter + 1] <- permuted$intervals
@@ -241,7 +244,7 @@ x <- enrich_full(x = results$gwas_p_gambia,
             y = results$status_ni,
             cutoff = 1,
             xmin = 0, xmax = 1,
-            breaks = 25,
+            m = 50,
             x_direction = "lesser",
             cutoff_direction = "greater")
 
@@ -257,7 +260,7 @@ for (gwas in c("gambia", "ghana")) {
                                    y = results[, test],
                                    cutoff = 1,
                                    xmin = 0, xmax = 1,
-                                   breaks = 25,
+                                   m = 50,
                                    x_direction = "lesser",
                                    cutoff_direction = "greater")
     } else if (gwas == "ghana") {
@@ -265,7 +268,7 @@ for (gwas in c("gambia", "ghana")) {
                                    y = results[, test],
                                    cutoff = 1,
                                    xmin = 0, xmax = 1,
-                                   breaks = 25,
+                                   m = 50,
                                    x_direction = "lesser",
                                    cutoff_direction = "greater")
     }
