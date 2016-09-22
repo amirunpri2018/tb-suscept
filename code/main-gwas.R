@@ -6,6 +6,8 @@ suppressPackageStartupMessages(library("limma"))
 suppressPackageStartupMessages(library("data.table"))
 suppressPackageStartupMessages(library("biomaRt"))
 suppressPackageStartupMessages(library("SNPlocs.Hsapiens.dbSNP144.GRCh38"))
+suppressPackageStartupMessages(library("Hmisc")) # for cut2, need to load
+# before dplyr b/c it defines a summarize function
 suppressPackageStartupMessages(library("plyr"))
 suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("GenomicRanges"))
@@ -137,7 +139,7 @@ results <- results %>%
             gwas_p_gambia = min(gwas_p_gambia),
             n_snps = n())
 
-# Test for relationship with linear regression ---------------------------------
+# Test for enrichment  ---------------------------------------------------------
 
 # Add DE stats
 limma_coef <- fit$coefficients
@@ -148,47 +150,28 @@ for (test in colnames(limma_coef)) {
   results[, test] <- abs(results[, test])
 }
 
-# Linear regression
-lm_out <- list()
-for (test in c(colnames(limma_coef), "n_snps")) {
-  lm_out[[test]][["ghana"]] <- lm(results[, "gwas_p_ghana"] ~ results[, test])
-  lm_out[[test]][["gambia"]] <- lm(results[, "gwas_p_gambia"] ~ results[, test])
-}
-# Extract results
-extract_lm_stats <- function(lmo) {
-  # lmo - lm object
-  lmo_sum <- summary(lmo)
-  slope <- lmo_sum$coefficients[2, 1]
-  slope_se <- lmo_sum$coefficients[2, 2]
-  t <- lmo_sum$coefficients[2, 3]
-  p <- lmo_sum$coefficients[2, 4]
-  return(c(t = t, p = p, slope = slope, slope_se = slope_se))
-}
-
-# Step 1: Convert to list of data frames
-lm_out_tmp <- lapply(lm_out, function(x) {
-  ldply(x, extract_lm_stats, .id = "population")
-})
-# Step 2: Convert to data frame
-lm_out_df <- ldply(lm_out_tmp, .id = "test")
-
-# Save results -----------------------------------------------------------------
-
+# Save results table of combined DE stats and GWAS p-values
 write.table(results, file = file.path(data_dir, "results-gwas.txt"),
             quote = FALSE, sep = "\t", row.names = FALSE)
-
-write.table(lm_out_df, file = file.path(data_dir, "results-gwas-lm.txt"),
-            quote = FALSE, sep = "\t", row.names = FALSE)
-
-# Enrichment analysis ----------------------------------------------------------
 
 # Set seed for permutations
 set.seed(12345)
 
-library("Hmisc")
-enrich <- function(x, y, cutoff, xmin, xmax, m = 50,
-                   x_direction = "greater", cutoff_direction = "greater") {
-  # intervals <- seq(xmin, xmax, length.out = breaks)
+# Main enrichment function.
+#
+# For each interval, calculate the enrichment compared to the background enrichment.
+#
+# x - the variable that is split into intervals
+# y - the variable that is being tested for enrichment
+# cutoff - the value of y at which to separate genes when cacluting enrichment
+# m - the average number of genes in each interval
+# x_direction - With increasing values of x, should genes be included if they are greater than or less than
+#               the metric that defines that interval. Default "greater", anything else with do "lesser".
+# cutoff_direction - When testing for enrichment of y at the given interval of x, are genes counted if they are
+#                    greater or lesser than the cuottf.
+enrich <- function(x, y, cutoff, m = 50,
+                   x_direction = "greater",
+                   cutoff_direction = "greater") {
   intervals <- cut2(x, m = m, onlycuts = TRUE)
   enrichment <- numeric(length = length(intervals))
   sizes <- numeric(length = length(intervals))
@@ -214,11 +197,17 @@ enrich <- function(x, y, cutoff, xmin, xmax, m = 50,
   return(data.frame(enrichment = enrichment, intervals = intervals, sizes = sizes))
 }
 
-enrich_full <- function(x, y, cutoff, xmin, xmax, m = 50,
-                        x_direction = "greater", cutoff_direction = "greater",
+# Calculates the enrichment of the actual data (returned in column 1) and the
+# enrichment of perumutations.
+#
+# iterations - The number of iterations to calculate enrichment with permuted data.
+#
+# See function enrich for descriptions of other arguments.
+enrich_full <- function(x, y, cutoff, m = 50,
+                        x_direction = "greater",
+                        cutoff_direction = "greater",
                         iterations = 100) {
-
-  main <- enrich(x = x, y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
+  main <- enrich(x = x, y = y, cutoff = cutoff,
                  m = m, x_direction = x_direction,
                  cutoff_direction = cutoff_direction)
   mat_enrichment <- matrix(nrow = nrow(main), ncol = iterations + 1)
@@ -229,7 +218,7 @@ enrich_full <- function(x, y, cutoff, xmin, xmax, m = 50,
   mat_sizes[, 1] <- main$sizes
   # browser()
   for (iter in 1:iterations) {
-    permuted <- enrich(x = sample(x), y = y, cutoff = cutoff, xmin = xmin, xmax = xmax,
+    permuted <- enrich(x = sample(x), y = y, cutoff = cutoff,
                        m = m, x_direction = x_direction,
                        cutoff_direction = cutoff_direction)
     mat_enrichment[, iter + 1] <- permuted$enrichment
@@ -240,17 +229,21 @@ enrich_full <- function(x, y, cutoff, xmin, xmax, m = 50,
               sizes = mat_sizes))
 }
 
-x <- enrich_full(x = results$status_ni,
-                 y = results$gwas_p_gambia,
-                 cutoff = .05,
-                 xmin = 0, xmax = 1,
-                 m = 25,
-                 x_direction = "greater",
-                 cutoff_direction = "lesser")
+# For testing:
+# x <- enrich_full(x = results$status_ni,
+#                  y = results$gwas_p_gambia,
+#                  cutoff = .05,
+#                  m = 25,
+#                  x_direction = "greater",
+#                  cutoff_direction = "lesser")
 
+# Utility function to force R to output a specific number of decimal places.
+# Avoids Git thinking results have changed simply because of slight changes
+# in insignificant digits.
 # http://stackoverflow.com/a/12135122
-specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
+specify_decimal <- function(x, k) format(round(x, k), nsmall = k)
 
+# Calculate the fold enrichment for each DE test with each GWAS. Save the results.
 for (gwas in c("gambia", "ghana")) {
   for (test in c("status_ni", "status_ii", "treat_resist", "treat_suscep")) {
     fname_base <- file.path(data_dir, paste(gwas, test, sep = "-"))
@@ -259,7 +252,6 @@ for (gwas in c("gambia", "ghana")) {
       enrich_result <- enrich_full(x = results[, test],
                                    y = results$gwas_p_gambia,
                                    cutoff = .05,
-                                   xmin = 0, xmax = 1,
                                    m = 25,
                                    x_direction = "greater",
                                    cutoff_direction = "lesser")
@@ -267,7 +259,6 @@ for (gwas in c("gambia", "ghana")) {
       enrich_result <- enrich_full(x = results[, test],
                                    y = results$gwas_p_ghana,
                                    cutoff = .05,
-                                   xmin = 0, xmax = 1,
                                    m = 25,
                                    x_direction = "greater",
                                    cutoff_direction = "lesser")
