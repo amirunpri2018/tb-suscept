@@ -61,12 +61,7 @@ results[["status_ii"]] %>% filter(qvalue < .1) %>% nrow()
 gwas <- read.delim(file.path(data_dir, "results-gwas.txt"),
                    stringsAsFactors = FALSE)
 gwas <- gwas %>% select(-interact)
-gwas_lm <- read.delim(file.path(data_dir, "results-gwas-lm.txt"),
-                      stringsAsFactors = FALSE)
-# Remove interaction term b/c basically the same as noninfected state
-gwas_lm <- gwas_lm[gwas_lm$test != "interact", ]
-gwas_lm$population <- factor(gwas_lm$population, levels = c("gambia", "ghana"),
-                             labels = c("The Gambia", "Ghana"))
+
 # Add gene annotation
 gwas_anno <- merge(gwas, anno_gene,
                    by.x = "gene", by.y = "ensembl_gene_id")
@@ -79,8 +74,6 @@ gwas_anno <- gwas_anno %>% rename(id = gene,
 s3 <- createWorkbook()
 addWorksheet(s3, sheetName = "input-data")
 writeData(s3, sheet = "input-data", gwas_anno)
-addWorksheet(s3, sheetName = "regression-results")
-writeData(s3, sheet = "regression-results", gwas_lm)
 saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
              overwrite = TRUE)
 

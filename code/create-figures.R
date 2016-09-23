@@ -553,22 +553,35 @@ enrich_boxplot <- function(x, ...) {
   points(1:4, x[1, ], col = "red", pch = 19)
 }
 
+# Plot titles shared across main and supp figures
+enrich_title_raw <- "Enrichment of GWAS signal in genes differentially expressed between susceptible and resistant individuals in the non-infected state"
+enrich_title <- paste(strwrap(enrich_title_raw, width = 60), collapse = "\n")
+enrich_title_box_raw <- "Significant enrichment of GWAS signal in each differential expression test"
+enrich_title_box <- paste(strwrap(enrich_title_box_raw, width = 60),
+                          collapse = "\n")
+
 # Main figure using Gambia data
-for (device in c("png", "pdf")) {
+for (device in c("png", "pdf", "eps")) {
   if (device == "png") {
     png(file.path(fig_dir, "gwas.png"),
         width = 2 * w, height = h, units = "in", res = 300)
   } else if (device == "pdf") {
     pdf(file.path(fig_dir, "gwas.pdf"),
         width = 2 * w, height = h, useDingbats = FALSE)
+  } else if (device == "eps") {
+    postscript(file.path(fig_dir, "gwas.eps"),
+               width = 2 * w, height = h)
+    par(cex.axis = 0.7)
   }
   par(mfrow = c(1, 2), cex = 1)
   # Make enrichment plot for Gambia GWAS and status_ni
   enrich_plot(enrich_gambia_status_ni,
               intervals_gambia_status_ni,
-              sizes_gambia_status_ni)
+              sizes_gambia_status_ni,
+              main = enrich_title)
   mtext("a", side = 3, line = 1, adj = 0, outer = FALSE, font = 2)
-  enrich_boxplot(gwas_list[["gambia"]], main = "")
+  enrich_boxplot(gwas_list[["gambia"]],
+                 main = enrich_title_box)
   mtext("b", side = 3, line = 1, adj = 0, outer = FALSE, font = 2)
   invisible(dev.off())
 }
@@ -586,9 +599,11 @@ for (device in c("png", "pdf")) {
   # Make enrichment plot for Ghana GWAS and status_ni
   enrich_plot(enrich_ghana_status_ni,
               intervals_ghana_status_ni,
-              sizes_ghana_status_ni)
+              sizes_ghana_status_ni,
+              main = enrich_title)
   mtext("a", side = 3, line = 1, adj = 0, outer = FALSE, font = 2)
-  enrich_boxplot(gwas_list[["ghana"]], main = "")
+  enrich_boxplot(gwas_list[["ghana"]],
+                 main = enrich_title_box)
   mtext("b", side = 3, line = 1, adj = 0, outer = FALSE, font = 2)
   invisible(dev.off())
 }
