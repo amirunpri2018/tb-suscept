@@ -8,6 +8,7 @@ suppressPackageStartupMessages(library("gridExtra"))
 suppressPackageStartupMessages(library("edgeR"))
 suppressPackageStartupMessages(library("gplots"))
 suppressPackageStartupMessages(library("VennDiagram"))
+suppressPackageStartupMessages(library("RColorBrewer"))
 suppressPackageStartupMessages(library("flux")) # for auc
 suppressPackageStartupMessages(library("cowplot"))
 
@@ -33,6 +34,17 @@ h <- 7
 #              panel.grid.minor.y = element_blank(),
 #              panel.grid.major.x = element_blank(),
 #              panel.grid.major.y = element_blank())
+
+# Color scheme:
+color_scheme <- brewer.pal(n = 5, name = "Set1")
+# non-infected is purple
+col_noninf <- color_scheme[4]
+# infected is green
+col_infect <- color_scheme[3]
+# susceptible is blue
+col_suscep <- color_scheme[2]
+# resistant is orange
+col_resist <- color_scheme[5]
 
 my_ggsave <- function(fname, dims = c(1, 1)) {
   # Save the last plot using these defaults.
@@ -124,16 +136,19 @@ outliers_simple <- outliers %>%
 # PC1 versus PC2.
 pc1v2_out <- ggplot(pca_outliers, aes(x = PC1, y = PC2, color = treatment)) +
   geom_text(aes(label = individual)) +
+  scale_color_manual(values = c(col_infect, col_noninf)) +
   labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained_outliers[1] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 2, round(explained_outliers[2] * 100, 2)))
 # PC3 versus PC4.
 pc3v4_out <- ggplot(pca_outliers, aes(x = PC3, y = PC4, color = treatment)) +
   geom_text(aes(label = individual)) +
+  scale_color_manual(values = c(col_infect, col_noninf)) +
   labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained_outliers[3] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 4, round(explained_outliers[4] * 100, 2)))
 # PC5 versus PC6.
 pc5v6_out <- ggplot(pca_outliers, aes(x = PC5, y = PC6, color = treatment)) +
   geom_text(aes(label = individual)) +
+  scale_color_manual(values = c(col_infect, col_noninf)) +
   labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained_outliers[5] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 6, round(explained_outliers[6] * 100, 2)))
 # Table of outliers
@@ -198,18 +213,21 @@ explained <- readRDS(file.path(data_dir, "results-pca-explained.rds"))
 # PC1 versus PC2.
 pc1v2 <- ggplot(pca_data, aes(x = PC1, y = PC2, color = treatment)) +
   geom_text(aes(label = individual)) +
+  scale_color_manual(values = c(col_infect, col_noninf)) +
   labs(x = sprintf("PC%d (%.2f%%)", 1, round(explained[1] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 2, round(explained[2] * 100, 2)))
 
 # PC3 versus PC4.
 pc3v4 <- ggplot(pca_data, aes(x = PC3, y = PC4, color = infection)) +
   geom_text(aes(label = individual)) +
+  scale_color_brewer(type = "qual", palette = "Paired") +
   labs(x = sprintf("PC%d (%.2f%%)", 3, round(explained[3] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 4, round(explained[4] * 100, 2)))
 
 # PC5 versus PC6.
 pc5v6 <- ggplot(pca_data, aes(x = PC5, y = PC6, color = infection)) +
   geom_text(aes(label = individual)) +
+  scale_color_brewer(type = "qual", palette = "Paired") +
   labs(x = sprintf("PC%d (%.2f%%)", 5, round(explained[5] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 6, round(explained[6] * 100, 2)))
 
@@ -242,14 +260,14 @@ my_ggsave("batch-pca.png", dims = c(2, 2))
 
 pc3_infection <- ggplot(pca_data, aes(x = infection, y = PC3, fill = treatment)) +
   geom_boxplot() +
-  scale_fill_discrete(name = "Treatment") +
+  scale_fill_manual(name = "Treatment", values = c(col_noninf, col_infect)) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title = "PC3 varies by date of infection",
        x = "Date of infection experiment")
 
 pc3_status <- ggplot(pca_data, aes(x = reorder(individual, PC3), y = PC3, color = status)) +
   geom_point() +
-  scale_color_discrete(name = "Status") +
+  scale_color_manual(name = "Status", values = c(col_resist, col_suscep)) +
   facet_wrap(~treatment) +
   labs(title = "PC3 does not correlate with susceptibility status",
        x = "Individual") +
@@ -872,6 +890,7 @@ p_base <- ggplot(en, aes(x = reorder(id, resist), y = resist)) +
   theme(axis.ticks.x = element_blank())
 p_en <- p_base +
   geom_point(aes(color = Observed)) +
+  scale_color_manual(values = c(col_suscep, col_resist)) +
   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
             size = rel(2)) +
   theme(legend.position = c(0.75, 0.5)) +
@@ -896,6 +915,7 @@ svm <- class_prob_df[class_prob_df$method == "Support Vector Machine" &
 
 p_svm <- p_base %+% svm +
   geom_point(aes(color = Observed)) +
+  scale_color_manual(values = c(col_suscep, col_resist)) +
   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
             size = rel(2)) +
   theme(legend.position = c(0.75, 0.5)) +
@@ -921,6 +941,7 @@ rf <- class_prob_df[class_prob_df$method == "Random Forest" &
 
 p_rf <- p_base %+% rf +
   geom_point(aes(color = Observed)) +
+  scale_color_manual(values = c(col_suscep, col_resist)) +
   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
             size = rel(2)) +
   theme(legend.position = c(0.75, 0.5)) +
