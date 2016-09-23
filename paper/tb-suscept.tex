@@ -167,45 +167,55 @@ significant differentially expressed with a q-value less than 10\%.
 \end{figure}
 \subsection*{Differentially expressed genes are enriched with TB susceptibility loci}
 
-We next asked for evidence that genes classified as DE between
-individuals sensitive and resistant to TB in our \emph{in vitro}
-experimental system play a role in determining susceptibility to TB.
-To do this, we compared our results to those from a TB susceptibility
-GWAS conducted in The Gambia and Ghana \cite{Thye2010}. Specifically,
-for each gene we considered the SNP with the lowest GWAS p-value among
-all SNPs located within 50 kb of its transcription start site (TSS).
-If DE genes in our experiment were enriched for TB susceptibility
-loci, we expected a negative correlation between the absolute values
-of the log fold changes in our experiment and the GWAS p-values. We
-have indeed observed this pattern (Fig. \ref{fig:gwas}).
+We next asked for evidence that genes classified as DE in our \emph{in
+vitro} experimental system play a role in determining susceptibility
+to TB. To do this, we compared our results to those from a TB
+susceptibility GWAS conducted in The Gambia and Ghana \cite{Thye2010}.
+Specifically, for each gene we considered the SNP with the lowest GWAS
+p-value among all SNPs located within 50 kb of its transcription start
+site (TSS). If DE genes in our experiment were enriched for TB
+susceptibility loci, we expected to see a fold enrichment in the
+fraction of genes assigned marginally significant GWAS SNPs compared
+to genome-wide average. To investigate this, we calculated the
+fraction of genes with a GWAS p-value less than 0.05 for increasingly
+stringent effect size cutoffs (the effect size was the absolute value
+of the log fold change in our experiment). We indeed observed this
+pattern (Fig. \ref{fig:gwas}a), and in order to assess the
+significance of the observations, we performed 100 permutations of the
+enrichment analysis to derive an empirical p-value (Fig.
+\ref{fig:gwas}b). Using our permutation test, all 4 differential
+expression tests were enriched for genes with low GWAS p-value
+(empirical \emph{P} \textless \, 0.01; we obtained similar results for
+the Ghana GWAS; see Supplementary Fig. \ref{fig:gwas-supp}).
 
-Interestingly, we observed the steepest negative slopes for the tests
-comparing differential expression between susceptible and resistant
-individuals in the non-infected or infected states (Fig.
-\ref{fig:gwas}b). However, the slopes of the best fit lines for the
-tests of the effect of treatment in either resistant or susceptible
-individuals were also negative. Of particular interest as potential
-genes involved in TB susceptibility were the genes that had a p-value
-less than 0.01 in both The Gambia and Ghana GWAS and an absolute log
-fold change greater than 2 between susceptible and resistant
-individuals in the non-infected state (Fig. \ref{fig:gwas}a). Only 2
-genes met these criteria: \emph{CCL1} and \emph{UNC13A}.
+Furthermore, we were able to use this combined differential expression
+and GWAS data set to identify genes potentially involved in TB
+susceptibility. Only 2 genes, \emph{CCL1} and \emph{UNC13A}, had a
+p-value less than 0.01 in both The Gambia and Ghana GWAS and an
+absolute log fold change greater than 2 between susceptible and
+resistant individuals in the non-infected state (these arbitrary
+cutoffs were chosen to be stringent; see Supplementary Data S3 for the
+results with various cutoffs).
 
 \begin{figure}[ht]
 \centering
 \includegraphics[width=\linewidth]{../figure/gwas.pdf}
 \caption{
-Comparison of differential expression and GWAS results. (a) The
-relationship between p-values from the GWAS in The Gambia
-\cite{Thye2010} and the absolute values of the log fold changes
-between susceptible and resistant individuals in the non-infected
-state. The red line is the least squares regression. (b) The slopes
-(with 95\% confidence interval) of the regression lines for each test.
-The results from the GWAS in Gambia are in red and those from Ghana in
-blue. All slopes are significantly different than 0 (t-test \emph{P}
-\textless \, 0.05), except for the slope between the Ghana GWAS
-p-values and the absolute values of the log fold changes between
-susceptible and resistant individuals in the non-infected state.
+Comparison of differential expression and The Gambia GWAS results. (a)
+The y-axis is the fold enrichment (y-axis) of genes assigned a SNP
+with p-value less than 0.05 from the GWAS in The Gambia
+\cite{Thye2010}. The x-axis is bins of genes with increasingly
+stringent effect size cutoffs of the absolute log fold change between
+susceptible and resistant individuals in the non-infected state. The
+effect size cutoffs were chosen such that each bin from left to right
+contained approximately 25 fewer genes. The red line is the results
+from the actual data. The grey lines are the results from 100
+permutations. The dashed blue line at y=1 is the null expectation. (b)
+The x-axis is each of the 4 differential expression tests performed.
+The y-axis is the area under the curve of the fold enrichment. The
+boxplot is the result of the 100 permutations, and the red point is
+the result from the actual data. As a reference, the leftmost boxplot
+corresponds to the enrichment plot in (a).
 }
 \label{fig:gwas}
 \end{figure}
@@ -534,20 +544,20 @@ site. Specifically, we obtained the genomic coordinates of the SNPs
 with the R/Bioconductor \cite{Huber2015} package
 SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched SNPs to nearby genes
 using GenomicRanges \cite{Lawrence2013}. 10,260 of the 11,336 were
-assigned an association p-value. For each of the 4 hypotheses we
-tested, we performed least squares regression of the differential
-expression effect sizes (the log fold changes) and the assigned GWAS
-p-values. We assessed the statistical significance of these
-regressions using the standard t-test and reported the slope of each
-regression line (Fig. \ref{fig:gwas}, Supplementary Data S3).  Lastly,
-we also observed a negative correlation between the GWAS p-value
-assigned to a gene and the number of SNPs tested nearby that gene
-(Supplementary Fig. \ref{fig:gwas-n-snps}). However, we could not
-think of an explanation for why genes with a larger log fold change in
-our \emph{in vitro} experimental system would have more nearby genetic
-variation, and thus we do not believe this relationship biased our
-observation of a negative correlation between GWAS p-value and log
-fold change.
+assigned an association p-value (Supplementary Data S3). For each of
+the 4 hypotheses we tested, we performed an enrichment analysis.
+Specifically, we calculated the fraction of genes assigned a GWAS SNP
+with p-value less than 0.05 for bins of genes filtered by increasingly
+stringent effect size cutoffs. The effect size was the absolute value
+of the log fold change for the given differential expression test. The
+effect size cutoffs were chosen such that on average each subsequent
+bin differed by 25 genes. To measure enrichment, we calculated the
+area under the curve using the R package flux \cite{Jurasinski2014}.
+In order to assess significance, we calculated the area under the
+curve for 100 permutations of the data. All differential expression
+tests were statistically significantly enriched for SNPs low GWAS
+p-values in both the The Gambia (Fig. \ref{fig:gwas}b) and Ghana
+(Supplementary Fig. \ref{gwas-supp}) data sets.
 \subsection*{Classifier}
 
 The training set included the 44 high-quality non-infected samples
@@ -793,17 +803,25 @@ significantly differentially expressed at this false discovery rate.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\linewidth]{../figure/gwas-n-snps.pdf}
+\includegraphics[width=\linewidth]{../figure/gwas-supp.pdf}
 \caption{
-Relationship between the minimum GWAS p-value assigned to a gene and
-the number of SNPs nearby that gene. The x-axis is the number of SNPs
-tested in the GWAS that are located 50 kb up or downstream of the TSS
-of each gene. The y-axis is the minimum GWAS p-value of the SNPs
-nearby each gene. The red line is the least squares regression line.
-The slope is significantly different than zero (t-test \emph{P}
-\textless \, 0) for both the (a) The Gambia and (b) Ghana p-values.
+Comparison of differential expression and Ghana GWAS results. (a) The
+y-axis is the fold enrichment (y-axis) of genes assigned a SNP with
+p-value less than 0.05 from the GWAS in Ghana \cite{Thye2010}. The
+x-axis is bins of genes with increasingly stringent effect size
+cutoffs of the absolute log fold change between susceptible and
+resistant individuals in the non-infected state. The effect size
+cutoffs were chosen such that each bin from left to right contained
+approximately 25 fewer genes. The red line is the results from the
+actual data. The grey lines are the results from 100 permutations. The
+dashed blue line at y=1 is the null expectation. (b)  The x-axis is
+each of the 4 differential expression tests performed. The y-axis is
+the area under the curve of the fold enrichment. The boxplot is the
+result of the 100 permutations, and the red point is the result from
+the actual data. As a reference, the leftmost boxplot corresponds to
+the enrichment plot in (a).
 }
-\label{fig:gwas-n-snps}
+\label{fig:gwas-supp}
 \end{figure}
 
 \begin{figure}[ht]
@@ -948,11 +966,14 @@ status\_ii, treat\_resist, and treat\_suscep refer to the tests
 described for Supplementary Data S2 and contain the absolute log fold
 changes for each comparison. All the other gene annotation columns are
 the same as described for Supplementary Data S2. The second sheet
-“regression-results” contains the results of the linear regression
-between the GWAS p-values and the log fold changes (or the number of
-SNPs). “t” is the t-statistic, “p” is the p-value, “slope” is the
-slope of the regression line, and “slope\_se” is the standard error of
-the slope. (xlsx)
+“top-genes” contains the results of stringently filtering the combined
+differential expression and GWAS results. “GWAS P cutoff” is the
+p-value cutoff used for both the The Gambia and Ghana GWAS, “Effect
+size cutoff” is the cutoff of the absolute log fold change for the
+test between susceptible and resistant individuals in the non-infected
+state (Fig. \ref{fig:limma}a), “Number of genes” is the number of
+genes which satisfied these thresholds, and “Names” is the
+corresponding official gene names (sorted alphabetically). (xlsx)
 \subsubsection*{Supplementary Data S4}
 
 Supplementary Data S4 contains the results of the classifier analysis.
