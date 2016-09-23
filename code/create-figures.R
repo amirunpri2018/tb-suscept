@@ -192,7 +192,7 @@ pca_data <- read.delim(file.path(data_dir, "results-pca.txt"),
 pca_data$status <- factor(pca_data$status, levels = c("resist", "suscep"),
                           labels = c("resistant", "susceptible"))
 pca_data$treatment <- factor(pca_data$treatment, levels = c("noninf", "infect"),
-                             labels = c("noninfected", "infected"))
+                             labels = c("non-infected", "infected"))
 explained <- readRDS(file.path(data_dir, "results-pca-explained.rds"))
 
 # PC1 versus PC2.
@@ -330,8 +330,8 @@ plot_pval_hist <- function(x, qval) {
 
 results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
 
-# Difference between susceptible and resistant individuals in the noninfected state
-title_status_ni <- "Difference between susceptible and resistant\nindividuals in the noninfected state"
+# Difference between susceptible and resistant individuals in the non-infected state
+title_status_ni <- "Difference between susceptible and resistant\nindividuals in the non-infected state"
 ma_status_ni <- plot_ma(results[["status_ni"]], qval = 0.1) +
   ylim(-3.5, 3.5) +
   labs(title = title_status_ni)
@@ -426,7 +426,7 @@ venn_status <- draw.triple.venn(
   n23 = sum(ash_status_ii & ash_interact),
   n13 = sum(ash_status_ni & ash_interact),
   n123 = sum(ash_status_ni & ash_status_ii & ash_interact),
-  category = c("Difference in noninfected state",
+  category = c("Difference in non-infected state",
                "Difference in infected state",
                "Difference in response to infection"),
   #   fill = c("darkolivegreen3", "cadetblue3", "darkorchid"),
@@ -443,7 +443,7 @@ venn_treat <- draw.triple.venn(
   n23 = sum(ash_treat_resist & ash_treat_suscep),
   n13 = sum(ash_status_ni & ash_treat_suscep),
   n123 = sum(ash_status_ni & ash_treat_resist & ash_treat_suscep),
-  category = c("Difference in noninfected state",
+  category = c("Difference in non-infected state",
                "Effect of treatment in resistant individuals",
                "Effect of treatment in susceptible individuals"),
   #   fill = c("darkolivegreen3", "cadetblue3", "darkorchid"),
@@ -666,7 +666,7 @@ p_combined_pca <- ggplot(combined_pca, aes(x = PC1, y = PC2,
   scale_color_discrete(name = "Study", breaks = c("current", "lbb2012"),
                        labels = c("Current", "Barreiro et al., 2012")) +
   scale_size_discrete(name = "Treatment", breaks = c("noninf", "infect"),
-                     labels = c("noninfected", "infected")) +
+                     labels = c("non-infected", "infected")) +
   labs(x = sprintf("PC%d (%.2f%%)", 1, round(combined_explained[1] * 100, 2)),
        y = sprintf("PC%d (%.2f%%)", 2, round(combined_explained[2] * 100, 2)),
        title = "PCA before batch correction")
