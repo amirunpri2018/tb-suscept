@@ -17,23 +17,38 @@ if(interactive()) {
 }
 stopifnot(dir.exists(data_dir))
 
-# S1 - counts ------------------------------------------------------------------
+# S1 - samples -----------------------------------------------------------------
+
+anno <- read.delim(file.path(data_dir, "experiment-info.txt"),
+                   stringsAsFactors = FALSE)
+anno_filtered <- read.delim(file.path(data_dir, "experiment-info-filtered.txt"),
+                            stringsAsFactors = FALSE, row.names = 1)
+# Remove tube_ind and add a column specifying whether a sample was labeled an
+# outlier (i.e. is it in anno_filtered).
+sample_table <- anno %>%
+  select(-tube_ind) %>%
+  mutate(outlier = ifelse(anno$id %in% rownames(anno_filtered), FALSE, TRUE))
+
+write.table(sample_table, file = file.path(data_dir, "Supplementary_Data_S1.tds"),
+            quote = FALSE, sep = "\t", row.names = FALSE)
+
+# S2 - counts ------------------------------------------------------------------
 
 # No need to create a new file. Just symlink to counts.txt. Note: The path to
 # the file is relative to where the symlink is created, not the current
 # directory.
-s1_fname <- file.path(data_dir, "Supplementary_Data_S1.tds")
-if (!file.exists(s1_fname)) {
-  file.symlink(from = "counts.txt", to = s1_fname)
+s2_fname <- file.path(data_dir, "Supplementary_Data_S2.tds")
+if (!file.exists(s2_fname)) {
+  file.symlink(from = "counts.txt", to = s2_fname)
 }
 
-# S2 - limma results -----------------------------------------------------------
+# S3 - limma results -----------------------------------------------------------
 
 results <- readRDS(file.path(data_dir, "results-limma-stats.rds"))
 anno_gene <- read.delim(file.path(data_dir, "gene-annotation.txt"),
                         stringsAsFactors = FALSE)
 
-s2 <- createWorkbook()
+s3 <- createWorkbook()
 for (name in names(results)[1:4]) {
   d <- results[[name]]
   d <- d[order(rownames(d)), ]
@@ -44,10 +59,10 @@ for (name in names(results)[1:4]) {
                         chr = anno_gene$chromosome_name,
                         anno_gene[, c("description", "phenotype", "go_id")],
                         go_description = anno_gene$go_descrip)
-  addWorksheet(s2, sheetName = name)
-  writeData(s2, sheet = name, d_final)
+  addWorksheet(s3, sheetName = name)
+  writeData(s3, sheet = name, d_final)
 }
-saveWorkbook(s2, file = file.path(data_dir, "Supplementary_Data_S2.xlsx"),
+saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
              overwrite = TRUE)
 
 # Queries for paper
@@ -56,7 +71,7 @@ results[["treat_suscep"]] %>% filter(qvalue < .1, abs(logFC) > 1) %>% nrow()
 results[["status_ni"]] %>% filter(qvalue < .1) %>% nrow()
 results[["status_ii"]] %>% filter(qvalue < .1) %>% nrow()
 
-# S3 - gwas results ------------------------------------------------------------
+# S4 - gwas results ------------------------------------------------------------
 
 gwas <- read.delim(file.path(data_dir, "results-gwas.txt"),
                    stringsAsFactors = FALSE)
@@ -104,15 +119,15 @@ for (effect in de_effect_size) {
   }
 }
 
-s3 <- createWorkbook()
-addWorksheet(s3, sheetName = "input-data")
-writeData(s3, sheet = "input-data", gwas_anno)
-addWorksheet(s3, sheetName = "top-genes")
-writeData(s3, sheet = "top-genes", sig_genes)
-saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
+s4 <- createWorkbook()
+addWorksheet(s4, sheetName = "input-data")
+writeData(s4, sheet = "input-data", gwas_anno)
+addWorksheet(s4, sheetName = "top-genes")
+writeData(s4, sheet = "top-genes", sig_genes)
+saveWorkbook(s4, file = file.path(data_dir, "Supplementary_Data_S4.xlsx"),
              overwrite = TRUE)
 
-# S4 - classifier results ------------------------------------------------------------
+# S5 - classifier results ------------------------------------------------------------
 
 # Input data for modeling
 training <- fread(file.path(data_dir, "training-input.txt"), data.table = FALSE)
@@ -144,16 +159,16 @@ class_anno <- anno_gene %>% filter(ensembl_gene_id %in% genes_used_in_final_clas
          chr = chromosome_name,
          go_description = go_descrip)
 
-s4 <- createWorkbook()
-addWorksheet(s4, sheetName = "gene-list")
-writeData(s4, sheet = "gene-list", class_anno)
-addWorksheet(s4, sheetName = "training-data")
-writeData(s4, sheet = "training-data", training)
-addWorksheet(s4, sheetName = "training-results")
-writeData(s4, sheet = "training-results", predictions_final)
-addWorksheet(s4, sheetName = "testing-data")
-writeData(s4, sheet = "testing-data", testing)
-addWorksheet(s4, sheetName = "testing-results")
-writeData(s4, sheet = "testing-results", predictions_lbb_final)
-saveWorkbook(s4, file = file.path(data_dir, "Supplementary_Data_S4.xlsx"),
+s5 <- createWorkbook()
+addWorksheet(s5, sheetName = "gene-list")
+writeData(s5, sheet = "gene-list", class_anno)
+addWorksheet(s5, sheetName = "training-data")
+writeData(s5, sheet = "training-data", training)
+addWorksheet(s5, sheetName = "training-results")
+writeData(s5, sheet = "training-results", predictions_final)
+addWorksheet(s5, sheetName = "testing-data")
+writeData(s5, sheet = "testing-data", testing)
+addWorksheet(s5, sheetName = "testing-results")
+writeData(s5, sheet = "testing-results", predictions_lbb_final)
+saveWorkbook(s5, file = file.path(data_dir, "Supplementary_Data_S5.xlsx"),
              overwrite = TRUE)
