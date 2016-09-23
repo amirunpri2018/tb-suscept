@@ -108,39 +108,40 @@ status.
 
 \subsection*{Susceptible individuals have an altered transcriptome in the non-infected state}
 
-We obtained whole blood samples from 25 healthy individuals. Six of
-the donors had recovered from a previous active TB infection, and are
-thus susceptible. The remaining 19 tested positive for a latent TB
-infection without ever experiencing symptoms of active TB, and are
-thus resistant. We isolated dendritic cells (DCs) and treated them
-with \emph{Mycobacterium }\emph{tuberculosis} (MTB) or a mock control
-for 18 hours. To measure genome-wide gene expression levels in
-infected and non-infected samples, we isolated and sequenced RNA using
-a processing pipeline designed to minimize the introduction of
-unwanted technical variation (Supplementary Fig. \ref{fig:process}).
-We obtained a mean ($\pm$ SEM) of 48 $\pm$ 6 million raw reads per
-sample. We performed quality control analyses to remove non-expressed
-genes (Supplementary Fig. \ref{fig:gene}), identify and remove
-outliers (Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
+We obtained whole blood samples from 25 healthy individuals
+(Supplementary Data S1). Six of the donors had recovered from a
+previous active TB infection, and are thus susceptible. The remaining
+19 tested positive for a latent TB infection without ever experiencing
+symptoms of active TB, and are thus resistant. We isolated dendritic
+cells (DCs) and treated them with \emph{Mycobacterium
+}\emph{tuberculosis} (MTB) or a mock control for 18 hours. To measure
+genome-wide gene expression levels in infected and non-infected
+samples, we isolated and sequenced RNA using a processing pipeline
+designed to minimize the introduction of unwanted technical variation
+(Supplementary Fig. \ref{fig:process}). We obtained a mean ($\pm$ SEM)
+of 48 $\pm$ 6 million raw reads per sample. We performed quality
+control analyses to remove non-expressed genes (Supplementary Fig.
+\ref{fig:gene}; Supplementary Data S2), identify and remove outliers
+(Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
 \ref{fig:outliers}), and check for confounding batch effects
 (Supplementary Fig. \ref{fig:batch}, \ref{fig:infection}). Ultimately
 6 samples failed the quality checks and were removed from all
 downstream analyses (Supplementary Fig. \ref{fig:outliers}).
 
 We performed a standard differential expression analysis using a
-linear modeling framework, defined in equation (\ref{eq:limma}). As
-expected, there was a strong response to infection with MTB in both
-resistant and susceptible individuals (Supplementary Fig.
-\ref{fig:limma-supp}). Considering the resistant individuals, we
-identified 3,486 differentially expressed (DE) genes between the
-non-infected and infected states at a q-value of 10\% and an arbitrary
-absolute log-fold change greater than 1. Similarly, 3,789 genes were
-DE between the non-infected and infected states for susceptible
-individuals at a q-value of 10\% and an absolute log fold change
-greater than 1. The DE genes included the important immune response
-factors \emph{IL12B}, \emph{REL}, and \emph{TNF}. While the treatment
-effect was obvious in all individuals, of most interest were the
-patterns of gene expression differences between susceptible and
+linear modeling framework (Supplementary Data S3), defined in equation
+(\ref{eq:limma}). As expected, there was a strong response to
+infection with MTB in both resistant and susceptible individuals
+(Supplementary Fig. \ref{fig:limma-supp}). Considering the resistant
+individuals, we identified 3,486 differentially expressed (DE) genes
+between the non-infected and infected states at a q-value of 10\% and
+an arbitrary absolute log-fold change greater than 1. Similarly, 3,789
+genes were DE between the non-infected and infected states for
+susceptible individuals at a q-value of 10\% and an absolute log fold
+change greater than 1. The DE genes included the important immune
+response factors \emph{IL12B}, \emph{REL}, and \emph{TNF}. While the
+treatment effect was obvious in all individuals, of most interest were
+the patterns of gene expression differences between susceptible and
 resistant individuals in either the non-infected or infected states
 (Fig. \ref{fig:limma}). We identified 645 DE genes between resistant
 and susceptible individuals in the non-infected state at a q-value of
@@ -173,17 +174,17 @@ to TB. To do this, we compared our results to those from a TB
 susceptibility GWAS conducted in The Gambia and Ghana \cite{Thye2010}.
 Specifically, for each gene we considered the SNP with the lowest GWAS
 p-value among all SNPs located within 50 kb of its transcription start
-site (TSS). If DE genes in our experiment were enriched for TB
-susceptibility loci, we expected to see a fold enrichment in the
-fraction of genes assigned marginally significant GWAS SNPs compared
-to genome-wide average. To investigate this, we calculated the
-fraction of genes with a GWAS p-value less than 0.05 for increasingly
-stringent effect size cutoffs (the effect size was the absolute value
-of the log fold change in our experiment). We indeed observed this
-pattern (Fig. \ref{fig:gwas}a), and in order to assess the
-significance of the observations, we performed 100 permutations of the
-enrichment analysis to derive an empirical p-value (Fig.
-\ref{fig:gwas}b). Using our permutation test, all 4 differential
+site (TSS) (Supplementary Data S4). If DE genes in our experiment were
+enriched for TB susceptibility loci, we expected to see a fold
+enrichment in the fraction of genes assigned marginally significant
+GWAS SNPs compared to genome-wide average. To investigate this, we
+calculated the fraction of genes with a GWAS p-value less than 0.05
+for increasingly stringent effect size cutoffs (the effect size was
+the absolute value of the log fold change in our experiment). We
+indeed observed this pattern (Fig. \ref{fig:gwas}a), and in order to
+assess the significance of the observations, we performed 100
+permutations of the enrichment analysis to derive an empirical p-value
+(Fig. \ref{fig:gwas}b). Using our permutation test, all 4 differential
 expression tests were enriched for genes with low GWAS p-value
 (empirical \emph{P} \textless \, 0.01; we obtained similar results for
 the Ghana GWAS; see Supplementary Fig. \ref{fig:gwas-supp}).
@@ -194,7 +195,7 @@ susceptibility. Only 2 genes, \emph{CCL1} and \emph{UNC13A}, had a
 p-value less than 0.01 in both The Gambia and Ghana GWAS and an
 absolute log fold change greater than 2 between susceptible and
 resistant individuals in the non-infected state (these arbitrary
-cutoffs were chosen to be stringent; see Supplementary Data S3 for the
+cutoffs were chosen to be stringent; see Supplementary Data S4 for the
 results with various cutoffs).
 
 \begin{figure}[ht]
@@ -223,24 +224,25 @@ corresponds to the enrichment plot in (a).
 \subsection*{Can gene expression levels in the non-infected state predict TB susceptibility status?}
 
 Next we attempted to build a gene expression-based classifier to
-predict TB susceptibility status. We focused on the gene expression
-levels measured in the non-infected state both because this is where
-we observed the largest gene regulatory differences between
-susceptible and resistant individuals (Fig. \ref{fig:limma}ac), and
-also because, from the perspective of translational application, it is
-more practical to obtain gene expression data from non-infected DCs.
-We trained a support vector machine using the 99 genes that were
-differentially expressed between resistant and susceptible individuals
-in the non-infected state at a q-value less than 5\% (see Methods for
-a full description of how we selected this model). Encouragingly, we
-observed a clear separation between susceptible and resistant
-individuals when comparing the predicted probability of being
-resistant to TB for each sample obtained from
-leave-one-out-cross-validation (Fig. \ref{fig:classifier}a). Using a
-cutoff of 0.75 for the predicted probability of being resistant to TB,
-we obtained a sensitivity of 100\% (5 out of 5 susceptible individuals
-classified as susceptible) and a specificity of \texttildelow71\% (5
-out of 7 individuals classified as susceptible were true positives).
+predict TB susceptibility status (Supplementary Data S5). We focused
+on the gene expression levels measured in the non-infected state both
+because this is where we observed the largest gene regulatory
+differences between susceptible and resistant individuals (Fig.
+\ref{fig:limma}ac), and also because, from the perspective of
+translational application, it is more practical to obtain gene
+expression data from non-infected DCs. We trained a support vector
+machine using the 99 genes that were differentially expressed between
+resistant and susceptible individuals in the non-infected state at a
+q-value less than 5\% (see Methods for a full description of how we
+selected this model). Encouragingly, we observed a clear separation
+between susceptible and resistant individuals when comparing the
+predicted probability of being resistant to TB for each sample
+obtained from leave-one-out-cross-validation (Fig.
+\ref{fig:classifier}a). Using a cutoff of 0.75 for the predicted
+probability of being resistant to TB, we obtained a sensitivity of
+100\% (5 out of 5 susceptible individuals classified as susceptible)
+and a specificity of \texttildelow71\% (5 out of 7 individuals
+classified as susceptible were true positives).
 
 Unfortunately our current data set is too small to properly split into
 separate training and testing sets (it is challenging to collect
@@ -479,7 +481,7 @@ featureCounts \cite{Liao2014}.
 First we filtered genes by their expression level by removing all
 genes with a median log\textsubscript{2} counts per million (cpm) less
 than zero. This resulted in a final set of 11,336 genes for downstream
-analysis (Supplementary Fig. \ref{fig:gene}, Supplementary Data S1).
+analysis (Supplementary Fig. \ref{fig:gene}, Supplementary Data S2).
 Next we used principal components analysis (PCA) and hierarchical
 clustering to identify and remove 6 outliers (Supplementary Fig.
 \ref{fig:heat-all}, \ref{fig:heat-filt}, \ref{fig:outliers}). We did
@@ -521,7 +523,7 @@ practice of running both voom and duplicateCorrelation twice in
 succession \cite{Liu2015}.
 
 We used the model to test 4 separate hypotheses (Supplementary Data
-S2). We identified genes which were differentially expressed (DE)
+S3). We identified genes which were differentially expressed (DE)
 between infected and non-infected DCs of resistant individuals by
 testing $\beta_{treat} = 0$, genes which were DE between infected and
 non-infected DCs of susceptible individuals by testing $\beta_{treat}
@@ -544,7 +546,7 @@ site. Specifically, we obtained the genomic coordinates of the SNPs
 with the R/Bioconductor \cite{Huber2015} package
 SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched SNPs to nearby genes
 using GenomicRanges \cite{Lawrence2013}. 10,260 of the 11,336 were
-assigned an association p-value (Supplementary Data S3). For each of
+assigned an association p-value (Supplementary Data S4). For each of
 the 4 hypotheses we tested, we performed an enrichment analysis.
 Specifically, we calculated the fraction of genes assigned a GWAS SNP
 with p-value less than 0.05 for bins of genes filtered by increasingly
@@ -602,7 +604,7 @@ ability to separate the susceptible and resistant individuals into two
 separate groups. Using this metric, the best performing model was the
 support vector machine with the 99 genes that are significantly
 differentially expressed at a q-value of 5\% (Supplementary Fig.
-\ref{fig:class-compare}, Supplementary Data S4); however, both the
+\ref{fig:class-compare}, Supplementary Data S5); however, both the
 elastic net (Supplementary Fig. \ref{fig:class-en}) and random forest
 (Supplementary Fig. \ref{fig:class-rf}) had similar performance.
 Lastly, we tested the classifier by predicting the probability of
@@ -924,17 +926,32 @@ dashed red line is the 1:1 line.
 
 \subsubsection*{Supplementary Data S1}
 
-Supplementary Data S1 contains the gene expression counts for the
-11,336 genes after filtering lowly expressed genes for all 50 samples.
-Each row is a gene labeled with its Ensembl gene ID. Each column is a
-sample. Each sample is labeled according to the pattern
-“x\#\#-status-treatment”, where x is “r” for resistant or “s” for
-susceptible, \#\# is the ID number, status is “resist” for resistant
-or “suscep” for susceptible, and treatment is “noninf” for
-non-infected or “infect” for infected. (tds)
+Supplementary Data S1 contains information on the 50 samples. Most
+variables describe the batch processing steps outlined in
+Supplementary Fig. \ref{fig:process}. “id” is a unique identifier for
+each sample, “individual” is the individual identifier (“s” =
+susceptible, “r” = resistant), “status” is the susceptibility status,
+“treatment” is if the sample was infected or non-infected, “infection”
+is the date of the infection experiment (12 total), “arrival” is the
+identifier for the arrival batch (4 total), “extraction” is the batch
+for RNA extraction (5 total), “master\_mix” is the batch for library
+preparation (3 total), “rin” is the RNA Integrity Number from the
+Agilent Bioanalyzer, and “outlier” is a Boolean variable indicating if
+the sample was identified as an outlier (Supplementary Fig.
+\ref{fig:outliers}) and removed from the analysis. (tds)
 \subsubsection*{Supplementary Data S2}
 
-Supplementary Data S2 contains the results of the differential
+Supplementary Data S2 contains the gene expression counts for the
+11,336 genes after filtering lowly expressed genes for all 50 samples
+(Supplementary Fig. \ref{fig:gene}). Each row is a gene labeled with
+its Ensembl gene ID. Each column is a sample. Each sample is labeled
+according to the pattern “x\#\#-status-treatment”, where x is “r” for
+resistant or “s” for susceptible, \#\# is the ID number, status is
+“resist” for resistant or “suscep” for susceptible, and treatment is
+“noninf” for non-infected or “infect” for infected. (tds)
+\subsubsection*{Supplementary Data S3}
+
+Supplementary Data S3 contains the results of the differential
 expression analysis with limma (Fig. \ref{fig:limma}). The workbook
 contains 4 sheets corresponding to the 4 tests performed. “status\_ni”
 is the test between resistant and susceptible individuals in the
@@ -953,9 +970,9 @@ shrinkage, “chr” is the chromosome where the gene is located,
 is the associated phenotype(s) assigned my Ensembl, “go\_id” is the
 associated GO term(s) assigned by Ensembl, and “go\_description” is
 the corresponding name(s) of the GO term(s). (xlsx)
-\subsubsection*{Supplementary Data S3}
+\subsubsection*{Supplementary Data S4}
 
-Supplementary Data S3 contains the results of the GWAS comparison
+Supplementary Data S4 contains the results of the GWAS comparison
 analysis (Fig. \ref{fig:gwas}). The first sheet “input-data” contains
 the data for the 10,260 genes which were assigned a SNP in the studies
 from The Gambia and Ghana. “gwas\_p\_ghana” is the minimum p-value
@@ -963,9 +980,9 @@ from the GWAS in Ghana, “gwas\_p\_gambia” is the minimum p-value from
 the GWAS in The Gambia, and “n\_snps” is the number of GWAS SNPs
 within 50 kb of the transcription start site. The columns status\_ni,
 status\_ii, treat\_resist, and treat\_suscep refer to the tests
-described for Supplementary Data S2 and contain the absolute log fold
+described for Supplementary Data S3 and contain the absolute log fold
 changes for each comparison. All the other gene annotation columns are
-the same as described for Supplementary Data S2. The second sheet
+the same as described for Supplementary Data S3. The second sheet
 “top-genes” contains the results of stringently filtering the combined
 differential expression and GWAS results. “GWAS P cutoff” is the
 p-value cutoff used for both the The Gambia and Ghana GWAS, “Effect
@@ -974,14 +991,14 @@ test between susceptible and resistant individuals in the non-infected
 state (Fig. \ref{fig:limma}a), “Number of genes” is the number of
 genes which satisfied these thresholds, and “Names” is the
 corresponding official gene names (sorted alphabetically). (xlsx)
-\subsubsection*{Supplementary Data S4}
+\subsubsection*{Supplementary Data S5}
 
-Supplementary Data S4 contains the results of the classifier analysis.
+Supplementary Data S5 contains the results of the classifier analysis.
 Specifically it contains the results from the support vector machine
 using the genes with a qvalue less than 0.05 (Fig.
 \ref{fig:classifier}). The sheet “gene-list” contains information
 about the genes used for the classifier (the columns are described in
-the section for Supplementary Data S2). The sheet “training-input”
+the section for Supplementary Data S3). The sheet “training-input”
 contains the input gene expression data for training the model. The
 sheet “training-results” contains the results of the
 leave-one-out-cross-validation when training the model on the samples
