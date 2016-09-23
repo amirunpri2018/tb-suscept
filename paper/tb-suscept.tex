@@ -221,14 +221,14 @@ corresponds to the enrichment plot in (a).
 \label{fig:gwas}
 \end{figure}
 
-\subsection*{Can gene expression levels in the non-infected state predict TB susceptibility status?}
+\subsection*{Gene expression levels in the non-infected state can predict susceptibility status}
 
 Next we attempted to build a gene expression-based classifier to
 predict TB susceptibility status (Supplementary Data S5). We focused
 on the gene expression levels measured in the non-infected state both
 because this is where we observed the largest gene regulatory
 differences between susceptible and resistant individuals (Fig.
-\ref{fig:limma}ac), and also because, from the perspective of
+\ref{fig:limma}ac), and also because, from the perspective of a
 translational application, it is more practical to obtain gene
 expression data from non-infected DCs. We trained a support vector
 machine using the 99 genes that were differentially expressed between
@@ -266,9 +266,9 @@ TB (Fig. \ref{fig:classifier}b).
 Classifying TB susceptible individuals using a support vector machine
 model. (a) The estimates of predicted probability of TB resistance
 from the leave-one-out-cross-validation for individuals in the current
-study. The red circles represent individuals known to be susceptible
-to TB, and blue those resistant to TB. The horizontal dashed red line
-at a probability of 0.75 separates susceptible and resistant
+study. The blue circles represent individuals known to be susceptible
+to TB, and orange those resistant to TB. The horizontal dashed red
+line at a probability of 0.75 separates susceptible and resistant
 individuals. (b) The estimates of predicted probability of TB
 resistance from applying the classifier trained on the data from the
 current study to a test set of independently collected healthy
@@ -347,15 +347,16 @@ interrogating the genetic basis of disease susceptibility. That being
 said, we recognized multiple caveats with this analysis. First,
 assigning SNPs to their nearest gene on the linear chromosome is
 problematic because regulatory variants can have longer range effects.
-Second, the negative slopes of the least squares regression line were
-quite small because there were many SNPs with low p-values nearby
-genes with low effect sizes in our experiment. It is possible that
-these variants contribute to TB susceptibility by affecting gene
-expression in other cell types or environmental conditions. Third, the
-individuals in our study were Europeans; whereas, the GWAS were
-conducted in Africans. Nevertheless, considering these limitations, it
-was encouraging that we were still able to detect evidence of the
-genetic basis of TB susceptibility in this system.
+Second, the fold enrichments we calculated, albeit statistically
+significant, were modest, indicating there were also many SNPs with
+low p-values nearby genes with low effect sizes in our experiment. It
+is possible that these variants contribute to TB susceptibility by
+affecting gene expression in other cell types or environmental
+conditions. Third, the individuals in our study were Europeans;
+whereas, the GWAS were conducted in Africans. Nevertheless,
+considering these limitations, it was encouraging that we were still
+able to detect evidence of the genetic basis of TB susceptibility in
+this system.
 
 Not only did this analysis identify a global enrichment of TB
 susceptibility loci, but by intersecting our DE results and the GWAS
@@ -559,7 +560,7 @@ In order to assess significance, we calculated the area under the
 curve for 100 permutations of the data. All differential expression
 tests were statistically significantly enriched for SNPs low GWAS
 p-values in both the The Gambia (Fig. \ref{fig:gwas}b) and Ghana
-(Supplementary Fig. \ref{gwas-supp}) data sets.
+(Supplementary Fig. \ref{fig:gwas-supp}) data sets.
 \subsection*{Classifier}
 
 The training set included the 44 high-quality non-infected samples
@@ -743,12 +744,12 @@ Principal components analysis (PCA) to identify outliers. PC1 versus
 PC2 (a), PC3 versus PC4 (b), and PC5 versus PC6 (c). Each sample is
 represented by its 3-letter ID. “s” stands for susceptible and “r” for
 resistant, and the text is colored on the basis of treatment status
-(blue is non-infected; red is infected). The value is parentheses in
-each axis is the percentage of total variation accounted for by that
-PC. The outliers are listed in (d). These samples do not fall within 2
-standard deviations of the mean value of the PCs listed in the right
-column. Note that a separate mean was calculated for the non-infected
-and infected samples for PC1 only.
+(purple is non-infected; green is infected). The value is parentheses
+in each axis is the percentage of total variation accounted for by
+that PC. The outliers are listed in (d). These samples do not fall
+within 2 standard deviations of the mean value of the PCs listed in
+the right column. Note that a separate mean was calculated for the
+non-infected and infected samples for PC1 only.
 }
 \label{fig:outliers}
 \end{figure}
@@ -760,7 +761,7 @@ and infected samples for PC1 only.
 \caption{
 Check for technical batch effects using principal components analysis
 (PCA). (a) PC1 versus PC2. The text labels are the individual
-identifiers. Red indicates non-infected samples and blue indicates
+identifiers. Purple indicates non-infected samples and green indicates
 infected. (b) PC3 versus PC4. The colors indicate the different
 infection batches. (c) PC5 versus PC6. The colors indicate the
 different infection batches. (d) The Pearson correlation of PCs 1-6
@@ -775,11 +776,11 @@ correlations vary from 0 (white) to 1 (red).
 \includegraphics[width=\linewidth]{../figure/batch-infection.pdf}
 \caption{
 Check for confounding effect of infection batch. PC3 (a) and PC5 (b)
-varied by the date of infection. Non-infected samples are in red and
-infected samples in blue. Importantly, however, this technical
+varied by the date of infection. Non-infected samples are in purple
+and infected samples in green. Importantly, however, this technical
 variation arising from infection batch did not correlate with the
 susceptibility status of the individuals (c and d). Resistant
-individuals are in red and susceptible individuals in blue.
+individuals are in orange and susceptible individuals in blue.
 }
 \label{fig:infection}
 \end{figure}
@@ -879,8 +880,8 @@ resistant and susceptible individuals in the current study.
 Classifying TB susceptible individuals using an elastic net model. (a)
 The estimates of predicted probability of TB resistance from the
 leave-one-out-cross-validation for individuals in the current study.
-The red circles represent individuals known to be susceptible to TB,
-and blue those resistant to TB. The horizontal blue line at a
+The blue circles represent individuals known to be susceptible to TB,
+and orange those resistant to TB. The horizontal blue line at a
 probability of 0.75 almost separates susceptible and resistant
 individuals. (b) The estimates of predicted probability of TB
 resistance from applying the classifier trained on the data from the
@@ -897,8 +898,8 @@ individuals \cite{Barreiro2012}.
 Classifying TB susceptible individuals using a random forest model.
 (a) The estimates of predicted probability of TB resistance from the
 leave-one-out-cross-validation for individuals in the current study.
-The red circles represent individuals known to be susceptible to TB,
-and blue those resistant to TB. The horizontal blue line at a
+The blue circles represent individuals known to be susceptible to TB,
+and orange those resistant to TB. The horizontal blue line at a
 probability of 0.75 separates susceptible and resistant individuals.
 (b) The estimates of predicted probability of TB resistance from
 applying the classifier trained on the data from the current study to
