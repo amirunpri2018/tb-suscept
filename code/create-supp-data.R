@@ -71,16 +71,46 @@ gwas_anno <- gwas_anno %>% rename(id = gene,
                                   gene = external_gene_name,
                                   go_description = go_descrip)
 
-s3 <- createWorkbook()
-addWorksheet(s3, sheetName = "input-data")
-writeData(s3, sheet = "input-data", gwas_anno)
-saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
-             overwrite = TRUE)
-
 # For the paper:
 gwas_anno %>%
   filter(gwas_p_gambia < .01, gwas_p_ghana < .01, status_ni > 2) %>%
   select(gene, chr, status_ni, gwas_p_gambia, gwas_p_ghana, description)
+
+# http://stackoverflow.com/a/12135122
+specify_decimal <- function(x, k) format(round(x, k), nsmall = k)
+
+# Use different cutoffs
+de_effect_size <- c(2, 1.5, 1)
+pval <- c(.005, .01, .05)
+sig_genes <- matrix(NA, nrow = length(de_effect_size) * length(pval), ncol = 4)
+colnames(sig_genes) <- c("GWAS P cutoff", "Effect size cutoff",
+                         "Number of genes", "Names")
+row_counter = 1
+for (effect in de_effect_size) {
+  for (p in pval) {
+    genes <- gwas_anno %>%
+      filter(gwas_p_gambia < p,
+             gwas_p_ghana < p,
+             status_ni > effect) %>%
+      select(gene) %>%
+      unlist %>%
+      sort %>%
+      paste(., collapse = ", ")
+    sig_genes[row_counter, "GWAS P cutoff"] <- specify_decimal(p, 3)
+    sig_genes[row_counter, "Effect size cutoff"] <- specify_decimal(effect, 1)
+    sig_genes[row_counter, "Number of genes"] <- length(strsplit(genes, ",")[[1]])
+    sig_genes[row_counter, "Names"] <- genes
+    row_counter = row_counter + 1
+  }
+}
+
+s3 <- createWorkbook()
+addWorksheet(s3, sheetName = "input-data")
+writeData(s3, sheet = "input-data", gwas_anno)
+addWorksheet(s3, sheetName = "top-genes")
+writeData(s3, sheet = "top-genes", sig_genes)
+saveWorkbook(s3, file = file.path(data_dir, "Supplementary_Data_S3.xlsx"),
+             overwrite = TRUE)
 
 # S4 - classifier results ------------------------------------------------------------
 
