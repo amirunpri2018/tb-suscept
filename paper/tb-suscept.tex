@@ -10,7 +10,7 @@
  \renewcommand{\thefigure}{S\arabic{figure}}%
  }
 
-\title{Gene expression profiling predicts susceptibility to tuberculosis}
+\title{Predicting susceptibility to tuberculosis based on gene expression profiling}
 
 
 \author[1,2,*]{John D. Blischak}
@@ -43,18 +43,18 @@ healthy person is susceptible to TB. To explore approaches to classify
 susceptibility to TB, we infected dendritic cells (DCs) from
 individuals known to be susceptible or resistant to TB with MTB, and
 measured genome-wide gene expression levels in infected and uninfected
-cells. We found that gene expression differences between susceptible
-and resistant individuals were primarily present in the non-infected
-cells. Intersecting our results with genome wide association analyses
-(GWAS), we demonstrated an enrichment of low GWAS p-values for the
-differentially expressed genes, and also identified two interesting
+cells. We found hundreds of differentially expressed genes between
+susceptible and resistant individuals in the non-infected cells. We
+further found that genetic polymorphisms in proximity to the
+differentially expressed genes between susceptible and resistant
+individuals are more likely to be associated with TB susceptibility in
+published GWAS data. In particular, we identified two promising
 candidate genes: \emph{CCL1} and \emph{UNC13A}. Lastly, we trained a
 classifier based on the gene expression levels in the non-infected
-state and demonstrated decent performance on our data and an
+cells, and demonstrated decent performance on our data and an
 independent data set. Overall, our promising results from this small
-study suggest that training a classifier on a larger cohort could
-enable us to accurately predict TB susceptibility, which would inform
-the prevention and treatment of TB infections.
+study suggest that training a classifier on a larger cohort may enable
+us to accurately predict TB susceptibility.
 \end{abstract}
 \begin{document}
 \flushbottom
@@ -86,24 +86,23 @@ effect size \cite{Thye2010, Mahasirimongkol2012, Thye2012, Png2012,
 Chimusa2014, Curtis2015, Sobota2016}. Due to the highly polygenic
 architecture, it may be informative to examine differences between
 susceptible and resistant individuals at a higher level of
-organization, e.g. gene regulatory networks. Indeed, past studies have
-successfully identified gene expression differences in innate immune
-cells isolated from individuals known be susceptible or resistant to
-an infectious disease, including tuberculosis \cite{Thuong2008} and
-acute rheumatic fever \cite{Bryant2014}.
+organization, e.g. gene regulatory networks. Using this approach,
+previous studies have characterized gene expression profiles in innate
+immune cells isolated from individuals known be susceptible or
+resistant to infectious diseases, including tuberculosis
+\cite{Thuong2008} and acute rheumatic fever \cite{Bryant2014}.
 
-These differences in gene expression in innate immune cells have the
-potential to classify individuals based on their susceptibility to
-develop an active TB infection. To our knowledge, there has been no
-study reporting such an attempt. In this study, we isolated innate
-immune cells from individuals that are resistant or susceptible to TB
-and infected them with MTB. We discovered that the gene expression
-differences between resistant and susceptible innate immune cells were
-present primarily in the non-infected state, that these differentially
-expressed genes were enriched for nearby SNPs with low p-values in TB
-susceptibility GWAS, and furthermore that these gene expression levels
-could be used to classify individuals based on their susceptibility
-status.
+We hypothesized that gene expression profiles in innate immune cells
+may be used to classify individuals with respect to their
+susceptibility to develop an active TB infection. To test this
+hypothesis, we isolated innate immune cells from individuals that are
+resistant or susceptible to TB and infected them with MTB. We
+discovered that the gene expression differences between resistant and
+susceptible innate immune cells were present primarily in the
+non-infected state, that these differentially expressed genes were
+enriched for nearby SNPs with low p-values in TB susceptibility GWAS,
+and furthermore, that these gene expression levels could be used to
+classify individuals based on their susceptibility status.
 \section*{Results}
 
 \subsection*{Susceptible individuals have an altered transcriptome in the non-infected state}
@@ -168,35 +167,40 @@ significant differentially expressed with a q-value less than 10\%.
 \end{figure}
 \subsection*{Differentially expressed genes are enriched with TB susceptibility loci}
 
-We next asked for evidence that genes classified as DE in our \emph{in
+We next sought evidence that genes classified as DE in our \emph{in
 vitro} experimental system play a role in determining susceptibility
-to TB. To do this, we compared our results to those from a TB
+to TB. To do this, we intersected our results with those from a TB
 susceptibility GWAS conducted in The Gambia and Ghana \cite{Thye2010}.
-Specifically, for each gene we considered the SNP with the lowest GWAS
-p-value among all SNPs located within 50 kb of its transcription start
-site (TSS) (Supplementary Data S4). If DE genes in our experiment were
-enriched for TB susceptibility loci, we expected to see a fold
-enrichment in the fraction of genes assigned marginally significant
-GWAS SNPs compared to genome-wide average. To investigate this, we
-calculated the fraction of genes with a GWAS p-value less than 0.05
-for increasingly stringent effect size cutoffs (the effect size was
-the absolute value of the log fold change in our experiment). We
-indeed observed this pattern (Fig. \ref{fig:gwas}a), and in order to
-assess the significance of the observations, we performed 100
-permutations of the enrichment analysis to derive an empirical p-value
-(Fig. \ref{fig:gwas}b). Using our permutation test, all 4 differential
-expression tests were enriched for genes with low GWAS p-value
-(empirical \emph{P} \textless \, 0.01; we obtained similar results for
-the Ghana GWAS; see Supplementary Fig. \ref{fig:gwas-supp}).
+To perform a combined analysis of the both data sets, we coupled each
+gene in our expression data with the GWAS SNP with the lowest p-value
+among all tested SNPs located within 50 kb of the gene’s transcription
+start site (Supplementary Data S4). We then asked whether the GWAS
+SNPs coupled with the genes we classified as DE between susceptible
+and resistant individuals in our experiment are enriched for low GWAS
+p-values compared to SNPs coupled to randomly chosen genes.
+Specifically, we calculated the fraction of SNPs with a GWAS p-value
+less than 0.05 among SNPs coupled with ranked subsets of genes whose
+expression profiles show increasing difference between susceptible and
+resistant individuals (the effect size was the absolute value of the
+log fold change in our experiment). In order to assess the
+significance of the observations, we performed 100 permutations of the
+enrichment analysis to derive an empirical p-value (Fig.
+\ref{fig:gwas}b). Using this approach, we observed a clear enrichment
+(empirical \emph{P} \textless \, 0.01) of low GWAS p-values for SNPs
+coupled with the genes classified as DE between susceptible and
+resistant individuals (Fig. \ref{fig:gwas}a). We obtained similar
+results for the Ghana GWAS; see Supplementary Fig.
+\ref{fig:gwas-supp}).
 
-Furthermore, we were able to use this combined differential expression
-and GWAS data set to identify genes potentially involved in TB
-susceptibility. Only 2 genes, \emph{CCL1} and \emph{UNC13A}, had a
-p-value less than 0.01 in both The Gambia and Ghana GWAS and an
-absolute log fold change greater than 2 between susceptible and
-resistant individuals in the non-infected state (these arbitrary
-cutoffs were chosen to be stringent; see Supplementary Data S4 for the
-results with various cutoffs).
+We used this combined expression and GWAS data set to identify genes
+potentially involved in TB susceptibility. Only two genes, \emph{CCL1}
+and \emph{UNC13A}, were associated with a p-value less than 0.01 in
+both The Gambia and Ghana GWAS and had an absolute log fold change
+greater than 2 between susceptible and resistant individuals in the
+non-infected state (these arbitrary cutoffs were chosen to be
+stringent; see Supplementary Data S4 for the results with various
+cutoffs). Interestingly, these two genes were previously shown to play
+a role in MTB infection.
 
 \begin{figure}[ht]
 \centering
@@ -221,7 +225,7 @@ corresponds to the enrichment plot in (a).
 \label{fig:gwas}
 \end{figure}
 
-\subsection*{Gene expression levels in the non-infected state can predict susceptibility status}
+\subsection*{Susceptibility status can be predicted based on gene expression data}
 
 Next we attempted to build a gene expression-based classifier to
 predict TB susceptibility status (Supplementary Data S5). We focused
@@ -354,15 +358,15 @@ is possible that these variants contribute to TB susceptibility by
 affecting gene expression in other cell types or environmental
 conditions. Third, the individuals in our study were Europeans;
 whereas, the GWAS were conducted in Africans. Nevertheless,
-considering these limitations, it was encouraging that we were still
-able to detect evidence of the genetic basis of TB susceptibility in
-this system.
+considering these limitations, it was encouraging that we were able to
+detect evidence of the genetic basis of TB susceptibility in this
+system.
 
 Not only did this analysis identify a global enrichment of TB
-susceptibility loci, but by intersecting our DE results and the GWAS
+susceptibility loci, but by intersecting the expression and GWAS data,
 we were able to identify two genes (\emph{CCL1} and \emph{UNC13A})
 which were marginally significant in both. Interestingly, both of
-these genes have prior evidence of playing important roles in MTB
+these genes were previously shown to play important roles in MTB
 infection. \emph{CCL1} is a chemokine that stimulates migration of
 monocytes \cite{Miller1992}. In our study, it was upregulated in
 susceptible individuals compared to resistant in both the non-infected
@@ -479,25 +483,25 @@ Durinck2009} and assigned mapped reads to these genes using
 featureCounts \cite{Liao2014}.
 \subsection*{Quality control}
 
-First we filtered genes by their expression level by removing all
-genes with a median log\textsubscript{2} counts per million (cpm) less
-than zero. This resulted in a final set of 11,336 genes for downstream
-analysis (Supplementary Fig. \ref{fig:gene}, Supplementary Data S2).
-Next we used principal components analysis (PCA) and hierarchical
-clustering to identify and remove 6 outliers (Supplementary Fig.
-\ref{fig:heat-all}, \ref{fig:heat-filt}, \ref{fig:outliers}). We did
-this systematically by removing any sample that did not fall within
-two standard deviations of the mean for the first six PCs.
-Furthermore, for the first PC which separated the samples by
-treatment, we calculated a separate mean for the non-infected and
-infected samples.
+First we filtered genes based on their expression level by removing
+all genes with a transformed median log\textsubscript{2} counts per
+million (cpm) of less than zero. This step resulted in a set of 11,336
+genes for downstream analysis (Supplementary Fig. \ref{fig:gene},
+Supplementary Data S2). Next we used principal components analysis
+(PCA) and hierarchical clustering to identify and remove 6 outlier
+samples (Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
+\ref{fig:outliers}). We did this systematically, by removing any
+sample whose data projections did not fall within two standard
+deviations of the mean for any of the first six PCs (for the first PC,
+which separated the samples by treatment, we calculated a separate
+mean for the non-infected and infected samples).
 
 After filtering lowly expressed genes and removing outliers, we
-recalculated the PCA to check for any potential confounding technical
-batch effects (Supplementary Fig. \ref{fig:batch}). Reassuringly, the
-major sources of variation in the data were from the biological
-factors of interest. PC1 was strongly correlated with the effect of
-treatment, and PCs 2-6 were correlated with inter-individual
+performed the PCA again to check for any potential confounding
+technical batch effects (Supplementary Fig. \ref{fig:batch}).
+Reassuringly, the major sources of variation in the data were from the
+biological factors of interest. PC1 was strongly correlated with the
+effect of treatment, and PCs 2-6 were correlated with inter-individual
 variation. The only concerning technical factor was the infection
 experiments, which were done in 12 separate batches (Supplementary
 Fig. \ref{fig:process}). Infection batch correlated with PCs 3 and 5;
@@ -523,7 +527,7 @@ voom and duplicateCorrelation, we followed the recommended best
 practice of running both voom and duplicateCorrelation twice in
 succession \cite{Liu2015}.
 
-We used the model to test 4 separate hypotheses (Supplementary Data
+We used the model to test different hypotheses (Supplementary Data
 S3). We identified genes which were differentially expressed (DE)
 between infected and non-infected DCs of resistant individuals by
 testing $\beta_{treat} = 0$, genes which were DE between infected and
@@ -536,35 +540,35 @@ resistant individuals in the infected state by testing $\beta_{status}
 q-values estimated via adaptive shrinkage \cite{Stephens2016} and
 considered differentially expressed genes as those with a q-value less
 than 10\%.
-\subsection*{Comparison to GWAS results}
+\subsection*{Combined analysis of gene expression data and GWAS results}
 
 The GWAS p-values were from a study of TB susceptibility conducted in
-The Gambia and Ghana \cite{Thye2010}. To compare our differential
-expression results to these genetic associations, we assigned each
-gene the p-value of the SNP with the minimum p-value out of all the
-SNPs located within 50 kb up or downstream of its transcription start
-site. Specifically, we obtained the genomic coordinates of the SNPs
-with the R/Bioconductor \cite{Huber2015} package
-SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched SNPs to nearby genes
-using GenomicRanges \cite{Lawrence2013}. 10,260 of the 11,336 were
-assigned an association p-value (Supplementary Data S4). For each of
-the 4 hypotheses we tested, we performed an enrichment analysis.
-Specifically, we calculated the fraction of genes assigned a GWAS SNP
-with p-value less than 0.05 for bins of genes filtered by increasingly
-stringent effect size cutoffs. The effect size was the absolute value
-of the log fold change for the given differential expression test. The
-effect size cutoffs were chosen such that on average each subsequent
-bin differed by 25 genes. To measure enrichment, we calculated the
-area under the curve using the R package flux \cite{Jurasinski2014}.
-In order to assess significance, we calculated the area under the
-curve for 100 permutations of the data. All differential expression
-tests were statistically significantly enriched for SNPs low GWAS
-p-values in both the The Gambia (Fig. \ref{fig:gwas}b) and Ghana
-(Supplementary Fig. \ref{fig:gwas-supp}) data sets.
+The Gambia and Ghana \cite{Thye2010}. To perform a combined analysis
+of the gene expression and GWAS data, we assigned each gene to the SNP
+with the minimum GWAS p-value out of all the SNPs located within 50 kb
+up or downstream of its transcription start site. Specifically, we
+obtained the genomic coordinates of the SNPs with the R/Bioconductor
+\cite{Huber2015} package SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched
+SNPs to nearby genes using GenomicRanges \cite{Lawrence2013}. 10,260
+of the 11,336 genes were assigned an association p-value
+(Supplementary Data S4). For each of the 4 hypotheses we tested, we
+performed an enrichment analysis. To do so, we calculated the fraction
+of genes assigned a GWAS SNP with p-value less than 0.05 for bins of
+genes filtered by increasingly stringent cutoffs for the observed
+differential expression effect size (the absolute value of the log
+fold change) between susceptible and resistant individuals. The effect
+size cutoffs were chosen such that on average each subsequent bin
+differed by 25 genes. To measure enrichment, we calculated the area
+under the curve using the R package flux \cite{Jurasinski2014}. In
+order to assess significance, we calculated the area under the curve
+for 100 permutations of the data. All differential expression tests
+were statistically significantly enriched for SNPs low GWAS p-values
+in both the The Gambia (Fig. \ref{fig:gwas}b) and Ghana (Supplementary
+Fig. \ref{fig:gwas-supp}) data sets.
 \subsection*{Classifier}
 
-The training set included the 44 high-quality non-infected samples
-from this study with known susceptibility status. The test set
+The training set included data from the 44 high-quality non-infected
+samples from this study with known susceptibility status. The test set
 included the 65 non-infected samples from one of our previous studies
 in which the susceptibility status is unknown \cite{Barreiro2012}, and
 thus assumed to be similar to that in the general population
@@ -572,7 +576,7 @@ thus assumed to be similar to that in the general population
 different, we took multiple steps to make them comparable. First, we
 subset to include only those 9,450 genes which were assayed in both.
 Second, because the dynamic range obtained from RNA-seq (current
-study) and microarrays (previous study \cite{Barreiro2012}) were very
+study) and microarrays (previous study \cite{Barreiro2012}) were
 different, we normalized the gene expression levels to a standard
 normal with $\mu = 0$ and $\sigma = 1$ (Supplementary Fig.
 \ref{fig:combined-dist}). Third, we corrected for the large, expected
@@ -654,8 +658,7 @@ YG, LT, and LBB conceived of the study and designed the experiments.
 LT coordinated sample collection and performed the infection
 experiments. MM extracted the RNA and prepared the sequencing
 libraries. JDB analyzed the results. LBB and YG supervised the
-project. JDB wrote the original draft. All authors reviewed the
-manuscript.
+project. JDB wrote the paper with input from all authors.
 
 \bibliography{references}
 
