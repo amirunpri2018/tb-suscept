@@ -428,6 +428,13 @@ limma_supp <- plot_grid(pval_treat_resist,
 my_ggsave("limma-supp.pdf", dims = c(2, 2))
 my_ggsave("limma-supp.png", dims = c(2, 2))
 
+# For presentation
+limma_settings <- theme_cowplot(font_size = 18)
+limma_present <- plot_grid(volc_status_ni + labs(title = "non-infected") + limma_settings,
+                           volc_status_ii + labs(title = "infected") + limma_settings)
+ggsave(limma_present, filename = file.path(fig_dir, "limma-present.png"),
+       width = 11, height = 5)
+
 # Venn diagram of DE gene overlap
 # Not saving because they aren't very informative
 ash_status_ni <- results[["status_ni"]]$qvalue < 0.1
@@ -880,11 +887,11 @@ class_prob_df$text_label <- substr(as.character(class_prob_df$id), 1, 3)
 en <- class_prob_df[class_prob_df$method == "Elastic Net" &
                          class_prob_df$qvalue == qval, ]
 
-p_base <- ggplot(en, aes(x = reorder(id, resist), y = resist)) +
+p_base <- ggplot(en, aes(x = reorder(id, 1 - resist), y = 1 - resist)) +
   geom_point() +
-  geom_hline(yintercept = 0.75, color = "red", linetype = "dashed") +
+  geom_hline(yintercept = 0.25, color = "red", linetype = "dashed") +
   labs(x = "Individual",
-       y = "Assigned probability of being TB resistant") +
+       y = "Assigned probability of being TB susceptible") +
   scale_x_discrete(labels = NULL) +
   scale_y_continuous(limits = c(0, 1.01), breaks = seq(0, 1, by = 0.1)) +
   theme(axis.ticks.x = element_blank())
@@ -916,9 +923,9 @@ svm <- class_prob_df[class_prob_df$method == "Support Vector Machine" &
 p_svm <- p_base %+% svm +
   geom_point(aes(color = Observed)) +
   scale_color_manual(values = c(col_suscep, col_resist)) +
-  geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
-            size = rel(2)) +
-  theme(legend.position = c(0.75, 0.5)) +
+#   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+#             size = rel(2)) +
+  theme(legend.position = c(0.25, 0.75)) +
   labs(title = "Training classifier on current data")
 
 svm_lbb <- predict_lbb_df[predict_lbb_df$method == "Support Vector Machine" &
@@ -934,6 +941,23 @@ multi_svm <- plot_grid(p_svm,
 my_ggsave("classifier-svm.eps", dims = c(2, 1))
 my_ggsave("classifier-svm.pdf", dims = c(2, 1))
 my_ggsave("classifier-svm.png", dims = c(2, 1))
+
+# Figure for presentation
+ggsave(p_svm + labs(y = "Probability of TB susceptibility", title = "") +
+         theme_cowplot(font_size = 18) +
+         theme(legend.position = c(0.25, 0.75)) +
+         scale_y_continuous(limits = c(0, 1.01),
+                            breaks = c(0, 0.25, 0.5, 0.75, 1)),
+       filename = file.path(fig_dir, "classifier-svm-present.png"),
+       width = 5, height = 5)
+# Figure for presentation
+ggsave(p_svm_lbb + labs(y = "Probability of TB susceptibility", title = "") +
+         theme_cowplot(font_size = 18) +
+         theme(legend.position = c(0.25, 0.75)) +
+         scale_y_continuous(limits = c(0, 1.01),
+                            breaks = c(0, 0.25, 0.5, 0.75, 1)),
+       filename = file.path(fig_dir, "classifier-svm-lbb-present.png"),
+       width = 5, height = 5)
 
 # Random Forest
 rf <- class_prob_df[class_prob_df$method == "Random Forest" &
