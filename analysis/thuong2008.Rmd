@@ -33,14 +33,14 @@ http://www.bioconductor.org/packages/release/data/annotation/html/hgu133plus2.db
 ```{r packages, message=FALSE, warning=FALSE}
 library("GEOquery")
 library("affy")
-library("hgu133plus2.db")
-library("limma")
 library("tidyr")
+library("limma")
 library("biomaRt")
+library("dplyr")
+library("gplots")
 ```
 
-## Analyze starting from processed data
-
+## Download processed data
 
 ```{r download}
 geo_fname <- "../data/GSE11199.rds"
@@ -54,96 +54,10 @@ if (!file.exists(geo_fname)) {
   gse <- readRDS(geo_fname)
 }
 class(gse)
-pData(gse)[1, ]
-```
-
-```{r}
 x <- exprs(gse)
-anno <- pData(gse)[, 1]
-anno <- as.data.frame(anno)
-anno <- separate(anno, col = anno, into = c("individual", "treatment"))
-anno$treatment <- factor(anno$treatment, levels = c("unstim", "stim"),
-                         labels = c("none", "infected"))
-anno$status <- substr(anno$individual, 1, 1)
-anno$status <- factor(anno$status, levels = c("L", "P", "T"),
-                      labels = c("latent", "pulmonary", "meningeal"))
-table(anno$treatment, anno$status)
 ```
 
-I tried using the hgu133plus2.db package, but this wasn't very useful.
-
-```{r hgu133plus2}
-# columns(hgu133plus2.db)
-probe_mappings <- select(hgu133plus2.db, keys = rownames(x),
-                         columns = c("ENSEMBL", "SYMBOL"))
-head(probe_mappings)
-probe_mappings[probe_mappings$SYMBOL == "DDR1" &
-               !is.na(probe_mappings$SYMBOL), ]
-```
-
-The multipe mappings is because it is reporting lots of Ensembl gene IDs per each probe.
-However, when I check these on Ensembl, many are labelled "Not part of the primary assembly".
-Thus they should be able to be filtered out by their chromsome name.
-If I have to use biomaRt to obtain the chromosome name, I may as well just use it to obtain the probe to gene mappings as well.
-
-```{r probe2id}
-ensembl <- useMart(host = "dec2015.archive.ensembl.org",
-                   biomart = "ENSEMBL_MART_ENSEMBL",
-                   dataset = "hsapiens_gene_ensembl")
-probe2id <- getBM(attributes = c("affy_hg_u133_plus_2", "ensembl_gene_id",
-                                 "chromosome_name", "status",
-                                 "external_gene_name", "gene_biotype"),
-                   filters = "affy_hg_u133_plus_2",
-                   values = as.character(fData(gse)$ID),
-                   mart = ensembl)
-head(probe2id)
-```
-
-
-```{r}
-probes <- probe2id[probe2id$chromosome_name %in% c(1:22, "X", "Y", "MT") &
-                   probe2id$gene_biotype == "protein_coding", ]
-nrow(probes)
-length(unique(probes$affy_hg_u133_plus_2))
-```
-
-Keeping only those probes that unambiguously tag one protein-coding gene.
-
-```{r}
-genes_per_probe <- table(probes$affy_hg_u133_plus_2)
-good_probes <- names(genes_per_probe)[genes_per_probe == 1]
-```
-
-Some genes are tagged by more than one probe.
-I'll need to average them somehow to get one value per gene.
-The analysis below continues with the probe IDs.
-
-Following limma manual sections 9.3, 9.5.2, and 9.7.
-
-```{r limma}
-f <- paste(anno$status, anno$treatment, sep = ".")
-f <- factor(f)
-design <- model.matrix(~0 + f)
-colnames(design) <- levels(f)
-colSums(design)
-corfit <- duplicateCorrelation(x, design, block = anno$individual)
-corfit$consensus
-fit <- lmFit(x, design, block = anno$individual, correlation = corfit$consensus)
-contrast_matrix <- makeContrasts(
-  latent = latent.infected - latent.none,
-  pulmonary = pulmonary.infected - pulmonary.none,
-  # meningeal = meningeal.infected - meningeal.none,
-  interaction = (pulmonary.infected - pulmonary.none) -
-                (latent.infected - latent.none),
-  levels = design)
-fit2 <- contrasts.fit(fit, contrast_matrix)
-fit2 <- eBayes(fit2)
-results <- decideTests(fit2)
-summary(results)
-vennDiagram(results)
-```
-
-## Analyze starting from raw data
+## Download and pre-process the raw data
 
 The only information they provided on GEO was "Raw CEL intensity data were RMA normalized using R/Bioconductor".
 Thus I just used the recommendation from the affy package example for the other steps.
@@ -168,9 +82,9 @@ if (file.exists(process_raw_fname)) {
 }
 ```
 
-## Compare the two approaches
+## The processed data is similar to a standard workflow
 
-My pre-processing obtains results very similar to theirs.
+Their processed data is very similar to the results of pre-processing the raw data with the recommendations from the affy package, so I'll use their pre-processed data since that is more convenient.
 
 ```{r comparison}
 dim(x)
@@ -184,6 +98,175 @@ dim(z)
 min(z)
 median(z)
 ```
+
+## Prepare sample annotation
+
+```{r sample-annotation}
+anno <- pData(gse)[, 1]
+anno <- as.data.frame(anno)
+anno <- separate(anno, col = anno, into = c("individual", "treatment"))
+anno$treatment <- factor(anno$treatment, levels = c("unstim", "stim"),
+                         labels = c("none", "infected"))
+anno$status <- substr(anno$individual, 1, 1)
+anno$status <- factor(anno$status, levels = c("L", "P", "T"),
+                      labels = c("latent", "pulmonary", "meningeal"))
+colnames(x) <- paste(anno$individual, anno$treatment, sep = ".")
+table(anno$treatment, anno$status)
+```
+
+## limma analysis (probe-level)
+
+Following limma manual sections 9.3, 9.5.2, and 9.7.
+
+```{r limma-probe}
+f <- paste(anno$status, anno$treatment, sep = ".")
+f <- factor(f)
+design <- model.matrix(~0 + f)
+colnames(design) <- levels(f)
+colSums(design)
+corfit <- duplicateCorrelation(x, design, block = anno$individual)
+corfit$consensus
+fit <- lmFit(x, design, block = anno$individual, correlation = corfit$consensus)
+contrast_matrix <- makeContrasts(
+  latent = latent.infected - latent.none,
+  pulmonary = pulmonary.infected - pulmonary.none,
+  # meningeal = meningeal.infected - meningeal.none,
+  interaction = (pulmonary.infected - pulmonary.none) -
+                (latent.infected - latent.none),
+  levels = design)
+fit2 <- contrasts.fit(fit, contrast_matrix)
+fit2 <- eBayes(fit2)
+results <- decideTests(fit2)
+summary(results)
+vennDiagram(results)
+```
+
+## Mapping probes to genes
+
+Download probe annotation.
+
+```{r probe2id}
+ensembl <- useMart(host = "dec2015.archive.ensembl.org",
+                   biomart = "ENSEMBL_MART_ENSEMBL",
+                   dataset = "hsapiens_gene_ensembl")
+probe2id <- getBM(attributes = c("affy_hg_u133_plus_2", "ensembl_gene_id",
+                                 "chromosome_name", "status",
+                                 "external_gene_name", "gene_biotype"),
+                   filters = "affy_hg_u133_plus_2",
+                   values = as.character(fData(gse)$ID),
+                   mart = ensembl)
+head(probe2id)
+```
+
+Filtering by chromosome and biotype.
+
+```{r probe-filter-chr-biotype}
+probes <- probe2id[probe2id$chromosome_name %in% c(1:22, "X", "Y", "MT") &
+                   probe2id$gene_biotype == "protein_coding", ]
+nrow(probes)
+length(unique(probes$affy_hg_u133_plus_2))
+```
+
+Keeping only those probes that unambiguously tag one protein-coding gene.
+
+```{r filter-ambiguous-probes}
+genes_per_probe <- table(probes$affy_hg_u133_plus_2)
+ambiguous_probes <- names(genes_per_probe)[genes_per_probe > 1]
+good_probes <- names(genes_per_probe)[genes_per_probe == 1]
+probes_1pergene <- probes[probes$affy_hg_u133_plus_2 %in% good_probes, ]
+stopifnot(length(probes_1pergene$affy_hg_u133_plus_2) ==
+          length(unique(probes_1pergene$affy_hg_u133_plus_2)))
+probes_per_gene <- table(probes_1pergene$ensembl_gene_id)
+table(probes_per_gene)
+```
+
+Many genes are tagged by more than one probe.
+I'll average them to get one value per gene.
+
+```{r average-probes}
+x_filtered <- x[probes_1pergene$affy_hg_u133_plus_2, ]
+x_filtered <- as.data.frame(x_filtered)
+x_filtered$ensembl <- probes_1pergene$ensembl_gene_id
+x_mean <- x_filtered %>%
+  group_by(ensembl) %>%
+  summarise_each(funs(mean)) %>%
+  as.data.frame
+stopifnot(length(x_mean$ensembl) == length(unique(x_mean$ensembl)))
+rownames(x_mean) <- x_mean$ensembl
+x_mean <- x_mean %>% select(-ensembl)
+```
+
+## limma analysis (gene-level)
+
+Following limma manual sections 9.3, 9.5.2, and 9.7.
+
+```{r limma-gene}
+# design matrix defined above in probe-level analysis
+colSums(design)
+corfit_gene <- duplicateCorrelation(x_mean, design, block = anno$individual)
+corfit_gene$consensus
+fit_gene <- lmFit(x_mean, design, block = anno$individual,
+                  correlation = corfit_gene$consensus)
+# contrast matrix defined above in probe-level analysis
+contrast_matrix
+fit2_gene <- contrasts.fit(fit_gene, contrast_matrix)
+fit2_gene <- eBayes(fit2_gene)
+results_gene <- decideTests(fit2_gene)
+summary(results_gene)
+vennDiagram(results_gene)
+```
+
+## Exploration
+
+Perform PCA
+
+```{r pca}
+pca <- prcomp(t(x_mean), retx = TRUE, center = TRUE, scale. = TRUE)
+plot(pca)
+```
+
+PC1 is driven by the outlier LTB2.
+PC2 is the treatment effect.
+
+```{r pc1vpc2}
+plot(pca$x[, "PC1"], pca$x[, "PC2"], col = anno$treatment,
+     xlab = "PC1", ylab = "PC2")
+text(pca$x[, "PC1"], pca$x[, "PC2"], labels = anno$individual,
+     pos = 1, cex = 0.75)
+```
+
+Maybe PC3 is starting to get at susceptibility status?
+
+```{r pc2vpc3}
+plot(pca$x[, "PC2"], pca$x[, "PC3"], col = anno$treatment,
+     xlab = "PC2", ylab = "PC3")
+text(pca$x[, "PC2"], pca$x[, "PC3"], labels = anno$individual,
+     pos = 1, cex = 0.75)
+```
+
+```{r pc3-status}
+boxplot(pca$x[, "PC3"] ~ anno$status, ylab = "PC3")
+points(pca$x[, "PC3"] ~ anno$status, col = anno$treatment)
+```
+
+How does hierarchical clustering sort the outlier?
+
+```{r hclust-cor}
+heatmap.2(cor(x_mean), trace = "none", margins = c(7, 7))
+```
+
+LTB2.none does not cluster with either the infected or non-infected samples.
+They also note in their paper that LTB2 is an outlier, however they only visualize the fold change (Fig. S1).
+
+How different is this sample? Looking at the top 2000 most variable genes.
+
+```{r hclust-variable}
+select_var <- function(x, y) {x[order(apply(x, 1, var), decreasing = TRUE), ][1:y, ]}
+x_mean_sub <- select_var(x_mean, 2000)
+heatmap.2(as.matrix(x_mean_sub), trace = "none", margins = c(7, 7))
+```
+
+I think LTB2.none needs to be excluded entirely.
 
 ## Session information
 
