@@ -49,6 +49,7 @@ define_gene_windows <- function(x,
   return(result)
 }
 
+#' @import SNPlocs.Hsapiens.dbSNP144.GRCh38
 #' @export
 obtain_snp_coords <- function(rsid,
                               snp_coords_fname,

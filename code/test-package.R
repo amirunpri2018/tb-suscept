@@ -1,3 +1,5 @@
+pkg_relative_path <- "../pkg/tbsuscept/"
+devtools::document(pkg_relative_path)
 suppressPackageStartupMessages(library("data.table"))
 
 if(interactive()) {
