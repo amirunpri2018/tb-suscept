@@ -70,13 +70,57 @@ obtain_snp_coords <- function(rsid,
 }
 
 #' @export
+combine_snps_and_genes <- function(snp_coords,
+                                   gene_windows,
+                                   pval
+                                   ) {
+  # Overlap snps and genes
+  overlaps <- GenomicRanges::findOverlaps(snp_coords, gene_windows, ignore.strand = TRUE)
+
+  # Add back names
+  results <- data.frame(S4Vectors::as.matrix(overlaps))
+  colnames(results) <- c("rsID", "gene")
+  results$rsID <- S4Vectors::mcols(snp_coords)$RefSNP_id[results$rsID]
+  results$gene <- S4Vectors::mcols(gene_windows)$ensembl_gene_id[results$gene]
+
+  return(results)
+}
+
+#' @export
+add_gwas_pval <- function(x,
+                          rsid,
+                          pval
+                          ) {
+  stopifnot(length(rsid) == length(pval))
+  names(pval) <- rsid
+  x$gwas_p <- pval[x$rsID]
+  stopifnot(!is.na(x$gwas_p))
+  return(x)
+}
+
+#' @importFrom magrittr %>%
+#' @export
+assign_min_pval <- function(x
+                            ) {
+  stopifnot(c("rsID", "gene", "gwas_p") %in% colnames(x))
+
+  # Assign minimum
+  result <- x %>%
+    dplyr::group_by_(~gene) %>%
+    dplyr::summarize_(gwas_p = ~min(gwas_p),
+                     n_snps = ~n())
+  return(result)
+}
+
+#' @export
 run_gwas_enrich <- function(gene_names,
                             archive = "dec2015.archive.ensembl.org",
                             tss_all_fname = NULL,
                             overwrite = FALSE,
                             window_size,
                             rsid,
-                            snp_coords_fname
+                            snp_coords_fname,
+                            pval
                             ) {
   # Download the most upstream TSS for each gene
   tss <- download_tss(gene_names = gene_names,
@@ -88,5 +132,9 @@ run_gwas_enrich <- function(gene_names,
   snp_coords <- obtain_snp_coords(rsid = rsid,
                                   snp_coords_fname = snp_coords_fname,
                                   overwrite = overwrite)
-  return(snp_coords)
+  snp_genes <- combine_snps_and_genes(snp_coords, tss_gr)
+  snp_genes_pval <- add_gwas_pval(snp_genes, rsid, pval)
+  snp_genes_pval_unique <- assign_min_pval(snp_genes_pval)
+
+  return(snp_genes_pval_unique)
 }
