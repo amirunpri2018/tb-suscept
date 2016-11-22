@@ -179,26 +179,62 @@ enrich_full <- function(x, y, cutoff, m = 50,
                         x_direction = "greater",
                         cutoff_direction = "greater",
                         iterations = 100) {
-  main <- enrich(x = x, y = y, cutoff = cutoff,
-                 m = m, x_direction = x_direction,
-                 cutoff_direction = cutoff_direction)
-  mat_enrichment <- matrix(nrow = nrow(main), ncol = iterations + 1)
-  mat_intervals <- matrix(nrow = nrow(main), ncol = iterations + 1)
-  mat_sizes <- matrix(nrow = nrow(main), ncol = iterations + 1)
-  mat_enrichment[, 1] <- main$enrichment
-  mat_intervals[, 1] <- main$intervals
-  mat_sizes[, 1] <- main$sizes
+  result <- list()
+  class(result) <- "enrichment"
+  result$main <- enrich(x = x, y = y, cutoff = cutoff,
+                        m = m, x_direction = x_direction,
+                        cutoff_direction = cutoff_direction)
+  mat_enrichment <- matrix(nrow = nrow(result$main), ncol = iterations)
+  mat_intervals <- matrix(nrow = nrow(result$main), ncol = iterations)
+  mat_sizes <- matrix(nrow = nrow(result$main), ncol = iterations)
+#   mat_enrichment[, 1] <- main$enrichment
+#   mat_intervals[, 1] <- main$intervals
+#   mat_sizes[, 1] <- main$sizes
   # browser()
   for (iter in 1:iterations) {
     permuted <- enrich(x = sample(x), y = y, cutoff = cutoff,
                        m = m, x_direction = x_direction,
                        cutoff_direction = cutoff_direction)
-    mat_enrichment[, iter + 1] <- permuted$enrichment
-    mat_intervals[, iter + 1] <- permuted$intervals
-    mat_sizes[, iter + 1] <- permuted$sizes
+    mat_enrichment[, iter] <- permuted$enrichment
+    mat_intervals[, iter] <- permuted$intervals
+    mat_sizes[, iter] <- permuted$sizes
   }
-  return(list(enrichment = mat_enrichment, intervals = mat_intervals,
-              sizes = mat_sizes))
+  result$permutations <- list(enrichment = mat_enrichment, intervals = mat_intervals,
+                              sizes = mat_sizes)
+  return(result)
+}
+
+print.enrichment <- function(x, ...) {
+  str(x)
+}
+
+#' Function to create enrichment plot
+#'
+#' Input is output from enrich_full.
+#'
+#' enrichment - fold enrichment of a particular metric at increasing stringency
+#'              of another metric
+#' intervals - the cutoff value for the metric
+#' sizes - the number of genes considered at each interval
+#' ... - arguments passed to `plot`
+#' @export
+plot.enrichment <- function(x, ...) {
+  enrichment <- x$main$enrichment
+  ymin <- min(cbind(enrichment, x$permutations$enrichment), na.rm = TRUE)
+  ymax <- max(cbind(enrichment, x$permutations$enrichment), na.rm = TRUE)
+  plot(enrichment, type = "l", col = "red",
+       ylim = c(ymin, ymax),
+       ylab = "Fold enrichment of GWAS P < 0.05",
+       xlab = "Number of genes (effect size cutoff)",
+       xaxt = "n", ...)
+  n <- length(enrichment)
+  spacing <- seq(1, n, by = 50)
+  axis(side = 1, at = (1:n)[spacing], padj = 0.5,
+       labels = paste0(x$main$sizes, "\n(", round(x$main$intervals, digits = 2),
+                       ")")[spacing])
+  apply(x$permutations$enrichment, 2, lines, col = "grey75")
+  lines(enrichment, col = "red")
+  abline(h = 1, col = "blue", lty = 2)
 }
 
 #' @export
