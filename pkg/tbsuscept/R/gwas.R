@@ -93,8 +93,8 @@ add_gwas_pval <- function(x,
                           ) {
   stopifnot(length(rsid) == length(pval))
   names(pval) <- rsid
-  x$gwas_p <- pval[x$rsID]
-  stopifnot(!is.na(x$gwas_p))
+  x$pval <- pval[x$rsID]
+  stopifnot(!is.na(x$pval))
   return(x)
 }
 
@@ -102,14 +102,103 @@ add_gwas_pval <- function(x,
 #' @export
 assign_min_pval <- function(x
                             ) {
-  stopifnot(c("rsID", "gene", "gwas_p") %in% colnames(x))
+  stopifnot(c("rsID", "gene", "pval") %in% colnames(x))
 
   # Assign minimum
   result <- x %>%
     dplyr::group_by_(~gene) %>%
-    dplyr::summarize_(gwas_p = ~min(gwas_p),
+    dplyr::summarize_(pval = ~min(pval),
                      n_snps = ~n())
   return(result)
+}
+
+#' @export
+add_effect_size <- function(x,
+                            effect_size
+                            ) {
+  stopifnot(x$gene %in% names(effect_size))
+  x$effect_size <- effect_size[x$gene]
+  if (any(x$effect_size < 0)) {
+    message("Effect size contained negative values. Converted to absolute value.")
+    x$effect_size <- abs(x$effect_size)
+  }
+  return(x)
+}
+
+#' Main enrichment function.
+#'
+#' For each interval, calculate the enrichment compared to the background enrichment.
+#'
+#' x - the variable that is split into intervals
+#' y - the variable that is being tested for enrichment
+#' cutoff - the value of y at which to separate genes when cacluting enrichment
+#' m - the average number of genes in each interval
+#' x_direction - With increasing values of x, should genes be included if they are greater than or less than
+#'               the metric that defines that interval. Default "greater", anything else with do "lesser".
+#' cutoff_direction - When testing for enrichment of y at the given interval of x, are genes counted if they are
+#'                    greater or lesser than the cuottf.
+#'
+#' @export
+enrich <- function(x, y, cutoff, m = 50,
+                   x_direction = "greater",
+                   cutoff_direction = "greater") {
+  intervals <- Hmisc::cut2(x, m = m, onlycuts = TRUE)
+  enrichment <- numeric(length = length(intervals))
+  sizes <- numeric(length = length(intervals))
+  if (cutoff_direction == "greater") {
+    background_enrich <- sum(y > cutoff) / length(y)
+  } else {
+    background_enrich <- sum(y < cutoff) / length(y)
+  }
+  for (i in seq_along(intervals)) {
+    if (x_direction == "greater") {
+      y_sub <- y[x > intervals[i]]
+    } else {
+      y_sub <- y[x < intervals[i]]
+    }
+    sizes[i] <- length(y_sub)
+    # browser()
+    if (cutoff_direction == "greater") {
+      enrichment[i] <- sum(y_sub > cutoff) / sizes[i] / background_enrich
+    } else {
+      enrichment[i] <- sum(y_sub < cutoff) / sizes[i] / background_enrich
+    }
+  }
+  return(data.frame(enrichment = enrichment, intervals = intervals, sizes = sizes))
+}
+
+#' Calculates the enrichment of the actual data (returned in column 1) and the
+#' enrichment of perumutations.
+#'
+#' iterations - The number of iterations to calculate enrichment with permuted data.
+#'
+#' See function enrich for descriptions of other arguments.
+#'
+#' @export
+enrich_full <- function(x, y, cutoff, m = 50,
+                        x_direction = "greater",
+                        cutoff_direction = "greater",
+                        iterations = 100) {
+  main <- enrich(x = x, y = y, cutoff = cutoff,
+                 m = m, x_direction = x_direction,
+                 cutoff_direction = cutoff_direction)
+  mat_enrichment <- matrix(nrow = nrow(main), ncol = iterations + 1)
+  mat_intervals <- matrix(nrow = nrow(main), ncol = iterations + 1)
+  mat_sizes <- matrix(nrow = nrow(main), ncol = iterations + 1)
+  mat_enrichment[, 1] <- main$enrichment
+  mat_intervals[, 1] <- main$intervals
+  mat_sizes[, 1] <- main$sizes
+  # browser()
+  for (iter in 1:iterations) {
+    permuted <- enrich(x = sample(x), y = y, cutoff = cutoff,
+                       m = m, x_direction = x_direction,
+                       cutoff_direction = cutoff_direction)
+    mat_enrichment[, iter + 1] <- permuted$enrichment
+    mat_intervals[, iter + 1] <- permuted$intervals
+    mat_sizes[, iter + 1] <- permuted$sizes
+  }
+  return(list(enrichment = mat_enrichment, intervals = mat_intervals,
+              sizes = mat_sizes))
 }
 
 #' @export
@@ -120,7 +209,12 @@ run_gwas_enrich <- function(gene_names,
                             window_size,
                             rsid,
                             snp_coords_fname,
-                            pval
+                            pval,
+                            effect_size,
+                            cutoff = 0.05,
+                            m = 25,
+                            x_direction = "greater",
+                            cutoff_direction = "lesser"
                             ) {
   # Download the most upstream TSS for each gene
   tss <- download_tss(gene_names = gene_names,
@@ -135,6 +229,12 @@ run_gwas_enrich <- function(gene_names,
   snp_genes <- combine_snps_and_genes(snp_coords, tss_gr)
   snp_genes_pval <- add_gwas_pval(snp_genes, rsid, pval)
   snp_genes_pval_unique <- assign_min_pval(snp_genes_pval)
-
-  return(snp_genes_pval_unique)
+  snp_genes_final <- add_effect_size(snp_genes_pval_unique, effect_size)
+  enrich_result <- enrich_full(x = snp_genes_final$effect_size,
+                               y = snp_genes_final$pval,
+                               cutoff = cutoff,
+                               m = m,
+                               x_direction = x_direction,
+                               cutoff_direction = cutoff_direction)
+  return(enrich_result)
 }

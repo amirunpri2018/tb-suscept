@@ -16,6 +16,7 @@ Imports:
     GenomeInfoDb,
     GenomicRanges,
     ggplot2,
+    Hmisc,
     magrittr,
     S4Vectors,
     SNPlocs.Hsapiens.dbSNP144.GRCh38

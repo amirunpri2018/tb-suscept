@@ -34,5 +34,6 @@ result <- run_gwas_enrich(gene_names = gene_names,
                           window_size = 50000,
                           rsid = gwas_thye_ghana$SNP,
                           snp_coords_fname = snp_coords_fname_ghana,
-                          pval = gwas_thye_ghana$PVAL)
+                          pval = gwas_thye_ghana$PVAL,
+                          effect_size = fit$coefficients[, 1])
 
