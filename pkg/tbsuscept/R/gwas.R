@@ -238,6 +238,17 @@ plot.enrichment <- function(x, ...) {
 }
 
 #' @export
+calc_auc <- function(x) {
+  stopifnot(class(x) == "enrichment")
+  x$auc$main <- flux::auc(x = 1:length(x$main$enrichment),
+                          y = x$main$enrichment)
+  x$auc$permutations <- apply(x$permutations$enrichment, 2,
+                              function(r) flux::auc(x = 1:length(r), y = r))
+  x$auc$signif <- sum(x$auc$main < x$auc$permutations) / length(x$auc$permutations)
+  return(x)
+}
+
+#' @export
 run_gwas_enrich <- function(gene_names,
                             archive = "dec2015.archive.ensembl.org",
                             tss_all_fname = NULL,
@@ -272,5 +283,14 @@ run_gwas_enrich <- function(gene_names,
                                m = m,
                                x_direction = x_direction,
                                cutoff_direction = cutoff_direction)
+  enrich_result <- calc_auc(enrich_result)
   return(enrich_result)
+}
+
+boxplot_enrich <- function(auc, permutations) {
+  stopifnot(length(auc) == ncol(permutations))
+  ymin <- min(auc, permutations, na.rm = TRUE)
+  ymax <- max(auc, permutations, na.rm = TRUE)
+  boxplot(permutations, ylim = c(ymin, ymax))
+  points(auc, col = "red", pch = 19)
 }

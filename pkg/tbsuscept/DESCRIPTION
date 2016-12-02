@@ -13,6 +13,7 @@ Imports:
     BSgenome,
     caret,
     dplyr,
+    flux,
     GenomeInfoDb,
     GenomicRanges,
     ggplot2,
