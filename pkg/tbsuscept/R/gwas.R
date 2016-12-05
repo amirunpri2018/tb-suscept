@@ -244,7 +244,18 @@ calc_auc <- function(x) {
                           y = x$main$enrichment)
   x$auc$permutations <- apply(x$permutations$enrichment, 2,
                               function(r) flux::auc(x = 1:length(r), y = r))
-  x$auc$signif <- sum(x$auc$main < x$auc$permutations) / length(x$auc$permutations)
+  # Subtract the background. The background AUC for the line y = 1 will increase
+  # simply due to an increase in the number of SNPs tested (x-axis). Thus to
+  # make this measurement comparable across studies, it is necessary to subtract
+  # this background.
+  background <- flux::auc(x = 1:length(x$main$enrichment),
+                          y = rep(1, length(x$main$enrichment)))
+  x$auc$main <- x$auc$main - background
+  x$auc$permutations <- x$auc$permutations - background
+  # Calculate signficance, i.e. the number of times a more extreme AUC was
+  # observed in the permutations
+  x$auc$signif <- sum(x$auc$main < x$auc$permutations) /
+                  length(x$auc$permutations)
   return(x)
 }
 
@@ -287,10 +298,14 @@ run_gwas_enrich <- function(gene_names,
   return(enrich_result)
 }
 
-boxplot_enrich <- function(auc, permutations) {
+#' @export
+boxplot_enrich <- function(auc,
+                           permutations,
+                           ...
+                           ) {
   stopifnot(length(auc) == ncol(permutations))
   ymin <- min(auc, permutations, na.rm = TRUE)
   ymax <- max(auc, permutations, na.rm = TRUE)
-  boxplot(permutations, ylim = c(ymin, ymax))
+  boxplot(permutations, ylim = c(ymin, ymax), ...)
   points(auc, col = "red", pch = 19)
 }

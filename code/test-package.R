@@ -10,7 +10,6 @@ if(interactive()) {
 }
 stopifnot(dir.exists(data_dir))
 
-
 # Input ------------------------------------------------------------------------
 
 fit <- readRDS(file.path(data_dir, "results-limma-fit.rds"))
@@ -109,6 +108,13 @@ hist(gwas_russia$P[grepl("rs", gwas_russia$SNP)])
 
 # Figures ----------------------------------------------------------------------
 
+plot_layout <- c(1, 1, 2, 3,
+                 1, 1, 4, 5)
+plot_layout <- matrix(plot_layout, nrow = 2, byrow = TRUE)
+plot_layout
+layout(plot_layout)
+plot(result_russia[[test_name]], main = sprintf("Russia: %s", test_name))
+# op <- par(mar = c(1, 1, 1, 1), oma = c(4, 4, 0.5, 0.5))
 boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                        result_gambia[[1]]$auc$main,
                        result_ghana[[1]]$auc$main,
@@ -127,6 +133,25 @@ boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
                                     result_gambia[[2]]$auc$permutations,
                                     result_ghana[[2]]$auc$permutations,
                                     result_height[[2]]$auc$permutations))
+
+boxplot_enrich(auc = c(result_russia[[3]]$auc$main,
+                       result_gambia[[3]]$auc$main,
+                       result_ghana[[3]]$auc$main,
+                       result_height[[3]]$auc$main),
+               permutations = cbind(result_russia[[3]]$auc$permutations,
+                                    result_gambia[[3]]$auc$permutations,
+                                    result_ghana[[3]]$auc$permutations,
+                                    result_height[[3]]$auc$permutations))
+
+boxplot_enrich(auc = c(result_russia[[4]]$auc$main,
+                       result_gambia[[4]]$auc$main,
+                       result_ghana[[4]]$auc$main,
+                       result_height[[4]]$auc$main),
+               permutations = cbind(result_russia[[4]]$auc$permutations,
+                                    result_gambia[[4]]$auc$permutations,
+                                    result_ghana[[4]]$auc$permutations,
+                                    result_height[[4]]$auc$permutations))
+# par(op)
 
 boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                        result_russia[[2]]$auc$main,
