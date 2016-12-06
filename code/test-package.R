@@ -1,6 +1,7 @@
 pkg_relative_path <- "../pkg/tbsuscept/"
 devtools::document(pkg_relative_path)
 suppressPackageStartupMessages(library("data.table"))
+library("stringr")
 
 if(interactive()) {
   data_dir <- "../data"
@@ -129,15 +130,94 @@ for (i in 1:4) {
 }
 hist(gwas_sobota_filtered$P)
 
-# Figures ----------------------------------------------------------------------
+# Exploratory Figures ----------------------------------------------------------
 
-plot_layout <- c(1, 1, 2, 3,
-                 1, 1, 4, 5)
-plot_layout <- matrix(plot_layout, nrow = 2, byrow = TRUE)
-plot_layout
-layout(plot_layout)
-plot(result_russia[[test_name]], main = sprintf("Russia: %s", test_name))
-# op <- par(mar = c(1, 1, 1, 1), oma = c(4, 4, 0.5, 0.5))
+pdf("gwas-figures.pdf", width = 8, height = 8)
+par(mfrow = c(2, 2))
+plot_titles <- c("Difference between susceptible and resistant\nindividuals in the non-infected state",
+                 "Difference between susceptible and resistant\nindividuals in the infected state",
+                 "Effect of treatment in resistant individuals",
+                 "Effect of treatment in susceptible individuals")
+for (i in 1:4) {
+  boxplot_enrich(auc = c(result_russia[[i]]$auc$main,
+                         result_gambia[[i]]$auc$main,
+                         result_ghana[[i]]$auc$main,
+                         result_sobota[[i]]$auc$main,
+                         result_height[[i]]$auc$main),
+                 permutations = cbind(result_russia[[i]]$auc$permutations,
+                                      result_gambia[[i]]$auc$permutations,
+                                      result_ghana[[i]]$auc$permutations,
+                                      result_sobota[[i]]$auc$permutations,
+                                      result_height[[i]]$auc$permutations),
+                 main = plot_titles[i],
+                 xaxt = "n")
+  axis(1, at = 1:5, labels = FALSE)
+  lab <- c("TB Russia", "TB Gambia", "TB Ghana", "TB Uganda",
+           "Height\nEurope")
+  text(x = 1:5, y = par()$usr[3] - 0.1 * (par()$usr[4] - par()$usr[3]),
+       labels = lab, srt = 45, adj = 1, xpd = TRUE)
+}
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  plot(result_russia[[test_name]], main = sprintf("TB Russia: %s",
+                                                 test_name))
+}
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  plot(result_gambia[[test_name]], main = sprintf("TB Gambia: %s",
+                                                 test_name))
+}
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  plot(result_ghana[[test_name]], main = sprintf("TB Ghana: %s",
+                                                  test_name))
+}
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  plot(result_sobota[[test_name]], main = sprintf("TB Uganda/Tanzania: %s",
+                                                 test_name))
+}
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  plot(result_height[[test_name]], main = sprintf("Height: %s",
+                                                  test_name))
+}
+dev.off()
+
+# Final Figures ----------------------------------------------------------------
+
+test_name <- "status_ni"
+plot_titles <- c("Difference between susceptible and resistant individuals in the non-infected state",
+                 "Difference between susceptible and resistant individuals in the infected state",
+                 "Effect of treatment in resistant individuals",
+                 "Effect of treatment in susceptible individuals")
+plot_titles <- str_wrap(plot_titles, width = 30)
+gwas_labs <- c("TB Russia", "TB Gambia", "TB Ghana", "TB Uganda",
+               "Height\nEurope")
+pdf("gwas-final.pdf", width = 14, height = 14)
+m1 <- rbind(c(0.0, 0.5, 0.5, 1.0),
+            c(0.0, 0.5, 0.0, 0.5),
+            c(0.5, 1.0, 0.0, 1.0))
+m2 <- rbind(c(0.0, 0.5, 0.5, 1.0),
+            c(0.5, 1.0, 0.5, 1.0),
+            c(0.0, 0.5, 0.0, 0.5),
+            c(0.5, 1.0, 0.0, 0.5))
+split.screen(m1)
+screen(1)
+# par(cex.axis = 0.5, cex.main = 0.25)
+par(font.main = 1, cex.main = 1, oma = c(0, 0, 0, 0))
+par(mar = c(5.1, 4.1, 4.1, 3.1))
+title_russia <- "Genes with increasing effect size between susceptible and resistant individuals in the non-infected state are enriched for nearby SNPs with marginally significant P from a GWAS of TB susceptibility in Russia"
+plot(result_russia[[test_name]], main = str_wrap(title_russia, width = 80),
+     las = 1, ymin = 0, ymax = 1.7)
+screen(2)
+par(mar = c(5.1, 4.1, 4.1, 3.1))
+title_height <- "Genes with increasing effect size between susceptible and resistant individuals in the non-infected state are NOT enriched for nearby SNPs with marginally significant P from a GWAS of height in Europe"
+plot(result_height[[test_name]], main = str_wrap(title_height, width = 80),
+     las = 1, ymin = 0, ymax = 1.7)
+split.screen(m2, screen = 3)
+screen(4)
+par(mar = c(2, 4, 5, 0))
 boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                        result_gambia[[1]]$auc$main,
                        result_ghana[[1]]$auc$main,
@@ -147,9 +227,13 @@ boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                                     result_gambia[[1]]$auc$permutations,
                                     result_ghana[[1]]$auc$permutations,
                                     result_sobota[[1]]$auc$permutations,
-                                    result_height[[1]]$auc$permutations))
-
-
+                                    result_height[[1]]$auc$permutations),
+               ymin = -30, ymax = 55,
+               ylab = "Area under the curve (backgroud subtracted)",
+               xaxt =  "n", las = 1)
+title(plot_titles[1], line = 1)
+screen(5)
+par(mar = c(2, 1, 5, 3))
 boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
                        result_gambia[[2]]$auc$main,
                        result_ghana[[2]]$auc$main,
@@ -159,8 +243,12 @@ boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
                                     result_gambia[[2]]$auc$permutations,
                                     result_ghana[[2]]$auc$permutations,
                                     result_sobota[[2]]$auc$permutations,
-                                    result_height[[2]]$auc$permutations))
-
+                                    result_height[[2]]$auc$permutations),
+               ymin = -30, ymax = 55,
+               xaxt =  "n", yaxt = "n")
+title(plot_titles[2], line = 1)
+screen(6)
+par(mar = c(5, 4, 2, 0))
 boxplot_enrich(auc = c(result_russia[[3]]$auc$main,
                        result_gambia[[3]]$auc$main,
                        result_ghana[[3]]$auc$main,
@@ -170,8 +258,22 @@ boxplot_enrich(auc = c(result_russia[[3]]$auc$main,
                                     result_gambia[[3]]$auc$permutations,
                                     result_ghana[[3]]$auc$permutations,
                                     result_sobota[[3]]$auc$permutations,
-                                    result_height[[3]]$auc$permutations))
-
+                                    result_height[[3]]$auc$permutations),
+               ylab = "Area under the curve (backgroud subtracted)",
+               xaxt =  "n", las = 1, ymin = -30, ymax = 55)
+title(plot_titles[3])
+# Axis rotation from:
+# https://www.r-bloggers.com/rotated-axis-labels-in-r-plots/
+# https://cran.r-project.org/doc/FAQ/R-FAQ.html#How-can-I-create-rotated-axis-labels_003f
+axis(1, at = 1:5, labels = FALSE)
+# cat(sprintf("usr:\nx-axis %.2f-%.2f\ny-axis %.2f-%.2f\n",
+#             par()$usr[1], par()$usr[2], par()$usr[3], par()$usr[4]))
+anno_position <- par()$usr[3] - 0.05 * (par()$usr[4] - par()$usr[3])
+# print(sprintf("annotation at y = %.2f", anno_position))
+text(x = 1:5, y = anno_position,
+     labels = gwas_labs, srt = 45, adj = 1, xpd = TRUE)
+screen(7)
+par(mar = c(5, 1, 2, 3))
 boxplot_enrich(auc = c(result_russia[[4]]$auc$main,
                        result_gambia[[4]]$auc$main,
                        result_ghana[[4]]$auc$main,
@@ -181,23 +283,11 @@ boxplot_enrich(auc = c(result_russia[[4]]$auc$main,
                                     result_gambia[[4]]$auc$permutations,
                                     result_ghana[[4]]$auc$permutations,
                                     result_sobota[[4]]$auc$permutations,
-                                    result_height[[4]]$auc$permutations))
-# par(op)
-
-boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
-                       result_russia[[2]]$auc$main,
-                       result_russia[[3]]$auc$main,
-                       result_russia[[4]]$auc$main),
-               permutations = cbind(result_russia[[1]]$auc$permutations,
-                                    result_russia[[2]]$auc$permutations,
-                                    result_russia[[3]]$auc$permutations,
-                                    result_russia[[4]]$auc$permutations))
-
-boxplot_enrich(auc = c(result_height[[1]]$auc$main,
-                       result_height[[2]]$auc$main,
-                       result_height[[3]]$auc$main,
-                       result_height[[4]]$auc$main),
-               permutations = cbind(result_height[[1]]$auc$permutations,
-                                    result_height[[2]]$auc$permutations,
-                                    result_height[[3]]$auc$permutations,
-                                    result_height[[4]]$auc$permutations))
+                                    result_height[[4]]$auc$permutations),
+               xaxt =  "n", yaxt = "n", ymin = -30, ymax = 55)
+title(plot_titles[4])
+axis(1, at = 1:5, labels = FALSE)
+text(x = 1:5, y = par()$usr[3] - 0.05 * (par()$usr[4] - par()$usr[3]),
+     labels = gwas_labs, srt = 45, adj = 1, xpd = TRUE)
+close.screen(all.screens = TRUE)
+dev.off()

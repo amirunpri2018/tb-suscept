@@ -218,10 +218,19 @@ print.enrichment <- function(x, ...) {
 #' sizes - the number of genes considered at each interval
 #' ... - arguments passed to `plot`
 #' @export
-plot.enrichment <- function(x, ...) {
+plot.enrichment <- function(x, ymin = NULL, ymax = NULL, ...) {
   enrichment <- x$main$enrichment
-  ymin <- min(cbind(enrichment, x$permutations$enrichment), na.rm = TRUE)
-  ymax <- max(cbind(enrichment, x$permutations$enrichment), na.rm = TRUE)
+  enrich_combined <- cbind(enrichment, x$permutations$enrichment)
+  if (is.null(ymin)) {
+    ymin <- min(enrich_combined, na.rm = TRUE)
+  }
+  if (is.null(ymax)) {
+    ymax <- max(enrich_combined, na.rm = TRUE)
+  }
+  if (any(enrich_combined < ymin, na.rm = TRUE) |
+      any(enrich_combined > ymax, na.rm = TRUE)) {
+    warning("There are enrichment values outside of the limits of the y-axis.")
+  }
   plot(enrichment, type = "l", col = "red",
        ylim = c(ymin, ymax),
        ylab = "Fold enrichment of GWAS P < 0.05",
@@ -301,11 +310,22 @@ run_gwas_enrich <- function(gene_names,
 #' @export
 boxplot_enrich <- function(auc,
                            permutations,
+                           ymin = NULL,
+                           ymax = NULL,
                            ...
                            ) {
   stopifnot(length(auc) == ncol(permutations))
-  ymin <- min(auc, permutations, na.rm = TRUE)
-  ymax <- max(auc, permutations, na.rm = TRUE)
+  auc_combined <- c(auc, permutations)
+  if (is.null(ymin)) {
+    ymin <- min(auc_combined, na.rm = TRUE)
+  }
+  if (is.null(ymax)) {
+    ymax <- max(auc_combined, na.rm = TRUE)
+  }
+  if (any(auc_combined < ymin, na.rm = TRUE) |
+      any(auc_combined > ymax, na.rm = TRUE)) {
+    warning("There are AUC values outside of the limits of the y-axis.")
+  }
   boxplot(permutations, ylim = c(ymin, ymax), ...)
   points(auc, col = "red", pch = 19)
 }
