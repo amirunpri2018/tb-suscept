@@ -27,6 +27,9 @@ gwas_height <- fread(file.path(data_dir, "GIANT_HEIGHT_LangoAllen2010_publicrele
 gwas_russia <- fread(file.path(data_dir, "Export_TB-GWAS.txt"), sep = ",",
                      data.table = FALSE, verbose = FALSE)
 
+gwas_sobota <- fread(file.path(data_dir, "sobota2016.txt"),
+                     data.table = FALSE, verbose = FALSE)
+
 gene_names <- rownames(fit$coefficients)
 
 tss_all_fname <- file.path(data_dir, "tss-all.rds")
@@ -38,6 +41,8 @@ snp_coords_fname_gambia <- file.path(data_dir, "/snp-coords-gambia.rds")
 snp_coords_fname_height <- file.path(data_dir, "/snp-coords-height.rds")
 
 snp_coords_fname_russia <- file.path(data_dir, "/snp-coords-russia.rds")
+
+snp_coords_fname_sobota <- file.path(data_dir, "/snp-coords-sobota.rds")
 
 # Ghana ------------------------------------------------------------------------
 
@@ -106,6 +111,24 @@ for (i in 1:4) {
 }
 hist(gwas_russia$P[grepl("rs", gwas_russia$SNP)])
 
+# Sobota -----------------------------------------------------------------------
+
+gwas_sobota_filtered <- gwas_sobota[grepl("rs", gwas_sobota$SNP) & !is.na(gwas_sobota$P), ]
+result_sobota <- list()
+for (i in 1:4) {
+  test_name <- colnames(fit$coefficients)[i]
+  result_sobota[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                tss_all_fname = tss_all_fname,
+                                                window_size = 50000,
+                                                rsid = gwas_sobota_filtered$SNP,
+                                                snp_coords_fname = snp_coords_fname_sobota,
+                                                pval = gwas_sobota_filtered$P,
+                                                effect_size = fit$coefficients[, i])
+
+  plot(result_sobota[[test_name]], main = sprintf("Sobota: %s", test_name))
+}
+hist(gwas_sobota_filtered$P)
+
 # Figures ----------------------------------------------------------------------
 
 plot_layout <- c(1, 1, 2, 3,
@@ -118,38 +141,46 @@ plot(result_russia[[test_name]], main = sprintf("Russia: %s", test_name))
 boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                        result_gambia[[1]]$auc$main,
                        result_ghana[[1]]$auc$main,
+                       result_sobota[[1]]$auc$main,
                        result_height[[1]]$auc$main),
                permutations = cbind(result_russia[[1]]$auc$permutations,
                                     result_gambia[[1]]$auc$permutations,
                                     result_ghana[[1]]$auc$permutations,
+                                    result_sobota[[1]]$auc$permutations,
                                     result_height[[1]]$auc$permutations))
 
 
 boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
                        result_gambia[[2]]$auc$main,
                        result_ghana[[2]]$auc$main,
+                       result_sobota[[2]]$auc$main,
                        result_height[[2]]$auc$main),
                permutations = cbind(result_russia[[2]]$auc$permutations,
                                     result_gambia[[2]]$auc$permutations,
                                     result_ghana[[2]]$auc$permutations,
+                                    result_sobota[[2]]$auc$permutations,
                                     result_height[[2]]$auc$permutations))
 
 boxplot_enrich(auc = c(result_russia[[3]]$auc$main,
                        result_gambia[[3]]$auc$main,
                        result_ghana[[3]]$auc$main,
+                       result_sobota[[3]]$auc$main,
                        result_height[[3]]$auc$main),
                permutations = cbind(result_russia[[3]]$auc$permutations,
                                     result_gambia[[3]]$auc$permutations,
                                     result_ghana[[3]]$auc$permutations,
+                                    result_sobota[[3]]$auc$permutations,
                                     result_height[[3]]$auc$permutations))
 
 boxplot_enrich(auc = c(result_russia[[4]]$auc$main,
                        result_gambia[[4]]$auc$main,
                        result_ghana[[4]]$auc$main,
+                       result_sobota[[4]]$auc$main,
                        result_height[[4]]$auc$main),
                permutations = cbind(result_russia[[4]]$auc$permutations,
                                     result_gambia[[4]]$auc$permutations,
                                     result_ghana[[4]]$auc$permutations,
+                                    result_sobota[[4]]$auc$permutations,
                                     result_height[[4]]$auc$permutations))
 # par(op)
 
