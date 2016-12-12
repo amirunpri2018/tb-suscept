@@ -180,7 +180,6 @@ enrich_full <- function(x, y, cutoff, m = 50,
                         cutoff_direction = "greater",
                         iterations = 100) {
   result <- list()
-  class(result) <- "enrichment"
   result$main <- enrich(x = x, y = y, cutoff = cutoff,
                         m = m, x_direction = x_direction,
                         cutoff_direction = cutoff_direction)
@@ -201,6 +200,14 @@ enrich_full <- function(x, y, cutoff, m = 50,
   }
   result$permutations <- list(enrichment = mat_enrichment, intervals = mat_intervals,
                               sizes = mat_sizes)
+  result$input <- list()
+  result$input[["x"]] <- x
+  result$input[["y"]] <- y
+  result$input[["cutoff"]] <- cutoff
+  result$input[["m"]] <- m
+  result$input[["x_direction"]] <- x_direction
+  result$input[["cutoff_direction"]] <- cutoff_direction
+  class(result) <- "enrichment"
   return(result)
 }
 
@@ -303,6 +310,8 @@ run_gwas_enrich <- function(gene_names,
                                m = m,
                                x_direction = x_direction,
                                cutoff_direction = cutoff_direction)
+  names(enrich_result$input$x) <- snp_genes_final$gene
+  names(enrich_result$input$y) <- snp_genes_final$gene
   enrich_result <- calc_auc(enrich_result)
   return(enrich_result)
 }
