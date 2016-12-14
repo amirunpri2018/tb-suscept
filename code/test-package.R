@@ -47,88 +47,113 @@ snp_coords_fname_sobota <- file.path(data_dir, "/snp-coords-sobota.rds")
 
 # Ghana ------------------------------------------------------------------------
 
-result_ghana <- list()
-for (i in 1:4) {
-  test_name <- colnames(fit$coefficients)[i]
-  result_ghana[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
-                                               tss_all_fname = tss_all_fname,
-                                               window_size = 50000,
-                                               rsid = gwas_thye_ghana$SNP,
-                                               snp_coords_fname = snp_coords_fname_ghana,
-                                               pval = gwas_thye_ghana$PVAL,
-                                               effect_size = fit$coefficients[, i])
-  plot(result_ghana[[test_name]], main = sprintf("Ghana: %s", test_name))
+if (!file.exists(file.path(data_dir, "gwas-ghana.rds"))) {
+  result_ghana <- list()
+  for (i in 1:4) {
+    test_name <- colnames(fit$coefficients)[i]
+    result_ghana[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                 tss_all_fname = tss_all_fname,
+                                                 window_size = 50000,
+                                                 rsid = gwas_thye_ghana$SNP,
+                                                 snp_coords_fname = snp_coords_fname_ghana,
+                                                 pval = gwas_thye_ghana$PVAL,
+                                                 effect_size = fit$coefficients[, i])
+    plot(result_ghana[[test_name]], main = sprintf("Ghana: %s", test_name))
+  }
+  hist(gwas_thye_ghana$PVAL)
+  saveRDS(result_ghana, file = file.path(data_dir, "gwas-ghana.rds"))
+} else {
+  result_ghana <- readRDS(file.path(data_dir, "gwas-ghana.rds"))
 }
-hist(gwas_thye_ghana$PVAL)
 
 # The Gambia -------------------------------------------------------------------
 
-result_gambia <- list()
-for (i in 1:4) {
-  test_name <- colnames(fit$coefficients)[i]
-  result_gambia[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
-                                                tss_all_fname = tss_all_fname,
-                                                window_size = 50000,
-                                                rsid = gwas_thye_gambia$SNP,
-                                                snp_coords_fname = snp_coords_fname_gambia,
-                                                pval = gwas_thye_gambia$PVAL,
-                                                effect_size = fit$coefficients[, i])
-  plot(result_gambia[[test_name]], main = sprintf("The Gambia: %s", test_name))
+if (!file.exists(file.path(data_dir, "gwas-gambia.rds"))) {
+  result_gambia <- list()
+  for (i in 1:4) {
+    test_name <- colnames(fit$coefficients)[i]
+    result_gambia[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                  tss_all_fname = tss_all_fname,
+                                                  window_size = 50000,
+                                                  rsid = gwas_thye_gambia$SNP,
+                                                  snp_coords_fname = snp_coords_fname_gambia,
+                                                  pval = gwas_thye_gambia$PVAL,
+                                                  effect_size = fit$coefficients[, i])
+    plot(result_gambia[[test_name]], main = sprintf("The Gambia: %s", test_name))
+  }
+  hist(gwas_thye_gambia$PVAL)
+  saveRDS(result_gambia, file = file.path(data_dir, "gwas-gambia.rds"))
+} else {
+  result_gambia <- readRDS(file.path(data_dir, "gwas-gambia.rds"))
 }
-hist(gwas_thye_gambia$PVAL)
 
 # Height -----------------------------------------------------------------------
 
-result_height <- list()
-for (i in 1:4) {
-  test_name <- colnames(fit$coefficients)[i]
-  result_height[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
-                                                tss_all_fname = tss_all_fname,
-                                                window_size = 50000,
-                                                rsid = gwas_height$MarkerName,
-                                                snp_coords_fname = snp_coords_fname_height,
-                                                pval = gwas_height$p,
-                                                effect_size = fit$coefficients[, i])
-
-  plot(result_height[[test_name]], main = sprintf("Height from Lango Allen et al., 2010: %s",
-                                                  test_name))
+if (!file.exists(file.path(data_dir, "gwas-height.rds"))) {
+  result_height <- list()
+  for (i in 1:4) {
+    test_name <- colnames(fit$coefficients)[i]
+    result_height[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                  tss_all_fname = tss_all_fname,
+                                                  window_size = 50000,
+                                                  rsid = gwas_height$MarkerName,
+                                                  snp_coords_fname = snp_coords_fname_height,
+                                                  pval = gwas_height$p,
+                                                  effect_size = fit$coefficients[, i])
+    
+    plot(result_height[[test_name]], main = sprintf("Height from Lango Allen et al., 2010: %s",
+                                                    test_name))
+  }
+  hist(gwas_height$p)
+  saveRDS(result_height, file = file.path(data_dir, "gwas-height.rds"))
+} else {
+  result_height <- readRDS(file.path(data_dir, "gwas-height.rds"))
 }
-hist(gwas_height$p)
 
 # Russia -----------------------------------------------------------------------
 
-result_russia <- list()
-for (i in 1:4) {
-  test_name <- colnames(fit$coefficients)[i]
-  result_russia[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
-                                   tss_all_fname = tss_all_fname,
-                                   window_size = 50000,
-                                   rsid = gwas_russia$SNP[grepl("rs", gwas_russia$SNP)],
-                                   snp_coords_fname = snp_coords_fname_russia,
-                                   pval = gwas_russia$P[grepl("rs", gwas_russia$SNP)],
-                                   effect_size = fit$coefficients[, i])
-
-  plot(result_russia[[test_name]], main = sprintf("Russia: %s", test_name))
+if (!file.exists(file.path(data_dir, "gwas-russia.rds"))) {
+  result_russia <- list()
+  for (i in 1:4) {
+    test_name <- colnames(fit$coefficients)[i]
+    result_russia[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                  tss_all_fname = tss_all_fname,
+                                                  window_size = 50000,
+                                                  rsid = gwas_russia$SNP[grepl("rs", gwas_russia$SNP)],
+                                                  snp_coords_fname = snp_coords_fname_russia,
+                                                  pval = gwas_russia$P[grepl("rs", gwas_russia$SNP)],
+                                                  effect_size = fit$coefficients[, i])
+    
+    plot(result_russia[[test_name]], main = sprintf("Russia: %s", test_name))
+  }
+  hist(gwas_russia$P[grepl("rs", gwas_russia$SNP)])
+  saveRDS(result_russia, file = file.path(data_dir, "gwas-russia.rds"))
+} else {
+  result_russia <- readRDS(file.path(data_dir, "gwas-russia.rds"))
 }
-hist(gwas_russia$P[grepl("rs", gwas_russia$SNP)])
 
 # Sobota -----------------------------------------------------------------------
 
-gwas_sobota_filtered <- gwas_sobota[grepl("rs", gwas_sobota$SNP) & !is.na(gwas_sobota$P), ]
-result_sobota <- list()
-for (i in 1:4) {
-  test_name <- colnames(fit$coefficients)[i]
-  result_sobota[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
-                                                tss_all_fname = tss_all_fname,
-                                                window_size = 50000,
-                                                rsid = gwas_sobota_filtered$SNP,
-                                                snp_coords_fname = snp_coords_fname_sobota,
-                                                pval = gwas_sobota_filtered$P,
-                                                effect_size = fit$coefficients[, i])
-
-  plot(result_sobota[[test_name]], main = sprintf("Sobota: %s", test_name))
+if (!file.exists(file.path(data_dir, "gwas-sobota.rds"))) {
+  gwas_sobota_filtered <- gwas_sobota[grepl("rs", gwas_sobota$SNP) & !is.na(gwas_sobota$P), ]
+  result_sobota <- list()
+  for (i in 1:4) {
+    test_name <- colnames(fit$coefficients)[i]
+    result_sobota[[test_name]] <- run_gwas_enrich(gene_names = gene_names,
+                                                  tss_all_fname = tss_all_fname,
+                                                  window_size = 50000,
+                                                  rsid = gwas_sobota_filtered$SNP,
+                                                  snp_coords_fname = snp_coords_fname_sobota,
+                                                  pval = gwas_sobota_filtered$P,
+                                                  effect_size = fit$coefficients[, i])
+    
+    plot(result_sobota[[test_name]], main = sprintf("Sobota: %s", test_name))
+  }
+  hist(gwas_sobota_filtered$P)
+  saveRDS(result_sobota, file = file.path(data_dir, "gwas-sobota.rds"))
+} else {
+  result_sobota <- readRDS(file.path(data_dir, "gwas-sobota.rds"))
 }
-hist(gwas_sobota_filtered$P)
 
 # Exploratory Figures ----------------------------------------------------------
 
@@ -186,6 +211,12 @@ dev.off()
 
 # Final Figures ----------------------------------------------------------------
 
+add_fig_label <- function(label, line = 3) {
+  # Adds label to top left of plot
+  mtext(text = label, side = 2, line = line, font = 2, las = 1,
+        at = par("usr")[4] + par("usr")[4]*.1, cex = 1.5)
+}
+
 test_name <- "status_ni"
 plot_titles <- c("Difference between susceptible and resistant individuals in the non-infected state",
                  "Difference between susceptible and resistant individuals in the infected state",
@@ -210,11 +241,15 @@ par(mar = c(5.1, 4.1, 4.1, 3.1))
 title_russia <- "Genes with increasing effect size between susceptible and resistant individuals in the non-infected state are enriched for nearby SNPs with marginally significant P from a GWAS of TB susceptibility in Russia"
 plot(result_russia[[test_name]], main = str_wrap(title_russia, width = 80),
      las = 1, ymin = 0, ymax = 1.7)
+# mtext(text="a", side=2, line = 3, font = 2, las = 1,
+#       at = par("usr")[4] + par("usr")[4]*.1, cex = 1.5)
+add_fig_label("a")
 screen(2)
 par(mar = c(5.1, 4.1, 4.1, 3.1))
 title_height <- "Genes with increasing effect size between susceptible and resistant individuals in the non-infected state are NOT enriched for nearby SNPs with marginally significant P from a GWAS of height in Europe"
 plot(result_height[[test_name]], main = str_wrap(title_height, width = 80),
      las = 1, ymin = 0, ymax = 1.7)
+add_fig_label("b")
 split.screen(m2, screen = 3)
 screen(4)
 par(mar = c(2, 4, 5, 0))
@@ -232,6 +267,7 @@ boxplot_enrich(auc = c(result_russia[[1]]$auc$main,
                ylab = "Area under the curve (backgroud subtracted)",
                xaxt =  "n", las = 1)
 title(plot_titles[1], line = 1)
+add_fig_label("c", line = 0.5)
 screen(5)
 par(mar = c(2, 1, 5, 3))
 boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
@@ -246,6 +282,7 @@ boxplot_enrich(auc = c(result_russia[[2]]$auc$main,
                                     result_height[[2]]$auc$permutations),
                ymin = -30, ymax = 55,
                xaxt =  "n", yaxt = "n")
+add_fig_label("d", line = 0.5)
 title(plot_titles[2], line = 1)
 screen(6)
 par(mar = c(5, 4, 2, 0))
@@ -261,6 +298,7 @@ boxplot_enrich(auc = c(result_russia[[3]]$auc$main,
                                     result_height[[3]]$auc$permutations),
                ylab = "Area under the curve (backgroud subtracted)",
                xaxt =  "n", las = 1, ymin = -30, ymax = 55)
+add_fig_label("e", line = 0.5)
 title(plot_titles[3])
 # Axis rotation from:
 # https://www.r-bloggers.com/rotated-axis-labels-in-r-plots/
@@ -285,6 +323,7 @@ boxplot_enrich(auc = c(result_russia[[4]]$auc$main,
                                     result_sobota[[4]]$auc$permutations,
                                     result_height[[4]]$auc$permutations),
                xaxt =  "n", yaxt = "n", ymin = -30, ymax = 55)
+add_fig_label("f", line = 0.5)
 title(plot_titles[4])
 axis(1, at = 1:5, labels = FALSE)
 text(x = 1:5, y = par()$usr[3] - 0.05 * (par()$usr[4] - par()$usr[3]),
