@@ -5,9 +5,11 @@ library("stringr")
 
 if(interactive()) {
   data_dir <- "../data"
+  fig_dir <- "../figure"
 } else {
   args <- commandArgs(trailingOnly = TRUE)
   data_dir <- args[1]
+  fig_dir <- args[2]
 }
 stopifnot(dir.exists(data_dir))
 
@@ -225,7 +227,15 @@ plot_titles <- c("Difference between susceptible and resistant individuals in th
 plot_titles <- str_wrap(plot_titles, width = 30)
 gwas_labs <- c("TB Russia", "TB Gambia", "TB Ghana", "TB Uganda",
                "Height\nEurope")
-pdf("gwas-final.pdf", width = 14, height = 14)
+for (device in c("png", "pdf")) {
+  if (device == "png") {
+    png(file.path(fig_dir, "gwas-final.png"),
+        width = 14, height = 14, units = "in", res = 300)
+  } else if (device == "pdf") {
+    pdf(file.path(fig_dir, "gwas-final.pdf"),
+        width = 14, height = 14, useDingbats = FALSE)
+  }
+
 m1 <- rbind(c(0.0, 0.5, 0.5, 1.0),
             c(0.0, 0.5, 0.0, 0.5),
             c(0.5, 1.0, 0.0, 1.0))
@@ -329,4 +339,5 @@ axis(1, at = 1:5, labels = FALSE)
 text(x = 1:5, y = par()$usr[3] - 0.05 * (par()$usr[4] - par()$usr[3]),
      labels = gwas_labs, srt = 45, adj = 1, xpd = TRUE)
 close.screen(all.screens = TRUE)
-dev.off()
+invisible(dev.off())
+}
