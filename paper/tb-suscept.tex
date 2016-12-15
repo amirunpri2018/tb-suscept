@@ -10,27 +10,44 @@
  \renewcommand{\thefigure}{S\arabic{figure}}%
  }
 
-\title{Predicting susceptibility to tuberculosis based on gene expression profiling}
+\title{Predicting susceptibility to tuberculosis based on gene expression profiling in dendritic cells}
 
 
-\author[1,2,*]{John D. Blischak}
-\author[3]{Ludovic Tailleux}
+\author[1,2,$\dag$,*]{John D. Blischak}
+\author[3,$\dag$,*]{Ludovic Tailleux}
 \author[1]{Marsha Myrthil}
-\author[4,5,*]{Luis B. Barreiro}
-\author[1,6,*]{Yoav Gilad}
+\author[4]{Cécile Charlois}
+\author[5,6]{Emmanuel Bergot}
+\author[7]{Aurélien Dinh}
+\author[8]{Gloria Morizot}
+\author[9]{Olivia Chény}
+\author[9]{Cassandre Von Platen}
+\author[10,11]{Jean-Louis Herrmann}
+\author[3]{Roland Brosch}
+\author[12,13,*]{Luis B. Barreiro}
+\author[1,14,*]{Yoav Gilad}
 
 
 
 \affil[1]{Department of Human Genetics, University of Chicago, Chicago, Illinois, USA}
 \affil[2]{Committee on Genetics, Genomics, and Systems Biology, University of Chicago, Chicago, Illinois, USA}
-\affil[3]{Mycobacterial Genetics Unit, Institut Pasteur, Paris, France}
-\affil[4]{Department of Genetics, CHU Sainte-Justine Research Center, Montreal, Québec, Canada}
-\affil[5]{Department of Pediatrics, University of Montreal, Montreal, Québec, Canada}
-\affil[6]{Department of Medicine, University of Chicago, Chicago, Illinois, USA}
+\affil[3]{Integrated Mycobacterial Pathogenomics, Institut Pasteur, Paris, France}
+\affil[4]{Unknown affiliation}
+\affil[5]{Service de pneumologie et oncologie thoracique, CHU de Caen, 14033 Caen, France}
+\affil[6]{Université de Caen, 14033 Caen, France (To be confirmed)}
+\affil[7]{Maladies Infectieuses, AP-HP, Hôpital Universitaire Raymond-Poincaré, Garches 92380, France}
+\affil[8]{Clinical Investigation \& Access Biological Resources (ICAReB), Institut Pasteur, Paris, France}
+\affil[9]{Clinical Core, Institut Pasteur, Paris, France}
+\affil[10]{INSERM, U1173, UFR Simone Veil, Université de Versailles Saint Quentin, Saint Quentin en Yvelines, France (To be confirmed)}
+\affil[11]{APHP, Groupe Hospitalo-Universitaire Paris Île-de-France Ouest, Garches et Boulogne-Billancourt, France (To be confirmed)}
+\affil[12]{Department of Genetics, CHU Sainte-Justine Research Center, Montreal, Québec, Canada}
+\affil[13]{Department of Pediatrics, University of Montreal, Montreal, Québec, Canada}
+\affil[14]{Department of Medicine, University of Chicago, Chicago, Illinois, USA}
 
 
+\affil[$\dag$]{These authors contributed equally.}
 
-\affil[*]{Correspondence should be addressed to JDB (jdblischak@uchicago.edu), YG (gilad@uchicago.edu), and LBB (luis.barreiro@umontreal.ca).}
+\affil[*]{Correspondence should be addressed to JDB (jdblischak@uchicago.edu), YG (gilad@uchicago.edu), LT (tailleux@pasteur.fr), and LBB (luis.barreiro@umontreal.ca).}
 
 \begin{abstract}
 Tuberculosis is a deadly infectious disease, which kills millions of
@@ -40,8 +57,8 @@ the world’s population; however, only approximately 10\% of healthy
 individuals progress to active TB disease. Despite evidence for
 heritability, it is not currently possible to predict whether a
 healthy person is susceptible to TB. To explore approaches to classify
-susceptibility to TB, we infected dendritic cells (DCs) from
-individuals known to be susceptible or resistant to TB with MTB, and
+susceptibility to TB, we infected with MTB dendritic cells (DCs) from
+individuals with latent TB and from individuals susceptible to TB. We
 measured genome-wide gene expression levels in infected and uninfected
 cells. We found hundreds of differentially expressed genes between
 susceptible and resistant individuals in the non-infected cells. We
@@ -67,15 +84,12 @@ Tuberculosis (TB) is a major public health issue. Worldwide, over a
 million people die of TB annually, and millions more currently live
 with the disease \cite{WHO2015a, WHO2015b, Glaziou2015}. Successful
 treatment requires months of antibiotic therapy \cite{Sotgiu2015}, and
-the difficulty of adhering to the full treatment regimen has lead to
-the emergence of drug-resistant strains of \emph{Mycobacterium
-tuberculosis} (MTB) \cite{Seung2015}.
-
-Approximately a third of the world’s population has been infected with
-MTB, but most are asymptomatic. While these naturally resistant
-individuals are able to avoid active disease, MTB persists in a
-dormant state inside their innate immune cells, known as a latent TB
-infection \cite{Munoz2015}. In contrast, approximately 10\% of
+drug-resistant strains of \emph{Mycobacterium tuberculosis} (MTB)
+continuously emerge \cite{Seung2015}. Approximately a third of the
+world’s population has been infected with MTB, but most are
+asymptomatic. While these naturally resistant individuals are able to
+avoid active disease, MTB might persist in a dormant state, known as
+latent TB \cite{Munoz2015}. In contrast, approximately 10\% of
 individuals will develop active TB after infection with MTB
 \cite{North2004, OGarra2013}. Unfortunately, we are currently unable
 to predict if an individual is susceptible. While twin and family
@@ -88,30 +102,40 @@ architecture, it may be informative to examine differences between
 susceptible and resistant individuals at a higher level of
 organization, e.g. gene regulatory networks. Using this approach,
 previous studies have characterized gene expression profiles in innate
-immune cells isolated from individuals known be susceptible or
-resistant to infectious diseases, including tuberculosis
-\cite{Thuong2008} and acute rheumatic fever \cite{Bryant2014}.
+immune cells isolated from individuals known to be susceptible or
+resistant to infectious diseases, including those with latent or
+active TB \cite{Thuong2008} and acute rheumatic fever
+\cite{Bryant2014}.
 
 We hypothesized that gene expression profiles in innate immune cells
 may be used to classify individuals with respect to their
-susceptibility to develop an active TB infection. To test this
-hypothesis, we isolated innate immune cells from individuals that are
-resistant or susceptible to TB and infected them with MTB. We
-discovered that the gene expression differences between resistant and
-susceptible innate immune cells were present primarily in the
-non-infected state, that these differentially expressed genes were
-enriched for nearby SNPs with low p-values in TB susceptibility GWAS,
-and furthermore, that these gene expression levels could be used to
-classify individuals based on their susceptibility status.
+susceptibility to develop active TB. To test this hypothesis, we
+differentiated dendritic cells (DCs) from monocytes isolated from
+individuals that had recovered from a past episode of active TB, which
+we refer to as susceptible (recognizing that they could have
+potentially developed active TB due to a non-genetic effect like
+temporary immunodeficiency), and from individuals with confirmed
+latent TB, which we refer to as resistant (recognizing that they still
+have the potential to develop active TB in the future
+\cite{Loddenkemper2016}). We infected the DCs with MTB because these
+innate immune cells help shape the adaptive immune response, which is
+critical for fighting MTB \cite{Cooper2009, Barreiro2012}. We
+discovered that the gene expression differences between innate immune
+cells from resistant and susceptible individuals were present
+primarily in the non-infected state, that these differentially
+expressed genes were enriched for nearby SNPs with low p-values in TB
+susceptibility GWAS, and furthermore, that these gene expression
+levels could be used to classify individuals based on their
+susceptibility status.
 \section*{Results}
 
 \subsection*{Susceptible individuals have an altered transcriptome in the non-infected state}
 
-We obtained whole blood samples from 25 healthy individuals
-(Supplementary Data S1). Six of the donors had recovered from a
-previous active TB infection, and are thus susceptible. The remaining
-19 tested positive for a latent TB infection without ever experiencing
-symptoms of active TB, and are thus resistant. We isolated dendritic
+We obtained whole blood samples from 25 healthy male Caucasian
+individuals (Supplementary Data S1). Six of the donors had recovered
+from active TB, and are thus putatively susceptible. The remaining 19
+tested positive for latent TB without ever experiencing symptoms of
+active TB, and are thus putatively resistant. We isolated dendritic
 cells (DCs) and treated them with \emph{Mycobacterium
 }\emph{tuberculosis} (MTB) or a mock control for 18 hours. To measure
 genome-wide gene expression levels in infected and non-infected
@@ -200,7 +224,7 @@ greater than 2 between susceptible and resistant individuals in the
 non-infected state (these arbitrary cutoffs were chosen to be
 stringent; see Supplementary Data S4 for the results with various
 cutoffs). Interestingly, these two genes were previously shown to play
-a role in MTB infection.
+a role in MTB .
 
 \begin{figure}[ht]
 \centering
@@ -295,52 +319,51 @@ resistant individuals in the non-infected state; whereas, we did not
 observe any DE genes between susceptible and resistant individuals in
 the infected state (Fig. \ref{fig:limma}). This suggests that the
 differences in the transcriptomes between DCs of resistant and
-susceptible individuals are present pre-infection, and affect the
-initial response to MTB. Yet, 18 hours after infection gene expression
-profiles in both susceptible and resistant individuals have converged
-to the same gene regulatory network to fight the active infection. We
-chose to measure gene expression 18 hours post-infection because this
-time point was previously associated with a large change in
-genome-wide gene expression levels \cite{Tailleux2008}. Given our
-observations, however, future studies investigating the difference in
-the innate immune response between individuals resistant and
-susceptible to TB may want to focus on earlier time points post
-infection.
+susceptible individuals are present pre-infection. Yet, 18 hours after
+infection gene expression profiles in both susceptible and resistant
+individuals have converged to the same gene regulatory network,
+presumanly to fight the infection. We chose to measure gene expression
+18 hours post-infection because this time point was previously
+associated with a large change in genome-wide gene expression levels
+\cite{Tailleux2008}. Given our observations, however, future studies
+investigating the difference in the innate immune response between
+individuals resistant and susceptible to TB may want to focus on
+earlier time points post infection.
 
-Among the 645 DE genes between resistant and susceptible individuals
-in the non-infected state, there were many interesting genes involved
-in important innate immune activities critical for fighting MTB and
-other pathogens such as autophagy \cite{Deretic2014,
-Castrejon-Jimenez2015}, phagolysosomal acidification, and antigen
-processing. In particular, \emph{FEZ2}, a suppressor of autophagosome
-formation \cite{Spang2014}, was down-regulated when DCs were infected
-with MTB; however, in the non-infected DCs, this gene has elevated
-expression level in susceptible compared with resistant individuals.
-In turn, \emph{ATP6V1B2}, a gene coding for a subunit of the proton
-transporter responsible for acidifying phagolysosomes
-\cite{Sturgill-Koszycki1994, Hornef2002, Hestvik2005}, has increased
+It is important to note that our study was not designed to uncover the
+mechanisms underlying susceptibility or resistance to TB, but to try
+and find a gene regulatory signature that might allow us to classify
+individuals as either susceptible or resistant. That said, among the
+645 DE genes between resistant and susceptible individuals in the
+non-infected state, there were many interesting genes involved in
+important innate immune activities critical for fighting MTB and other
+pathogens such as autophagy \cite{Deretic2014, Castrejon-Jimenez2015},
+phagolysosomal acidification, and antigen processing. In particular,
+\emph{FEZ2}, a suppressor of autophagosome formation \cite{Spang2014},
+was down-regulated when DCs were infected with MTB; however, in the
+non-infected DCs, this gene has elevated expression level in
+susceptible compared with resistant individuals. In turn,
+\emph{ATP6V1B2}, a gene coding for a subunit of the proton transporter
+responsible for acidifying phagolysosomes \cite{Sturgill-Koszycki1994,
+Hornef2002, Hestvik2005}, has increased expression in susceptible
+individuals compared to resistant in the non-infected state. Lastly,
+genes coding for nine subunits of the proteasome, which is critical
+for processing of MTB antigens to be presented via major
+histocompatibility complex (MHC) class I molecules \cite{Flynn1992,
+Grotzke2009, Grotzke2010, LindestamArlehamn2014}, have increased
 expression in susceptible individuals compared to resistant in the
-non-infected state. Lastly, genes coding for nine subunits of the
-proteasome, which is critical for processing of MTB antigens to be
-presented via major histocompatibility complex (MHC) class I molecules
-\cite{Flynn1992, Grotzke2009, Grotzke2010, LindestamArlehamn2014},
-have increased expression in susceptible individuals compared to
-resistant in the non-infected state. These genes are candidates for
-future functional studies investigating the mechanisms of TB
-susceptibility.
+non-infected state. These genes are candidates for future functional
+studies investigating the mechanisms of TB susceptibility.
 
 To our knowledge, our study was only the second to collect data from
 \emph{in vitro} MTB infected innate immune cells isolated from
 individuals known to be susceptible to MTB (Thuong et al., 2008).
 However, there were substantial differences between our study and that
-of Thuong et al., 2008 \cite{Thuong2008}. First, they isolated and
+of Thuong et al., 2008 \cite{Thuong2008}. First, they derived and
 infected macrophages, the primary target host cell in which MTB
 resides; whereas, we infected DCs, which play a larger role in
-stimulating the adaptive immune response to MTB. Second, the
-susceptible individuals in Thuong et al., 2008 had an active TB
-infection at the time the cells were isolated; whereas, our
-individuals had recovered from a past TB infection. Third, we
-collected samples from a larger number of resistant individuals (19
+stimulating the adaptive immune response to MTB. Second, we collected
+samples from a larger number of putatively resistant individuals (19
 versus 4), increasing our power to distinguish between the gene
 expression profiles of susceptible and resistant individuals.
 
@@ -379,8 +402,8 @@ from individuals with an active TB infection (i.e. susceptible)
 compared to individuals with a latent TB infection (i.e. resistant)
 \cite{Thuong2008}. Additionally they performed a candidate gene
 association study and found that SNPs nearby \emph{CCL1} were
-associated with TB susceptibility. In a previous study from our lab,
-we discovered that \emph{CCL1} was one of only 288 genes that were
+associated with TB susceptibility. In our previous study, we
+discovered that \emph{CCL1} was one of only 288 genes that were
 differentially expressed in macrophages 48 hours post-infection with
 MTB and related mycobacterial species but not unrelated virulent
 bacteria \cite{Blischak2015}. \emph{UNC13A} is involved in vesicle
@@ -439,18 +462,22 @@ selective pressures on MTB to develop drug resistance.
 
 We recruited 25 subjects to donate a blood sample for use in our
 study. All methods were carried out in accordance with relevant
-guidelines and regulations. The experimental protocols were approved
-by the Institutional Review Boards of the University of Chicago
-(10-504-B) and the Institut Pasteur (IRB00006966). All study
-participants provided written informed consent.
+guidelines and regulations. All participants gave written informed
+consent in accordance with the Declaration of Helsinki principles.
+Peripheral human blood was collected from patients at ICAReB platform
+of Institut Pasteur Paris and at the Centre for Infectious Disease
+Prevention, University hospital Caen. The Protocol has been approved
+by French Ethical Committee (CPP North Ouest III, n° A12 - D33
+-VOL.13), by the Institutional Review Boards of the University of
+Chicago (10-504-B) and the Institut Pasteur (IRB00006966).
 \subsection*{Sample collection}
 
 We collected whole blood samples from healthy Caucasian male
 individuals living in France. The putatively resistant individuals
-tested positive for a latent TB infection in an interferon-$\gamma$
-release assay, but had never developed active TB. The putatively
-sensitive individuals had developed active TB in the past, but were
-currently healthy.
+tested positive for latent TB in an interferon-$\gamma$ release assay,
+but had never developed active TB. The putatively sensitive
+individuals had developed active TB in the past, but were currently
+healthy.
 \subsection*{Isolation and infection of dendritic cells}
 
 We performed these experiments as previously described
@@ -520,12 +547,13 @@ of resistant individuals, $\beta_{treat}$ is the fixed effect of
 treatment in resistant individuals, $\beta_{status}$ is the fixed
 effect of susceptibility status in non-infected cells,
 $\beta_{treat,status}$ is the fixed interaction effect of treatment in
-susceptible individuals, and $I$ is the random effect of individual.
-The random individual effect was implemented using the limma function
-duplicateCorrelation \cite{Smyth2005}. To jointly model the data with
-voom and duplicateCorrelation, we followed the recommended best
-practice of running both voom and duplicateCorrelation twice in
-succession \cite{Liu2015}.
+susceptible individuals (i.e. modeling the interaction between
+treatment and susceptibility status), and $I$ is the random effect of
+individual. The random individual effect was implemented using the
+limma function duplicateCorrelation \cite{Smyth2005}. To jointly model
+the data with voom and duplicateCorrelation, we followed the
+recommended best practice of running both voom and
+duplicateCorrelation twice in succession \cite{Liu2015}.
 
 We used the model to test different hypotheses (Supplementary Data
 S3). We identified genes which were differentially expressed (DE)
@@ -579,11 +607,14 @@ Second, because the dynamic range obtained from RNA-seq (current
 study) and microarrays (previous study \cite{Barreiro2012}) were
 different, we normalized the gene expression levels to a standard
 normal with $\mu = 0$ and $\sigma = 1$ (Supplementary Fig.
-\ref{fig:combined-dist}). Third, we corrected for the large, expected
-batch effect between the two studies by regressing out the first PC of
-the combined expression data using the limma function
-removeBatchEffect \cite{Ritchie2015} (Supplementary Fig.
-\ref{fig:combined-pca}).
+\ref{fig:combined-dist}; note however that this strategy is unable to
+correct for the inability of microarrays to accurately quantify genes
+with expression levels that result in fluorescence levels below the
+background level or above the saturation limit). Third, we corrected
+for the large, expected batch effect between the two studies by
+regressing out the first PC of the combined expression data using the
+limma function removeBatchEffect \cite{Ritchie2015} (Supplementary
+Fig. \ref{fig:combined-pca}).
 
 To identify genes to use in the classifier, we performed a
 differential expression analysis on the normalized, batch-corrected
@@ -647,7 +678,8 @@ data sets are included as Supplementary Data and are also available
 for download at https://github.com/jdblischak/tb-suscept/data.
 \section*{Acknowledgements}
 
-We thank T. Thye for sharing the GWAS data with us. This study was
+We thank T. Thye for sharing the GWAS data with us. We thank
+Marie-Noëlle Ungeheuer for help recruiting subjects. This study was
 funded by National Institutes of Health (NIH) Grant AI087658 to YG and
 LT. JDB was supported by NIH T32GM007197. The content is solely the
 responsibility of the authors and does not necessarily represent the

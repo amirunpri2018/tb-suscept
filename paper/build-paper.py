@@ -126,6 +126,8 @@ def convert_special_characters(text):
     result = result.replace("<", "\\textless \,")
     result = result.replace(">", "\\textgreater \,")
     result = result.replace("#", "\#")
+    result = result.replace("†", "$\dag$")
+    result = result.replace("&", "\&")
     # Backslash escape _ only if it is not in a math equation
     if "$" not in result:
         result = result.replace("_", "\_")
