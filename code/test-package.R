@@ -159,31 +159,40 @@ if (!file.exists(file.path(data_dir, "gwas-sobota.rds"))) {
 
 # Exploratory Figures ----------------------------------------------------------
 
-pdf("gwas-figures.pdf", width = 8, height = 8)
-par(mfrow = c(2, 2))
 plot_titles <- c("Difference between susceptible and resistant\nindividuals in the non-infected state",
                  "Difference between susceptible and resistant\nindividuals in the infected state",
                  "Effect of treatment in resistant individuals",
                  "Effect of treatment in susceptible individuals")
-for (i in 1:4) {
-  boxplot_enrich(auc = c(result_russia[[i]]$auc$main,
-                         result_gambia[[i]]$auc$main,
-                         result_ghana[[i]]$auc$main,
-                         result_sobota[[i]]$auc$main,
-                         result_height[[i]]$auc$main),
-                 permutations = cbind(result_russia[[i]]$auc$permutations,
-                                      result_gambia[[i]]$auc$permutations,
-                                      result_ghana[[i]]$auc$permutations,
-                                      result_sobota[[i]]$auc$permutations,
-                                      result_height[[i]]$auc$permutations),
-                 main = plot_titles[i],
-                 xaxt = "n")
-  axis(1, at = 1:5, labels = FALSE)
-  lab <- c("TB Russia", "TB Gambia", "TB Ghana", "TB Uganda",
-           "Height\nEurope")
-  text(x = 1:5, y = par()$usr[3] - 0.1 * (par()$usr[4] - par()$usr[3]),
-       labels = lab, srt = 45, adj = 1, xpd = TRUE)
-}
+# for (i in 1:4) {
+#   boxplot_enrich(auc = c(result_russia[[i]]$auc$main,
+#                          result_gambia[[i]]$auc$main,
+#                          result_ghana[[i]]$auc$main,
+#                          result_sobota[[i]]$auc$main,
+#                          result_height[[i]]$auc$main),
+#                  permutations = cbind(result_russia[[i]]$auc$permutations,
+#                                       result_gambia[[i]]$auc$permutations,
+#                                       result_ghana[[i]]$auc$permutations,
+#                                       result_sobota[[i]]$auc$permutations,
+#                                       result_height[[i]]$auc$permutations),
+#                  main = plot_titles[i],
+#                  xaxt = "n")
+#   axis(1, at = 1:5, labels = FALSE)
+#   lab <- c("TB Russia", "TB Gambia", "TB Ghana", "TB Uganda",
+#            "Height\nEurope")
+#   text(x = 1:5, y = par()$usr[3] - 0.1 * (par()$usr[4] - par()$usr[3]),
+#        labels = lab, srt = 45, adj = 1, xpd = TRUE)
+# }
+
+for (device in c("png", "pdf")) {
+  if (device == "png") {
+    png(file.path(fig_dir, "gwas-supp.png"),
+        width = 8 * 4, height = 8 * 5, units = "in", res = 300)
+  } else if (device == "pdf") {
+    pdf(file.path(fig_dir, "gwas-supp.pdf"),
+        width = 8 * 4, height = 8 * 5, useDingbats = FALSE)
+  }
+  par(mfrow = c(5, 4), cex = 2)
+
 for (i in 1:4) {
   test_name <- colnames(fit$coefficients)[i]
   plot(result_russia[[test_name]], main = sprintf("TB Russia: %s",
@@ -209,7 +218,8 @@ for (i in 1:4) {
   plot(result_height[[test_name]], main = sprintf("Height: %s",
                                                   test_name))
 }
-dev.off()
+invisible(dev.off())
+}
 
 # Final Figures ----------------------------------------------------------------
 
