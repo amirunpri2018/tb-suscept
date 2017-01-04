@@ -1,0 +1,157 @@
+---
+title: "Investigating the interaction term"
+date: 2016-05-27
+output: html_document
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+I ignore the interaction term for most analyses because it is uninteresting.
+Evidence below.
+Mainly, because there are DE genes between resistant and susceptible individuals in the non-infected state but not the infected state, the interaction term is partially redundant with the contrast of susceptibility status in the non-infected state (Pearson's r ~= 0.27 between their p-values).
+
+## Setup
+
+```{r packages, message=FALSE}
+library("limma")
+library("plyr")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
+library("cowplot")
+library("gplots")
+```
+
+Load limma results produced by file `../code/main-limma.R`.
+
+```{r load-limma-results}
+v2 <- readRDS("../data/results-limma-voom.rds")
+fit2 <- readRDS("../data/results-limma-fit.rds")
+results <- readRDS("../data/results-limma-stats.rds")
+```
+
+## Overlap of significant genes
+
+```{r de-genes}
+ldply(results, function(x) sum(x$qvalue < .1), .id = "test")
+de_list <- llply(results, function(x) rownames(x)[x$qvalue < .1])
+lapply(de_list, length)
+```
+
+There is only 1 gene with a qvalue less than 10% for the interaction term.
+It is also significant for every test except for status_ni (resistant vs. susceptible in the infected state).
+
+```{r}
+(interaction_sub <- subset(results[["interact"]], qvalue < .1))
+interaction_gene <- rownames(interaction_sub)
+stopifnot(length(interaction_gene) == 1)
+(interaction_gene_results <- ldply(results, function(x) x[interaction_gene, ], .id = "test"))
+interaction_gene_results$test[interaction_gene_results$qvalue < 0.1]
+```
+
+[ENSG00000086061 at Ensembl](http://useast.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g=ENSG00000086061;r=9:33025211-33039907;t=ENST00000330899)
+
+## Visualization
+
+Visualizing the one gene that is significantly DE for the interaction term.
+
+```{r plot-gene}
+plot_gene <- function(v, g) {
+  # v - An EList object containing log2 counts per million
+  # g - character vector of a single gene
+  stopifnot(class(v) == "EList",
+            is.character(g), length(g) == 1)
+  library("tidyr")
+  single_gene <- v$E[g, ]
+  single_gene_long <- gather_(as.data.frame(single_gene),
+                              gather_cols = colnames(single_gene))
+  # For some reason, the argument value_col wouldn't work
+  colnames(single_gene_long) <- "log2cpm"
+  single_gene_long$sample <- rownames(single_gene_long)
+  single_gene_long <- separate_(single_gene_long, col = "sample", sep = "-",
+                                into = c("individual", "status", "treatment"))
+  single_gene_long$status <- factor(single_gene_long$status, levels = c("resist", "suscep"))
+  single_gene_long$treatment <- factor(single_gene_long$treatment, levels = c("noninf", "infect"))
+  ggplot(single_gene_long, aes(x = treatment, y = log2cpm, fill = status)) +
+    geom_boxplot() +
+    labs(title = g, x = "Treatment", y = expression("Expression level (" * log[2] * " cpm)"))
+}
+```
+
+As expected from the DE results, the difference in the infected state is not very impressive.
+Likely the interaction term is significant mainly because the direction of the fold difference between susceptible and resistant individuals is in the opposite direction for the non-infected and infected states.
+
+```{r plot-gene-interaction}
+plot_gene(v2, interaction_gene)
+```
+
+## Histogram of p-values
+
+```{r}
+# http://stackoverflow.com/a/3562030/2483477
+l_ply(names(results), function(x) hist(results[[x]]$P.Value, main = x))
+```
+
+## Pairwise relationship of p-values
+
+```{r}
+pval <- do.call(cbind, lapply(results, function(x) x$P.Value))
+(pval_cor <- cor(pval))
+heatmap.2(pval_cor, trace = "none", margins = c(9, 9))
+pairs(-log10(pval))
+```
+
+## Relationship between logFC of contrasts and significance of interaction term
+
+status_ni
+
+```{r}
+cor(abs(results[["status_ni"]]$logFC), -log10(results[["interact"]]$P.Value))
+plot(abs(results[["status_ni"]]$logFC), -log10(results[["interact"]]$P.Value))
+abline(0, 1, col = "red")
+```
+
+status_ii
+
+```{r}
+cor(abs(results[["status_ii"]]$logFC), -log10(results[["interact"]]$P.Value))
+plot(abs(results[["status_ii"]]$logFC), -log10(results[["interact"]]$P.Value))
+abline(0, 1, col = "red")
+```
+
+treat_resist
+
+```{r}
+cor(abs(results[["treat_resist"]]$logFC), -log10(results[["interact"]]$P.Value))
+plot(abs(results[["treat_resist"]]$logFC), -log10(results[["interact"]]$P.Value))
+abline(0, 1, col = "red")
+```
+
+treat_suscep
+
+```{r}
+cor(abs(results[["treat_suscep"]]$logFC), -log10(results[["interact"]]$P.Value))
+plot(abs(results[["treat_suscep"]]$logFC), -log10(results[["interact"]]$P.Value))
+abline(0, 1, col = "red")
+```
+
+interact (best-case scenario)
+
+```{r}
+cor(abs(results[["interact"]]$logFC), -log10(results[["interact"]]$P.Value))
+plot(abs(results[["interact"]]$logFC), -log10(results[["interact"]]$P.Value))
+abline(0, 1, col = "red")
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
