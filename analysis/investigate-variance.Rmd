@@ -13,6 +13,8 @@ library("knitr")
 opts_chunk$set(cache = FALSE)
 ```
 
+Could an increase in variance in the infected state be the explanation for why DE genes between susceptible and resistant individuals were observed only in the non-infected state?
+
 ## Setup
 
 ```{r packages, message=FALSE}
@@ -100,35 +102,87 @@ for (i in 1:n_genes) {
   ftest_stat_s[i] <- ftest_s$statistic
   stopifnot(ftest_stat_s[i] == m_var_s[i, "infect"] / m_var_s[i, "noninf"])
 }
-m_cv <- m_var / m_mean
 ```
 
-Organize ftest results.
+## Organize results
+
+Organize the results into long format for plotting with ggplot2.
+
+Organize f-test p-values.
 
 ```{r}
-df_ftest <- data.frame(gene = rownames(d), ftest_p, ftest_stat)
+df_ftest_p <- data.frame(gene = rownames(d),
+                       all = ftest_p,
+                       resist = ftest_p_r,
+                       suscep = ftest_p_s)
 stopifnot(rownames(d) == rownames(results[["status_ni"]]))
-df_ftest$is_de <- results[["status_ni"]]$qvalue < 0.1
-stopifnot(sum(df_ftest$is_de) == 645)
+df_ftest_p_long <- gather(df_ftest_p, key = "individuals", value = "ftest_p", -gene)
+stopifnot(df_ftest_p_long$ftest_p > 0, df_ftest_p_long$ftest_p < 1)
 ```
 
-Organize long df for ggplot of histograms.
+Organize f-test effect sizes.
 
 ```{r}
-df_hist <- data.frame(gene = names(ftest_stat),
-                all = ftest_stat,
-                resist = ftest_stat_r,
-                suscep = ftest_stat_s)
-stopifnot(rownames(df_hist) == df_hist$gene)
-# Convert to long form
-df_hist <- gather(df_hist, key = "individuals", value = "var_ratio", -gene)
-# Add an indicator if the gene is DE for status_ni (difference in status in
-# non-infected state)
-df_hist$is_de <- ifelse(results[["status_ni"]]$qvalue < 0.1, TRUE, FALSE)
-stopifnot(sum(df_hist$is_de) == 645 * 3)
-table(df_hist$individuals, df_hist$is_de)
+df_ftest_stat <- data.frame(gene = rownames(d),
+                       all = ftest_stat,
+                       resist = ftest_stat_r,
+                       suscep = ftest_stat_s)
+df_ftest_stat_long <- gather(df_ftest_stat, key = "individuals", value = "ftest_stat", -gene)
+stopifnot(df_ftest_stat_long$ftest_stat > 0)
+```
+
+Combine the two.
+
+```{r}
+stopifnot(df_ftest_p_long$gene == df_ftest_stat_long$gene,
+          df_ftest_p_long$individuals == df_ftest_stat_long$individuals)
+df_hist <- cbind(df_ftest_stat_long, ftest_p = df_ftest_p_long$ftest_p)
 head(df_hist)
 ```
+
+Add a boolean for if the f-test is significant.
+
+```{r}
+df_hist$ftest_sig <- df_hist$ftest_p < 0.05
+```
+
+Add a boolean for if the gene was DE in the non-infected state.
+
+```{r}
+stopifnot(rownames(d) == rownames(results[["status_ni"]]),
+          df_hist$gene == rownames(results[["status_ni"]]))
+df_hist$is_de <- results[["status_ni"]]$qvalue < 0.1
+stopifnot(sum(df_hist$is_de) == 645 * 3)
+head(df_hist)
+```
+
+## Count
+
+How many genes had higher variance in the infected state?
+
+```{r}
+df_hist %>% filter(individuals == "all", ftest_stat > 1) %>% nrow()
+# significant
+df_hist %>% filter(individuals == "all", ftest_stat > 1, ftest_p < 0.05) %>% nrow()
+# of the status_ni DE genes
+df_hist %>% filter(individuals == "all", ftest_stat > 1, is_de) %>% nrow()
+# of the status_ni DE genes and significant
+df_hist %>% filter(individuals == "all", ftest_stat > 1, ftest_p < 0.05, is_de) %>% nrow()
+```
+
+How many genes had higher variance in the non-infected state?
+
+```{r}
+df_hist %>% filter(individuals == "all", ftest_stat < 1) %>% nrow()
+# significant
+df_hist %>% filter(individuals == "all", ftest_stat < 1, ftest_p < 0.05) %>% nrow()
+# of the status_ni DE genes
+df_hist %>% filter(individuals == "all", ftest_stat < 1, is_de) %>% nrow()
+# of the status_ni DE genes and significant
+df_hist %>% filter(individuals == "all", ftest_stat < 1, ftest_p < 0.05, is_de) %>% nrow()
+```
+
+## Visualize
 
 Improve factor labels.
 
@@ -148,92 +202,20 @@ df_hist$is_de <- factor(df_hist$is_de,
                         levels = c(FALSE, TRUE),
                         labels = c(sprintf("All genes (n = %d)",
                                            nrow(d)),
-                                   sprintf("DE genes in non-infected state (n = %d)",
+                                   sprintf("DE genes in non-infected\nstate (n = %d)",
                                            sum(results[["status_ni"]]$qvalue < 0.1))))
 ```
 
-
-## Count
-
-How many genes had higher variance in the infected state?
-
-```{r}
-df_ftest %>% filter(ftest_stat > 1) %>% nrow()
-# significant
-df_ftest %>% filter(ftest_stat > 1, ftest_p < 0.05) %>% nrow()
-# of the status_ni DE genes
-df_ftest %>% filter(ftest_stat > 1, is_de) %>% nrow()
-# of the status_ni DE genes and significant
-df_ftest %>% filter(ftest_stat > 1, ftest_p < 0.05, is_de) %>% nrow()
-```
-
-How many genes had higher variance in the non-infected state?
-
-```{r}
-df_ftest %>% filter(ftest_stat < 1) %>% nrow()
-# significant
-df_ftest %>% filter(ftest_stat < 1, ftest_p < 0.05) %>% nrow()
-# of the status_ni DE genes
-df_ftest %>% filter(ftest_stat < 1, is_de) %>% nrow()
-# of the status_ni DE genes and significant
-df_ftest %>% filter(ftest_stat < 1, ftest_p < 0.05, is_de) %>% nrow()
-```
-
-## Visualize
-
-```{r supp-figure}
-ggplot(df_hist, aes(x = log2(var_ratio))) +
+```{r supp-figure, fig.width=2*3*1.5, fig.height=2*2*1.5}
+ggplot(df_hist, aes(x = log2(ftest_stat), fill = ftest_sig)) +
   geom_histogram(binwidth = 0.25) +
   geom_vline(xintercept = 0, color = "red", linetype = "dashed") +
   facet_grid(is_de ~ individuals, scales = "free_y") +
-  labs(x = expression(log[2] * "(" * frac("Variance in the infected state", "Variance in the non-infected state") * ")"),
-       y = "Number of genes")
-```
-
-
-
-```{r compare-mean}
-ggplot(as.data.frame(m_mean), aes(x = noninf, y = infect)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, color = "red")
-```
-
-
-```{r compare-var}
-ggplot(as.data.frame(m_var), aes(x = noninf, y = infect)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, color = "red") +
-  scale_x_sqrt() + scale_y_sqrt()
-```
-
-```{r boxplot-var}
-boxplot(sqrt(m_var))
-```
-
-```{r compare-cv}
-ggplot(as.data.frame(m_cv), aes(x = noninf, y = infect)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, color = "red") +
-  scale_x_sqrt() + scale_y_sqrt()
-```
-
-```{r}
-hist(ftest_p)
-hist(ftest_stat)
-hist(log2(ftest_stat))
-plot(ftest, results[["status_ni"]]$P.Value)
-plot(ftest, results[["status_ii"]]$P.Value)
-```
-
-```{r}
-
-ggplot(df_ftest,
-       aes(x = log2(ftest_stat), y = -log10(ftest_p),
-           color = is_de, shape = is_de)) +
-  geom_point() +
-  scale_shape_manual(values = c(1, 16), drop = FALSE) +
-  scale_color_manual(values = c("gray75", "darkred"), drop = FALSE) +
-  facet_wrap(~is_de)
+  scale_fill_manual(values = c("gray75", "darkred"), drop = FALSE) +
+  labs(x = expression(log[2] * "(" * frac("Variance in the infected state",
+                                          "Variance in the non-infected state") * ")"),
+       y = "Number of genes") +
+  theme(legend.position = "none")
 ```
 
 ## Session information
