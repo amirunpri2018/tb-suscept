@@ -1,0 +1,150 @@
+---
+title: "Is there an increase in the variance in the infected state?"
+date: 2017-01-04
+output: html_document
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+## Setup
+
+```{r packages, message=FALSE}
+library("limma")
+library("dplyr")
+library("ggplot2")
+library("cowplot")
+```
+
+Load limma results produced by file `../code/main-limma.R`.
+The log~2~ cpm are in the Elist object created by the voom function (`v2`).
+
+```{r load-limma-results}
+v2 <- readRDS("../data/results-limma-voom.rds")
+fit2 <- readRDS("../data/results-limma-fit.rds")
+results <- readRDS("../data/results-limma-stats.rds")
+d <- v2$E
+```
+
+## Calculate the variance
+
+For each gene, calculate the mean, variance, and coefficient of variation (CV) in the non-infected and infected state.
+
+```{r}
+n_genes <- nrow(d)
+m_mean <- matrix(nrow = n_genes, ncol = 2,
+                 dimnames = list(rownames(d), c("noninf", "infect")))
+m_var <- matrix(nrow = n_genes, ncol = 2,
+                dimnames = list(rownames(d), c("noninf", "infect")))
+ftest_p <- numeric(length = n_genes)
+names(ftest_p) <- rownames(d)
+ftest_stat <- numeric(length = n_genes)
+names(ftest_stat) <- rownames(d)
+
+for (i in 1:n_genes) {
+  d_noninf <- d[i, grepl("noninf", colnames(d))]
+  d_infect <- d[i, grepl("infect", colnames(d))]
+  m_mean[i, "noninf"] <- mean(d_noninf)
+  m_mean[i, "infect"] <- mean(d_infect)
+  m_var[i, "noninf"] <- var(d_noninf)
+  m_var[i, "infect"] <- var(d_infect)
+  ftest <- var.test(d_infect, d_noninf)
+  ftest_p[i] <- ftest$p.value
+  ftest_stat[i] <- ftest$statistic
+  stopifnot(ftest_stat[i] == m_var[i, "infect"] / m_var[i, "noninf"])
+}
+m_cv <- m_var / m_mean
+```
+
+Organize ftest results.
+
+```{r}
+df_ftest <- data.frame(gene = rownames(d), ftest_p, ftest_stat)
+stopifnot(rownames(d) == rownames(results[["status_ni"]]))
+df_ftest$is_de <- results[["status_ni"]]$qvalue < 0.1
+stopifnot(sum(df_ftest$is_de) == 645)
+```
+
+## Count
+
+How many genes had higher variance in the infected state?
+
+```{r}
+df_ftest %>% filter(ftest_stat > 1) %>% nrow()
+# significant
+df_ftest %>% filter(ftest_stat > 1, ftest_p < 0.05) %>% nrow()
+# of the status_ni DE genes
+df_ftest %>% filter(ftest_stat > 1, is_de) %>% nrow()
+# of the status_ni DE genes and significant
+df_ftest %>% filter(ftest_stat > 1, ftest_p < 0.05, is_de) %>% nrow()
+```
+
+How many genes had higher variance in the non-infected state?
+
+```{r}
+df_ftest %>% filter(ftest_stat < 1) %>% nrow()
+# significant
+df_ftest %>% filter(ftest_stat < 1, ftest_p < 0.05) %>% nrow()
+# of the status_ni DE genes
+df_ftest %>% filter(ftest_stat < 1, is_de) %>% nrow()
+# of the status_ni DE genes and significant
+df_ftest %>% filter(ftest_stat < 1, ftest_p < 0.05, is_de) %>% nrow()
+```
+
+## Visualize
+
+```{r compare-mean}
+ggplot(as.data.frame(m_mean), aes(x = noninf, y = infect)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "red")
+```
+
+
+```{r compare-var}
+ggplot(as.data.frame(m_var), aes(x = noninf, y = infect)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  scale_x_sqrt() + scale_y_sqrt()
+```
+
+```{r boxplot-var}
+boxplot(sqrt(m_var))
+```
+
+```{r compare-cv}
+ggplot(as.data.frame(m_cv), aes(x = noninf, y = infect)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  scale_x_sqrt() + scale_y_sqrt()
+```
+
+```{r}
+hist(ftest_p)
+hist(ftest_stat)
+hist(log2(ftest_stat))
+plot(ftest, results[["status_ni"]]$P.Value)
+plot(ftest, results[["status_ii"]]$P.Value)
+```
+
+```{r}
+
+ggplot(df_ftest,
+       aes(x = log2(ftest_stat), y = -log10(ftest_p),
+           color = is_de, shape = is_de)) +
+  geom_point() +
+  scale_shape_manual(values = c(1, 16), drop = FALSE) +
+  scale_color_manual(values = c("gray75", "darkred"), drop = FALSE) +
+  facet_wrap(~is_de)
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
