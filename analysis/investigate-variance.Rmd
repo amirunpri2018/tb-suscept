@@ -18,6 +18,7 @@ opts_chunk$set(cache = FALSE)
 ```{r packages, message=FALSE}
 library("limma")
 library("dplyr")
+library("tidyr")
 library("ggplot2")
 library("cowplot")
 ```
@@ -42,22 +43,62 @@ m_mean <- matrix(nrow = n_genes, ncol = 2,
                  dimnames = list(rownames(d), c("noninf", "infect")))
 m_var <- matrix(nrow = n_genes, ncol = 2,
                 dimnames = list(rownames(d), c("noninf", "infect")))
+m_mean_r <- matrix(nrow = n_genes, ncol = 2,
+                 dimnames = list(rownames(d), c("noninf", "infect")))
+m_var_r <- matrix(nrow = n_genes, ncol = 2,
+                dimnames = list(rownames(d), c("noninf", "infect")))
+m_mean_s <- matrix(nrow = n_genes, ncol = 2,
+                 dimnames = list(rownames(d), c("noninf", "infect")))
+m_var_s <- matrix(nrow = n_genes, ncol = 2,
+                dimnames = list(rownames(d), c("noninf", "infect")))
 ftest_p <- numeric(length = n_genes)
 names(ftest_p) <- rownames(d)
 ftest_stat <- numeric(length = n_genes)
 names(ftest_stat) <- rownames(d)
+ftest_p_r <- numeric(length = n_genes)
+names(ftest_p_r) <- rownames(d)
+ftest_stat_r <- numeric(length = n_genes)
+names(ftest_stat_r) <- rownames(d)
+ftest_p_s <- numeric(length = n_genes)
+names(ftest_p_s) <- rownames(d)
+ftest_stat_s <- numeric(length = n_genes)
+names(ftest_stat_s) <- rownames(d)
 
 for (i in 1:n_genes) {
   d_noninf <- d[i, grepl("noninf", colnames(d))]
   d_infect <- d[i, grepl("infect", colnames(d))]
+  d_noninf_r <- d_noninf[grepl("resist", names(d_noninf))]
+  d_infect_r <- d_infect[grepl("resist", names(d_infect))]
+  d_noninf_s <- d_noninf[grepl("suscep", names(d_noninf))]
+  d_infect_s <- d_infect[grepl("suscep", names(d_infect))]
+
   m_mean[i, "noninf"] <- mean(d_noninf)
   m_mean[i, "infect"] <- mean(d_infect)
   m_var[i, "noninf"] <- var(d_noninf)
   m_var[i, "infect"] <- var(d_infect)
+  m_mean_r[i, "noninf"] <- mean(d_noninf_r)
+  m_mean_r[i, "infect"] <- mean(d_infect_r)
+  m_var_r[i, "noninf"] <- var(d_noninf_r)
+  m_var_r[i, "infect"] <- var(d_infect_r)
+  m_mean_s[i, "noninf"] <- mean(d_noninf_s)
+  m_mean_s[i, "infect"] <- mean(d_infect_s)
+  m_var_s[i, "noninf"] <- var(d_noninf_s)
+  m_var_s[i, "infect"] <- var(d_infect_s)
+
   ftest <- var.test(d_infect, d_noninf)
   ftest_p[i] <- ftest$p.value
   ftest_stat[i] <- ftest$statistic
   stopifnot(ftest_stat[i] == m_var[i, "infect"] / m_var[i, "noninf"])
+
+  ftest_r <- var.test(d_infect_r, d_noninf_r)
+  ftest_p_r[i] <- ftest_r$p.value
+  ftest_stat_r[i] <- ftest_r$statistic
+  stopifnot(ftest_stat_r[i] == m_var_r[i, "infect"] / m_var_r[i, "noninf"])
+
+  ftest_s <- var.test(d_infect_s, d_noninf_s)
+  ftest_p_s[i] <- ftest_s$p.value
+  ftest_stat_s[i] <- ftest_s$statistic
+  stopifnot(ftest_stat_s[i] == m_var_s[i, "infect"] / m_var_s[i, "noninf"])
 }
 m_cv <- m_var / m_mean
 ```
@@ -70,6 +111,47 @@ stopifnot(rownames(d) == rownames(results[["status_ni"]]))
 df_ftest$is_de <- results[["status_ni"]]$qvalue < 0.1
 stopifnot(sum(df_ftest$is_de) == 645)
 ```
+
+Organize long df for ggplot of histograms.
+
+```{r}
+df_hist <- data.frame(gene = names(ftest_stat),
+                all = ftest_stat,
+                resist = ftest_stat_r,
+                suscep = ftest_stat_s)
+stopifnot(rownames(df_hist) == df_hist$gene)
+# Convert to long form
+df_hist <- gather(df_hist, key = "individuals", value = "var_ratio", -gene)
+# Add an indicator if the gene is DE for status_ni (difference in status in
+# non-infected state)
+df_hist$is_de <- ifelse(results[["status_ni"]]$qvalue < 0.1, TRUE, FALSE)
+stopifnot(sum(df_hist$is_de) == 645 * 3)
+table(df_hist$individuals, df_hist$is_de)
+head(df_hist)
+```
+
+Improve factor labels.
+
+```{r}
+df_hist$individuals <- factor(df_hist$individuals,
+                              levels = c("all", "resist", "suscep"),
+                              labels = c(sprintf("All individuals (n = %d)",
+                                                 ncol(d) / 2),
+                                         sprintf("Resistant individuals (n = %d)",
+                                                 sum(grepl("resist", colnames(d))) / 2),
+                                         sprintf("Susceptible individuals (n = %d)",
+                                                 sum(grepl("suscep", colnames(d))) / 2)))
+```
+
+```{r}
+df_hist$is_de <- factor(df_hist$is_de,
+                        levels = c(FALSE, TRUE),
+                        labels = c(sprintf("All genes (n = %d)",
+                                           nrow(d)),
+                                   sprintf("DE genes in non-infected state (n = %d)",
+                                           sum(results[["status_ni"]]$qvalue < 0.1))))
+```
+
 
 ## Count
 
@@ -98,6 +180,17 @@ df_ftest %>% filter(ftest_stat < 1, ftest_p < 0.05, is_de) %>% nrow()
 ```
 
 ## Visualize
+
+```{r supp-figure}
+ggplot(df_hist, aes(x = log2(var_ratio))) +
+  geom_histogram(binwidth = 0.25) +
+  geom_vline(xintercept = 0, color = "red", linetype = "dashed") +
+  facet_grid(is_de ~ individuals, scales = "free_y") +
+  labs(x = expression(log[2] * "(" * frac("Variance in the infected state", "Variance in the non-infected state") * ")"),
+       y = "Number of genes")
+```
+
+
 
 ```{r compare-mean}
 ggplot(as.data.frame(m_mean), aes(x = noninf, y = infect)) +
