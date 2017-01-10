@@ -218,6 +218,18 @@ ggplot(df_hist, aes(x = log2(ftest_stat), fill = ftest_sig)) +
   theme(legend.position = "none")
 ```
 
+## Better counting
+
+How many genes have significantly different variances (f-test p < 0.05) in the non-infected versus the infected state for each comparison?
+
+```{r count-sig-genes}
+df_hist %>%
+  group_by(individuals, is_de) %>%
+  summarize(lessthan = sum(ftest_sig & ftest_stat <= 1),
+            greaterthan = sum(ftest_sig & ftest_stat > 1)) %>%
+  knitr::kable()
+```
+
 ## Session information
 
 ```{r info}
