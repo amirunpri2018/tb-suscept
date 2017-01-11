@@ -207,7 +207,7 @@ df_hist$is_de <- factor(df_hist$is_de,
 ```
 
 ```{r supp-figure, fig.width=2*3*1.5, fig.height=2*2*1.5}
-ggplot(df_hist, aes(x = log2(ftest_stat), fill = ftest_sig)) +
+p_variance <- ggplot(df_hist, aes(x = log2(ftest_stat), fill = ftest_sig)) +
   geom_histogram(binwidth = 0.25) +
   geom_vline(xintercept = 0, color = "red", linetype = "dashed") +
   facet_grid(is_de ~ individuals, scales = "free_y") +
@@ -216,6 +216,11 @@ ggplot(df_hist, aes(x = log2(ftest_stat), fill = ftest_sig)) +
                                           "Variance in the non-infected state") * ")"),
        y = "Number of genes") +
   theme(legend.position = "none")
+p_variance
+ggsave("../figure/variance.pdf", width = 4 * 3, height = 4 * 2, units = "in")
+ggsave("../figure/variance.png",
+       width = 4 * 3, height = 4 * 2, units = "in",
+       dpi = 300)
 ```
 
 ## Better counting
