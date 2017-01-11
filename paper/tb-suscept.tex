@@ -581,6 +581,17 @@ resistant individuals in the infected state by testing $\beta_{status}
 q-values estimated via adaptive shrinkage \cite{Stephens2016} and
 considered differentially expressed genes as those with a q-value less
 than 10\%.
+
+Note that we also tested the interaction term, $\beta_{treat,status} =
+0$, to identify genes in which the difference in expression level
+between the infected and non-infected states was significantly
+different between susceptible and resistant individuals. However, as
+expected since no DE genes were identified between susceptible and
+resistant individuals in the infected state (see Results), the results
+of testing the interaction term were partially redundant with the
+results of testing differences between susceptible and resistant
+individuals in the non-infected state, and thus we ignored these
+results throughout this study.
 \subsection*{Combined analysis of gene expression data and GWAS results}
 
 The GWAS p-values were from previously published studies of TB
