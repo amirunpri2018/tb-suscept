@@ -1056,6 +1056,29 @@ dashed red line is the 1:1 line.
 \label{fig:class-exp}
 \end{figure}
 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\linewidth]{../figure/classifier-svm-thuong.pdf}
+\caption{
+Classifying individuals from Thuong et al., 2008\cite{Thuong2008}
+using a support vector machine model. We followed the same training
+and testing procedure performed for testing the classifier (see
+Classifier in Methods). Not surprisingly since the data sets were from
+different cell types, the classifier trained on the dendritic cells in
+this study performed poorly when tested on samples with gene
+expression levels measured in macrophages. (a) The estimates of
+predicted probability of TB resistance from the
+leave-one-out-cross-validation for individuals in the current study.
+The blue circles represent individuals known to be susceptible to TB,
+and orange those resistant to TB. The horizontal dashed red line at a
+probability of 0.75 separates susceptible and resistant individuals.
+(b) The estimates of predicted probability of TB resistance from
+applying the classifier trained on the data from the current study to
+a test set of putatively susceptible and resistant individuals
+\cite{Thuong2008}.
+}
+\label{fig:class-svm-thuong}
+\end{figure}
 \clearpage\newpage
 \subsection*{Supplementary Data}
 
