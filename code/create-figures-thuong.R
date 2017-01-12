@@ -104,8 +104,8 @@ ggplot(dist_data, aes(x = gene_exp, color = study)) +
        title = "Normalization to compare gene expression\nmeasured with different technologies") +
   theme(legend.position = "bottom")
 
-# my_ggsave("combined-distributions.pdf", dims = c(2, 1))
-# my_ggsave("combined-distributions.png", dims = c(2, 1))
+my_ggsave("combined-distributions-thuong.pdf", dims = c(2, 1))
+my_ggsave("combined-distributions-thuong.png", dims = c(2, 1))
 
 # PCA
 
@@ -129,8 +129,8 @@ combined_pca_multi <- plot_grid(p_combined_pca + theme(legend.position = c(.5, .
                                 p_combined_pca_regr + theme(legend.position = "none"),
                                 labels = letters[1:2])
 
-# my_ggsave("combined-pca.pdf", dims = c(2, 1))
-# my_ggsave("combined-pca.png", dims = c(2, 1))
+my_ggsave("combined-pca-thuong.pdf", dims = c(2, 1))
+my_ggsave("combined-pca-thuong.png", dims = c(2, 1))
 
 # Classifier -------------------------------------------------------------------
 # see code/main-classifier.R
@@ -343,7 +343,7 @@ multi_en <- plot_grid(p_en,
                       p_en_thuong,
                       labels = letters[1:2])
 
-# my_ggsave("classifier-en.pdf", dims = c(2, 1))
+my_ggsave("classifier-en-thuong.pdf", dims = c(2, 1))
 my_ggsave("classifier-en-thuong.png", dims = c(2, 1))
 
 # Support Vector Machine
@@ -369,7 +369,7 @@ multi_svm <- plot_grid(p_svm,
                       labels = letters[1:2])
 
 # my_ggsave("classifier-svm.eps", dims = c(2, 1))
-# my_ggsave("classifier-svm.pdf", dims = c(2, 1))
+my_ggsave("classifier-svm-thuong.pdf", dims = c(2, 1))
 my_ggsave("classifier-svm-thuong.png", dims = c(2, 1))
 
 # Random Forest
@@ -394,7 +394,7 @@ multi_rf <- plot_grid(p_rf,
                        p_rf_thuong,
                        labels = letters[1:2])
 
-# my_ggsave("classifier-rf.pdf", dims = c(2, 1))
+my_ggsave("classifier-rf-thuong.pdf", dims = c(2, 1))
 my_ggsave("classifier-rf-thuong.png", dims = c(2, 1))
 
 # Compare expression of classifier genes between the two studies
@@ -418,5 +418,5 @@ p_class_exp <- ggplot(data.frame(training_medians, testing_medians),
   labs(x = "Current study", y = "Thuong et al., 2008",
        title = "Comparing median expression levels\nof genes used in classifer")
 
-# my_ggsave("classifier-exp.pdf")
+my_ggsave("classifier-exp-thuong.pdf")
 my_ggsave("classifier-exp-thuong.png")
