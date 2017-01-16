@@ -289,18 +289,22 @@ Unfortunately our current data set is too small to properly split into
 separate training and testing sets (it is challenging to collect
 samples from previous TB patients, who are healthy and have no medical
 reason to go back for a GP visit). To our knowledge, there are also no
-other similar data sets available. Thus, in order to further assess
-the plausibility of our model, we applied the classifier to an
-independent study, which collected genome-wide gene expression levels
-in DCs from 65 healthy individuals \cite{Barreiro2012}, none with a
-previous history of TB. Using the cutoff of 0.75 for the probability
-of being resistant to TB (determined to be optimal in the training
-set), \texttildelow11\% (7 of 65) of the individuals were classified
-as susceptible to TB (Fig. \ref{fig:classifier}b). Adjusting for the
-PPV obtained from the training set (\texttildelow71\%), our model
-predicted that \texttildelow7.7\% of the healthy individuals were
-susceptible. This result is intriguing similar to the estimate that
-roughly 10\% of the general population is susceptible to TB.
+other suitable data sets available (see Supplementary Fig.
+\ref{fig:class-svm-thuong} for the results of applying the classifier
+to a non-ideal data set which measured gene expression in macrophages
+from a small number of individuals \cite{Thuong2008}). Thus, in order
+to further assess the plausibility of our model, we applied the
+classifier to an independent study, which collected genome-wide gene
+expression levels in DCs from 65 healthy individuals
+\cite{Barreiro2012}, none with a previous history of TB. Using the
+cutoff of 0.75 for the probability of being resistant to TB
+(determined to be optimal in the training set), \texttildelow11\% (7
+of 65) of the individuals were classified as susceptible to TB (Fig.
+\ref{fig:classifier}b). Adjusting for the PPV obtained from the
+training set (\texttildelow71\%), our model predicted that
+\texttildelow7.7\% of the healthy individuals were susceptible. This
+result is intriguing similar to the estimate that roughly 10\% of the
+general population is susceptible to TB.
 
 \begin{figure}[ht]
 \centering
@@ -380,11 +384,18 @@ individuals known to be susceptible to MTB (Thuong et al., 2008).
 However, there were substantial differences between our study and that
 of Thuong et al., 2008 \cite{Thuong2008}. First, they derived and
 infected macrophages, the primary target host cell in which MTB
-resides; whereas, we infected DCs, which play a larger role in
-stimulating the adaptive immune response to MTB. Second, we collected
-samples from a larger number of putatively resistant individuals (19
-versus 4), increasing our power to distinguish between the gene
-expression profiles of susceptible and resistant individuals.
+resides; whereas, we derived and infected DCs, which play a larger
+role in stimulating the adaptive immune response to MTB. Second, we
+collected samples from a larger number of putatively resistant
+individuals (19 versus 4), increasing our power to distinguish between
+the gene expression profiles of susceptible and resistant individuals.
+Third, they measured gene expression with microarrays; whereas, we
+used RNA-sequencing. Considering the substantial technical differences
+between the methods used and the biological differences between DCs
+and macrophages \cite{Chaussabel2003,Tailleux2008}, unsurprisingly our
+classifier was unable to identify the susceptible individuals from
+Thuong et al., 2008 \cite{Thuong2008} (Supplementary Fig.
+\ref{fig:class-svm-thuong}).
 
 We observed that DE genes in our \emph{in vitro} experimental system
 were enriched for lower GWAS p-values (Fig. \ref{fig:gwas}). This
@@ -639,7 +650,9 @@ samples from this study with known susceptibility status. The test set
 included the 65 non-infected samples from one of our previous studies
 in which the susceptibility status is unknown \cite{Barreiro2012}, and
 thus assumed to be similar to that in the general population
-(\texttildelow10\%). Because the two studies are substantially
+(\texttildelow10\%) (we also tested the classifier on data from a
+small study of macrophages \cite{Thuong2008}, Supplementary Fig.
+\ref{fig:class-svm-thuong}). Because the two studies are substantially
 different, we took multiple steps to make them comparable. First, we
 subset to include only those 9,450 genes which were assayed in both.
 Second, because the dynamic range obtained from RNA-seq (current
@@ -1066,16 +1079,19 @@ and testing procedure performed for testing the classifier (see
 Classifier in Methods). Not surprisingly since the data sets were from
 different cell types, the classifier trained on the dendritic cells in
 this study performed poorly when tested on samples with gene
-expression levels measured in macrophages. (a) The estimates of
-predicted probability of TB resistance from the
-leave-one-out-cross-validation for individuals in the current study.
-The blue circles represent individuals known to be susceptible to TB,
-and orange those resistant to TB. The horizontal dashed red line at a
-probability of 0.75 separates susceptible and resistant individuals.
-(b) The estimates of predicted probability of TB resistance from
-applying the classifier trained on the data from the current study to
-a test set of putatively susceptible and resistant individuals
-\cite{Thuong2008}.
+expression levels measured in macrophages. To match our naming system,
+we labeled the individuals from Thuong et al., 2008\cite{Thuong2008}
+with latent TB as resistant (n = 3 after removing the outlier sample
+LTB2) and the individuals recovered from pulmonary or meningeal TB as
+susceptible (n = 4 each). (a) The estimates of predicted probability
+of TB resistance from the leave-one-out-cross-validation for
+individuals in the current study. The blue circles represent
+individuals known to be susceptible to TB, and orange those resistant
+to TB. The horizontal dashed red line at a probability of 0.75
+separates susceptible and resistant individuals. (b) The estimates of
+predicted probability of TB resistance from applying the classifier
+trained on the data from the current study to a test set of putatively
+susceptible and resistant individuals \cite{Thuong2008}.
 }
 \label{fig:class-svm-thuong}
 \end{figure}
