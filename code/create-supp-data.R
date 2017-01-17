@@ -144,15 +144,15 @@ testing <- testing %>% rename(id = V1) %>%
 # Results
 predictions <- readRDS(file.path(data_dir, "classifier-predictions.rds"))
 predictions_final <- predictions[["svmLinear"]][["q0.05"]]$pred %>%
-  select(id, obs, resist) %>%
+  select(id, obs, suscep) %>%
   rename(status = obs,
-         prob_tb_resist = resist)
+         prob_tb_suscep = suscep)
 
 predictions_lbb <- readRDS(file.path(data_dir, "classifier-predictions-lbb.rds"))
 predictions_lbb_final <- predictions_lbb[["svmLinear"]][["q0.05"]] %>%
   mutate(id = rownames(.)) %>%
-  select(id, resist) %>%
-  rename(prob_tb_resist = resist)
+  select(id, suscep) %>%
+  rename(prob_tb_suscep = suscep)
 
 # Gene information
 class_anno <- anno_gene %>% filter(ensembl_gene_id %in% genes_used_in_final_classifer) %>%

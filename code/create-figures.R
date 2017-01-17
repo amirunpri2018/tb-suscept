@@ -900,7 +900,7 @@ p_en <- p_base +
   scale_color_manual(values = c(col_suscep, col_resist)) +
   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
             size = rel(2)) +
-  theme(legend.position = c(0.75, 0.5)) +
+  theme(legend.position = c(0.25, 0.75)) +
   labs(title = "Training classifier on current data")
 
 en_lbb <- predict_lbb_df[predict_lbb_df$method == "Elastic Net" &
@@ -923,8 +923,8 @@ svm <- class_prob_df[class_prob_df$method == "Support Vector Machine" &
 p_svm <- p_base %+% svm +
   geom_point(aes(color = Observed)) +
   scale_color_manual(values = c(col_suscep, col_resist)) +
-#   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
-#             size = rel(2)) +
+  geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
+            size = rel(2)) +
   theme(legend.position = c(0.25, 0.75)) +
   labs(title = "Training classifier on current data")
 
@@ -943,6 +943,8 @@ my_ggsave("classifier-svm.pdf", dims = c(2, 1))
 my_ggsave("classifier-svm.png", dims = c(2, 1))
 
 # Figure for presentation
+# Note: Need to comment out geom_text command of p_svm (lines 926-927) to make the
+# presentation figures b/c the text is too large.
 ggsave(p_svm + labs(y = "Probability of TB susceptibility", title = "") +
          theme_cowplot(font_size = 18) +
          theme(legend.position = c(0.25, 0.75)) +
@@ -968,7 +970,7 @@ p_rf <- p_base %+% rf +
   scale_color_manual(values = c(col_suscep, col_resist)) +
   geom_text(aes(label = text_label), nudge_x = -0.1, nudge_y = 0.01,
             size = rel(2)) +
-  theme(legend.position = c(0.75, 0.5)) +
+  theme(legend.position = c(0.25, 0.75)) +
   labs(title = "Training classifier on current data")
 
 rf_lbb <- predict_lbb_df[predict_lbb_df$method == "Random Forest" &
