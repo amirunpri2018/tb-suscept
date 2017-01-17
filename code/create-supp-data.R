@@ -73,59 +73,61 @@ results[["status_ii"]] %>% filter(qvalue < .1) %>% nrow()
 
 # S4 - gwas results ------------------------------------------------------------
 
-gwas <- read.delim(file.path(data_dir, "results-gwas.txt"),
-                   stringsAsFactors = FALSE)
-gwas <- gwas %>% select(-interact)
+# See create-supp-data-s4.R for code to create Supplementary_Data_S4.xlsx.
 
-# Add gene annotation
-gwas_anno <- merge(gwas, anno_gene,
-                   by.x = "gene", by.y = "ensembl_gene_id")
-stopifnot(nrow(gwas_anno) == nrow(gwas))
-gwas_anno <- gwas_anno %>% rename(id = gene,
-                                  chr = chromosome_name,
-                                  gene = external_gene_name,
-                                  go_description = go_descrip)
-
-# For the paper:
-gwas_anno %>%
-  filter(gwas_p_gambia < .01, gwas_p_ghana < .01, status_ni > 2) %>%
-  select(gene, chr, status_ni, gwas_p_gambia, gwas_p_ghana, description)
-
-# http://stackoverflow.com/a/12135122
-specify_decimal <- function(x, k) format(round(x, k), nsmall = k)
-
-# Use different cutoffs
-de_effect_size <- c(2, 1.5, 1)
-pval <- c(.005, .01, .05)
-sig_genes <- matrix(NA, nrow = length(de_effect_size) * length(pval), ncol = 4)
-colnames(sig_genes) <- c("GWAS P cutoff", "Effect size cutoff",
-                         "Number of genes", "Names")
-row_counter = 1
-for (effect in de_effect_size) {
-  for (p in pval) {
-    genes <- gwas_anno %>%
-      filter(gwas_p_gambia < p,
-             gwas_p_ghana < p,
-             status_ni > effect) %>%
-      select(gene) %>%
-      unlist %>%
-      sort %>%
-      paste(., collapse = ", ")
-    sig_genes[row_counter, "GWAS P cutoff"] <- specify_decimal(p, 3)
-    sig_genes[row_counter, "Effect size cutoff"] <- specify_decimal(effect, 1)
-    sig_genes[row_counter, "Number of genes"] <- length(strsplit(genes, ",")[[1]])
-    sig_genes[row_counter, "Names"] <- genes
-    row_counter = row_counter + 1
-  }
-}
-
-s4 <- createWorkbook()
-addWorksheet(s4, sheetName = "input-data")
-writeData(s4, sheet = "input-data", gwas_anno)
-addWorksheet(s4, sheetName = "top-genes")
-writeData(s4, sheet = "top-genes", sig_genes)
-saveWorkbook(s4, file = file.path(data_dir, "Supplementary_Data_S4.xlsx"),
-             overwrite = TRUE)
+# gwas <- read.delim(file.path(data_dir, "results-gwas.txt"),
+#                    stringsAsFactors = FALSE)
+# gwas <- gwas %>% select(-interact)
+# 
+# # Add gene annotation
+# gwas_anno <- merge(gwas, anno_gene,
+#                    by.x = "gene", by.y = "ensembl_gene_id")
+# stopifnot(nrow(gwas_anno) == nrow(gwas))
+# gwas_anno <- gwas_anno %>% rename(id = gene,
+#                                   chr = chromosome_name,
+#                                   gene = external_gene_name,
+#                                   go_description = go_descrip)
+# 
+# # For the paper:
+# gwas_anno %>%
+#   filter(gwas_p_gambia < .01, gwas_p_ghana < .01, status_ni > 2) %>%
+#   select(gene, chr, status_ni, gwas_p_gambia, gwas_p_ghana, description)
+# 
+# # http://stackoverflow.com/a/12135122
+# specify_decimal <- function(x, k) format(round(x, k), nsmall = k)
+# 
+# # Use different cutoffs
+# de_effect_size <- c(2, 1.5, 1)
+# pval <- c(.005, .01, .05)
+# sig_genes <- matrix(NA, nrow = length(de_effect_size) * length(pval), ncol = 4)
+# colnames(sig_genes) <- c("GWAS P cutoff", "Effect size cutoff",
+#                          "Number of genes", "Names")
+# row_counter = 1
+# for (effect in de_effect_size) {
+#   for (p in pval) {
+#     genes <- gwas_anno %>%
+#       filter(gwas_p_gambia < p,
+#              gwas_p_ghana < p,
+#              status_ni > effect) %>%
+#       select(gene) %>%
+#       unlist %>%
+#       sort %>%
+#       paste(., collapse = ", ")
+#     sig_genes[row_counter, "GWAS P cutoff"] <- specify_decimal(p, 3)
+#     sig_genes[row_counter, "Effect size cutoff"] <- specify_decimal(effect, 1)
+#     sig_genes[row_counter, "Number of genes"] <- length(strsplit(genes, ",")[[1]])
+#     sig_genes[row_counter, "Names"] <- genes
+#     row_counter = row_counter + 1
+#   }
+# }
+# 
+# s4 <- createWorkbook()
+# addWorksheet(s4, sheetName = "input-data")
+# writeData(s4, sheet = "input-data", gwas_anno)
+# addWorksheet(s4, sheetName = "top-genes")
+# writeData(s4, sheet = "top-genes", sig_genes)
+# saveWorkbook(s4, file = file.path(data_dir, "Supplementary_Data_S4.xlsx"),
+#              overwrite = TRUE)
 
 # S5 - classifier results ------------------------------------------------------------
 
