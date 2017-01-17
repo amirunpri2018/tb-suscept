@@ -152,7 +152,8 @@ Add a boolean for if the gene was DE in the non-infected state.
 stopifnot(rownames(d) == rownames(results[["status_ni"]]),
           df_hist$gene == rownames(results[["status_ni"]]))
 df_hist$is_de <- results[["status_ni"]]$qvalue < 0.1
-stopifnot(sum(df_hist$is_de) == 645 * 3)
+stopifnot(sum(df_hist$is_de) == 645 * 3,
+          (sum(df_hist$is_de) + sum(!df_hist$is_de)) / 3 == 11336)
 head(df_hist)
 ```
 
@@ -200,10 +201,10 @@ df_hist$individuals <- factor(df_hist$individuals,
 ```{r}
 df_hist$is_de <- factor(df_hist$is_de,
                         levels = c(FALSE, TRUE),
-                        labels = c(sprintf("All genes (n = %d)",
-                                           nrow(d)),
+                        labels = c(sprintf("**non**-DE genes in non-infected\nstate (n = %d)",
+                                           sum(!df_hist$is_de) / 3),
                                    sprintf("DE genes in non-infected\nstate (n = %d)",
-                                           sum(results[["status_ni"]]$qvalue < 0.1))))
+                                           sum(df_hist$is_de) / 3)))
 ```
 
 ```{r supp-figure, fig.width=2*3*1.5, fig.height=2*2*1.5}
