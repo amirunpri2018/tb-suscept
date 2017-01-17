@@ -620,7 +620,7 @@ located within 50 kb up or downstream of its transcription start site.
 Specifically, we obtained the genomic coordinates of the SNPs with the
 R/Bioconductor \cite{Huber2015} package
 SNPlocs.Hsapiens.dbSNP144.GRCh38 and matched SNPs to nearby genes
-using GenomicRanges \cite{Lawrence2013}. 10,260 to 11,060 of the
+using GenomicRanges \cite{Lawrence2013}. 10,265 to 11,060 of the
 11,336 genes were assigned an association p-value depending on the
 GWAS (Supplementary Data S4). For each of the 4 differential
 expression contrasts we tested (resistant vs. susceptible individuals
@@ -1148,23 +1148,19 @@ the corresponding name(s) of the GO term(s). (xlsx)
 
 Supplementary Data S4 contains the results of the GWAS comparison
 analysis (Fig. \ref{fig:gwas}). The first sheet “input-data” contains
-the data for the 10,260 genes which were assigned a SNP in the studies
-from The Gambia and Ghana. “gwas\_p\_ghana” is the minimum p-value
-from the GWAS in Ghana, “gwas\_p\_gambia” is the minimum p-value from
-the GWAS in The Gambia, and “n\_snps” is the number of GWAS SNPs
-within 50 kb of the transcription start site. The columns status\_ni,
-status\_ii, treat\_resist, and treat\_suscep refer to the tests
-described for Supplementary Data S3 and contain the absolute log fold
-changes for each comparison. All the other gene annotation columns are
-the same as described for Supplementary Data S3. The second sheet
-“top-genes” contains the results of stringently filtering the combined
-differential expression and GWAS results. “GWAS P cutoff” is the
-p-value cutoff used for both the The Gambia and Ghana GWAS, “Effect
-size cutoff” is the cutoff of the absolute log fold change for the
-test between susceptible and resistant individuals in the non-infected
-state (Fig. \ref{fig:limma}a), “Number of genes” is the number of
-genes which satisfied these thresholds, and “Names” is the
-corresponding official gene names (sorted alphabetically). (xlsx)
+the p-values for the GWAS SNP assigned to each gene from each study.
+The columns “gwas\_p\_russia”, “gwas\_p\_gambia”, “gwas\_p\_ghana”,
+“gwas\_p\_uganda”, “gwas\_p\_height” contain the p-values from the TB
+susceptibility GWAS in Russia, The Gambia, Ghana, Uganda and Tanzania,
+and the height GWAS in Europeans, respectively. The columns
+“status\_ni”, “status\_ii”, “treat\_resist”, and “treat\_suscep” refer
+to the tests described for Supplementary Data S3 and contain the log
+fold changes for each comparison. All the other gene annotation
+columns are the same as described for Supplementary Data S3. The
+second sheet “top-genes” contains a subset of the full results to
+highlight those genes which had an absolute log fold change greater
+than 2 between resistant and susceptible individuals in the
+non-infected state (“status\_ni”). (xlsx)
 \subsubsection*{Supplementary Data S5}
 
 Supplementary Data S5 contains the results of the classifier analysis.
