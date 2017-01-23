@@ -58,22 +58,22 @@ individuals progress to active TB disease. Despite evidence for
 heritability, it is not currently possible to predict whether a
 healthy person is susceptible to TB. To explore approaches to classify
 susceptibility to TB, we infected with MTB dendritic cells (DCs) from
-putatively resistant individuals diagnosed with latent TB and from
-putatively susceptible individuals that had recovered from a past
-episode of active TB. We measured genome-wide gene expression levels
-in infected and non-infected cells. We found hundreds of
-differentially expressed genes between susceptible and resistant
-individuals in the non-infected cells. We further found that genetic
-polymorphisms in proximity to the differentially expressed genes
-between susceptible and resistant individuals are more likely to be
-associated with TB susceptibility in published GWAS data. By
-intersecting the gene expression and GWAS data, we identified two
-promising candidate genes: \emph{CCL1} and \emph{UNC13A}. Lastly, we
-trained a classifier based on the gene expression levels in the
-non-infected cells, and demonstrated decent performance on our data
-and an independent data set. Overall, our promising results from this
-small study suggest that training a classifier on a larger cohort may
-enable us to accurately predict TB susceptibility.
+putatively resistant individuals diagnosed with latent TB, and from
+susceptible individuals that had recovered from a past episode of
+active TB. We measured genome-wide gene expression levels in infected
+and non-infected cells and found hundreds of differentially expressed
+genes between susceptible and resistant individuals in the
+non-infected cells. We further found that genetic polymorphisms in
+proximity to the differentially expressed genes between susceptible
+and resistant individuals are more likely to be associated with TB
+susceptibility in published GWAS data. By intersecting the gene
+expression and GWAS data, we identified two promising candidate genes:
+\emph{CCL1} and \emph{UNC13A}. Lastly, we trained a classifier based
+on the gene expression levels in the non-infected cells, and
+demonstrated decent performance on our data and an independent data
+set. Overall, our promising results from this small study suggest that
+training a classifier on a larger cohort may enable us to accurately
+predict TB susceptibility.
 \end{abstract}
 \begin{document}
 \flushbottom
@@ -149,45 +149,45 @@ control analyses to remove non-expressed genes (Supplementary Fig.
 \ref{fig:gene}; Supplementary Data S2), identify and remove outliers
 (Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
 \ref{fig:outliers}), and check for confounding batch effects
-(Supplementary Fig. \ref{fig:batch}, \ref{fig:infection}). Ultimately
-6 samples failed the quality checks and were removed from all
-downstream analyses (Supplementary Fig. \ref{fig:outliers}).
+(Supplementary Fig. \ref{fig:batch}, \ref{fig:infection}). Ultimately,
+data from six samples failed the quality checks and were removed from
+all downstream analyses (Supplementary Fig. \ref{fig:outliers}).
 
 We performed a standard differential expression analysis using a
 linear modeling framework (Supplementary Data S3), defined in equation
 (\ref{eq:limma}). As expected, there was a strong response to
 infection with MTB in both resistant and susceptible individuals
-(Supplementary Fig. \ref{fig:limma-supp}). Considering the resistant
-individuals, we identified 3,486 differentially expressed (DE) genes
-between the non-infected and infected states at a q-value of 10\% and
-an arbitrary absolute log-fold change greater than 1. Similarly, 3,789
-genes were DE between the non-infected and infected states for
-susceptible individuals at a q-value of 10\% and an absolute log fold
-change greater than 1. The DE genes included the important immune
+(Supplementary Fig. \ref{fig:limma-supp}). Considering the putatively
+resistant individuals, we identified 3,486 differentially expressed
+(DE) genes between the non-infected and infected states at a q-value
+of 10\% and an arbitrary absolute log-fold change greater than 1.
+Similarly, 3,789 genes were classified as DE between the non-infected
+and infected states in the putatively susceptible individuals. In both
+classes of samples, the DE genes included the important immune
 response factors \emph{IL12B}, \emph{REL}, and \emph{TNF}. While the
 treatment effect was obvious in all individuals, of most interest were
-the patterns of gene expression differences between susceptible and
-resistant individuals in either the non-infected or infected states
-(Fig. \ref{fig:limma}). We identified 645 DE genes between resistant
-and susceptible individuals in the non-infected state at a q-value of
-10\%, including \emph{ATPV1B2}, \emph{FEZ2}, \emph{PSMA2},
-\emph{TNFRSF25}, and \emph{TRIM38}. In contrast, no genes were DE
-between resistant and susceptible individuals in the infected state at
-a q-value of 10\%.
+the patterns of gene expression differences between the putatively
+susceptible and resistant individuals in either the non-infected or
+infected states (Fig. \ref{fig:limma}). We identified 645 DE genes
+between putatively resistant and susceptible individuals in the
+non-infected state at a q-value of 10\%, including \emph{ATPV1B2},
+\emph{FEZ2}, \emph{PSMA2}, \emph{TNFRSF25}, and \emph{TRIM38}. In
+contrast, no genes were DE between putatively resistant and
+susceptible individuals in the infected state (at a q-value of 10\%).
 
 \begin{figure}[p]
 \centering
 \includegraphics[width=\linewidth]{../figure/limma.pdf}
 \caption{
-Differential expression analysis. The top panel contains the
-distribution of unadjusted p-values after testing for differential
-expression between susceptible and resistant individuals in the (a)
-non-infected or (b) infected state. The bottom panel contains the
-corresponding volcano plots for the (c) non-infected and (d) infected
-states. The x-axis is the log fold change in gene expression level
-between susceptible and resistant individuals and the y-axis is the
-–log\textsubscript{10} p-value. Red indicates genes which are
-significant differentially expressed with a q-value less than 10\%.
+Results of differential expression analysis. The top panels show the
+distributions of unadjusted p-values for testing the null of no
+differential expression between susceptible and resistant individuals
+in the (a) non-infected or (b) infected state. The bottom panels show
+the corresponding volcano plots for the (c) non-infected and (d)
+infected states. The x-axis is the log fold change in gene expression
+level between susceptible and resistant individuals and the y-axis is
+the –log\textsubscript{10} p-value. Red indicates genes that are
+classified as differentially expressed with a q-value less than 10\%.
 }
 \label{fig:limma}
 \end{figure}
@@ -195,39 +195,50 @@ significant differentially expressed with a q-value less than 10\%.
 
 We next sought evidence that genes classified as DE in our \emph{in
 vitro} experimental system play a role in determining susceptibility
-to TB. To do this, we intersected our results with the p-values from
-TB susceptibility GWAS conducted in Russia \cite{Curtis2015}, The
-Gambia \cite{Thye2010}, Ghana \cite{Thye2010}, and Uganda and Tanzania
-\cite{Sobota2016} (we included a height GWAS conducted in individuals
-of European ancestry \cite{LangoAllen2010} as a negative control). For
-every GWAS, we coupled each gene in our expression data with the GWAS
-SNP with the lowest p-value among all tested SNPs located within 50 kb
-of the gene’s transcription start site (Supplementary Data S4). We
-then asked whether the DE genes in our experiment are enriched for low
-GWAS p-values. Specifically, we calculated the fraction of SNPs with a
-GWAS p-value less than 0.05 among SNPs coupled with ranked subsets of
-genes whose expression profiles show increasing effect size (defined
-as the absolute value of the log fold change in our experiment). In
-order to assess the significance of the observations, we performed 100
-permutations of the enrichment analysis to derive an empirical
+to TB. To do this, we intersected our data with results from TB
+susceptibility GWAS conducted in Russia \cite{Curtis2015}, The Gambia
+\cite{Thye2010}, Ghana \cite{Thye2010}, and Uganda and Tanzania
+\cite{Sobota2016}. We also included data from a height GWAS conducted
+in individuals of European ancestry \cite{LangoAllen2010} as a
+negative control. To perform a combined analysis of our gene
+expression data and the GWAS results, we had to define pairs of genes
+(for which we have expression data) and SNPs (for which we obtained
+GWAS \emph{P} values). Thus, each gene in our expression data was
+coupled with the GWAS SNP with the lowest p-value among all tested
+SNPs located within 50 kb of the gene’s transcription start site
+(Supplementary Data S4; this gene-SNP definition was performed
+separately for each GWAS data set).
+
+Once we defined gene–SNP pairs, we asked whether differences in gene
+expression levels between putatively resistant and susceptible
+individuals could help us identify genetic variation that is
+associated with susceptibility to TB. In other words, we asked whether
+increasing evidence for DE genes is associated with low GWAS p-values.
+To do so, we calculated the fraction of SNPs with a GWAS p-value lower
+than 0.05 among SNPs that were paired with ranked subsets of genes
+whose expression profiles show increasing effect size of expression
+differences between putatively resistant and susceptible individuals.
+In order to assess the significance of the observations, we performed
+100 permutations of the enrichment analysis to derive an empirical
 p-value.
 
 Using this approach, we observed a clear enrichment (empirical
-\emph{P} \textless \, 0.01) of low p-values for SNPs from the TB
-susceptibility GWAS in Russia for genes with increasing effect size
-between susceptible and resistant individuals in the non-infected
-state (Fig. \ref{fig:gwas}a). In addition, we observed significant
-enrichment (empirical \emph{P} \textless \, 0.01) across all 4 TB
+\emph{P} \textless \, 0.01) of low p-values for TB GWAS SNPs that are
+paired with genes that are differentially expressed between
+susceptible and resistant individuals in the non-infected state (Fig.
+\ref{fig:gwas}a). In fact, we observed significant enrichments of
+lower GWAS p values (empirical \emph{P} \textless \, 0.01) in all 4 TB
 susceptibility GWAS (Russia, The Gambia, Ghana, Uganda and Tanzania)
 (Supplementary Fig. \ref{fig:gwas-supp}) for all 4 differential
-expression contrasts: resistant vs. susceptible individuals in the
-non-infected state (Fig. \ref{fig:gwas}c), resistant vs. susceptible
-individuals in the infected state (Fig. \ref{fig:gwas}d), effect of
-treatment in resistant individuals (Fig. \ref{fig:gwas}e), effect of
-treatment in susceptible individuals (Fig. \ref{fig:gwas}f).
-Reassuringly, we did not observe any enrichment (empirical \emph{P}
-\textgreater \, 0.01) between the differential expression results and
-the p-values from the height GWAS (Fig. \ref{fig:gwas}bcdef).
+expression contrasts, namely resistant vs. susceptible individuals in
+the non-infected state (Fig. \ref{fig:gwas}c), resistant vs.
+susceptible individuals in the infected state (Fig. \ref{fig:gwas}d),
+effect of treatment in resistant individuals (Fig. \ref{fig:gwas}e),
+and effect of treatment in susceptible individuals (Fig.
+\ref{fig:gwas}f). Reassuringly, we did not observe an enrichment of
+low p values (empirical \emph{P} \textgreater \, 0.01) when we used
+the same approach to consider data from the height GWAS (Fig.
+\ref{fig:gwas}bcdef).
 
 
 \begin{figure}[p]
@@ -235,21 +246,21 @@ the p-values from the height GWAS (Fig. \ref{fig:gwas}bcdef).
 \includegraphics[width=\linewidth]{../figure/gwas-final.pdf}
 \caption{
 Comparison of differential expression and TB susceptibility GWAS
-results. (a and b) The y-axis is the fold enrichment of genes assigned
-a SNP with p-value less than 0.05 from the (a) GWAS of TB
-susceptibility in Russia \cite{Curtis2015} or (b) height in
-individuals of European descent \cite{LangoAllen2010}. The x-axis is
-bins of genes with increasingly stringent effect size cutoffs of the
-absolute log fold change between susceptible and resistant individuals
-in the non-infected state. The effect size cutoffs were chosen such
-that each bin from left to right contained approximately 25 fewer
-genes. The red line is the results from the actual data. The grey
-lines are the results from 100 permutations. The dashed blue line at
-y=1 is the null expectation. (c-f) Boxplots of the area under the
-curve of the fold enrichment (red line in a and b) minus the
-background level (blue y = 1 line in a and b) for each of the 5 GWAS
-\cite{Curtis2015, Thye2010, Sobota2016} considered for the 4
-differential expression contrasts: (c) resistant vs. susceptible
+results. (a and b) The y-axis is the fold enrichment of SNPs with
+p-value less than 0.05 from the (a) GWAS of TB susceptibility in
+Russia \cite{Curtis2015} or (b) height in individuals of European
+descent \cite{LangoAllen2010}. The x-axis is bins of genes with
+increasingly stringent effect size cutoffs of the absolute expression
+log fold change between putatively susceptible and resistant
+individuals in the non-infected state. The effect size cutoffs were
+chosen such that each bin from left to right contained approximately
+25 fewer genes. The red line shows the results from the actual data.
+The grey lines are the results from 100 permutations. The dashed blue
+line at y=1 represents the null expectation. (c-f) Boxplots of the
+area under the curve of the fold enrichment (red line in a and b)
+minus the background level (blue y = 1 line in a and b) for each of
+the 5 GWAS \cite{Curtis2015, Thye2010, Sobota2016} considered for the
+4 differential expression contrasts: (c) resistant vs. susceptible
 individuals in the non-infected state, (d) resistant vs. susceptible
 individuals in the infected state, (e) effect of treatment in
 resistant individuals, (f) effect of treatment in susceptible
@@ -268,17 +279,17 @@ Next we attempted to build a gene expression-based classifier to
 predict TB susceptibility status (Supplementary Data S5). We focused
 on the gene expression levels measured in the non-infected state both
 because this is where we observed the largest gene regulatory
-differences between susceptible and resistant individuals (Fig.
-\ref{fig:limma}ac), and also because, from the perspective of a
-translational application, it is more practical to obtain gene
-expression data from non-infected DCs. We trained a support vector
-machine using the 99 genes that were differentially expressed between
-resistant and susceptible individuals in the non-infected state at a
-q-value less than 5\% (see Methods for a full description of how we
-selected this model). Encouragingly, we observed a clear separation
-between susceptible and resistant individuals when comparing the
-predicted probability of being susceptible to TB for each sample
-obtained from leave-one-out-cross-validation (Fig.
+differences between putatively susceptible and resistant individuals
+(Fig. \ref{fig:limma}ac), and also because, from the perspective of an
+ultimate translational application, it is more practical to obtain
+gene expression data from non-infected DCs. We trained a support
+vector machine using the 99 genes that were differentially expressed
+between resistant and susceptible individuals in the non-infected
+state at a q-value less than 5\% (see Methods for a full description
+of how we selected this model). Encouragingly, we observed a clear
+separation between putatively susceptible and resistant individuals
+when comparing the predicted probability of being susceptible to TB
+for each sample obtained from leave-one-out-cross-validation (Fig.
 \ref{fig:classifier}a). Using a cutoff of 0.25 for the predicted
 probability of being susceptible to TB, we obtained a sensitivity of
 100\% (5 out of 5 susceptible individuals classified as susceptible),
@@ -291,22 +302,25 @@ Unfortunately our current data set is too small to properly split into
 separate training and testing sets (it is challenging to collect
 samples from previous TB patients, who are healthy and have no medical
 reason to go back for a GP visit). To our knowledge, there are also no
-other suitable data sets available (see Supplementary Fig.
-\ref{fig:class-svm-thuong} for the results of applying the classifier
-to a non-ideal data set which measured gene expression in macrophages
-from a small number of individuals \cite{Thuong2008}). Thus, in order
-to further assess the plausibility of our model, we applied the
-classifier to an independent study, which collected genome-wide gene
-expression levels in DCs from 65 healthy individuals
-\cite{Barreiro2012}, none with a previous history of TB. Using the
-cutoff of 0.25 for the probability of being susceptible to TB
-(determined to be optimal in the training set), \texttildelow11\% (7
-of 65) of the individuals were classified as susceptible to TB (Fig.
-\ref{fig:classifier}b). Adjusting for the PPV obtained from the
-training set (\texttildelow71\%), our model predicted that
-\texttildelow7.7\% of the healthy individuals were susceptible. This
-result is intriguing similar to the estimate that roughly 10\% of the
-general population is susceptible to TB.
+other suitable data sets available with which to test out classifier
+(that said, see Supplementary Fig. \ref{fig:class-svm-thuong} for the
+results of applying the classifier to a non-ideal data set, which
+measured gene expression in macrophages from a small number of
+individuals \cite{Thuong2008}). Thus, in order to further assess the
+plausibility of our model, we applied the classifier to data from an
+independent study, which collected genome-wide gene expression levels
+in DCs from 65 healthy individuals \cite{Barreiro2012}, none with a
+previous history of TB. Using the cutoff of 0.25 for the probability
+of being susceptible to TB (determined to be optimal in the training
+set), \texttildelow11\% (7 of 65) of the individuals were classified
+as susceptible to TB (Fig. \ref{fig:classifier}b). Adjusting for the
+PPV obtained from the training set (\texttildelow71\%), our model
+predicted that \texttildelow7.7\% of the healthy individuals were
+susceptible. While we cannot confirm this result (the true
+susceptibility status of these 65 individuals is unknown), this
+observation is encouraging because our estimate is similar to the
+commonly used inference that roughly 10\% of the general population is
+susceptible to TB.
 
 \begin{figure}[ht]
 \centering
@@ -333,27 +347,27 @@ be putatively susceptible or resistant to developing active
 tuberculosis (TB) and measured genome-wide gene expression levels in
 non-infected DCs and DCs infected with \emph{Mycobacterium
 tuberculosis} (MTB) for 18 hours. As expected, there were large
-changes in gene expression due to MTB infection in both resistant and
-susceptible individuals (Supplementary Fig. \ref{fig:limma-supp}). We
-identified 645 genes, which were differentially expressed (DE) between
-susceptible and resistant individuals in the non-infected state;
-whereas, we did not observe any DE genes between susceptible and
-resistant individuals in the infected state (Fig. \ref{fig:limma}).
-This suggests that the differences in the transcriptomes between DCs
-of resistant and susceptible individuals are present pre-infection.
-Yet, 18 hours after infection gene expression profiles in both
-susceptible and resistant individuals have converged to the same gene
-regulatory network, presumably to fight the infection (note that the
-absence of DE genes in the infected state is \textbf{not} caused by a
-decrease in statistical power due to an overall increase in gene
-expression variance upon infection; Supplementary Fig.
-\ref{fig:variance}). We chose to measure gene expression 18 hours
-post-infection because this time point was previously associated with
-a large change in genome-wide gene expression levels
-\cite{Tailleux2008}. Given our observations, however, future studies
-investigating the difference in the innate immune response between
-individuals resistant and susceptible to TB may want to focus on
-earlier time points post-infection.
+changes in gene expression due to MTB infection in the DCs from both
+resistant and susceptible individuals (Supplementary Fig.
+\ref{fig:limma-supp}). We identified 645 genes which were
+differentially expressed (DE) between susceptible and resistant
+individuals in the non-infected state; whereas, we did not observe any
+DE genes between susceptible and resistant individuals in the infected
+state (Fig. \ref{fig:limma}). This suggests that the differences in
+the transcriptomes between DCs of resistant and susceptible
+individuals are present pre-infection. Yet, 18 hours after infection
+gene expression profiles in both susceptible and resistant individuals
+have converged to a similar gene regulatory network, presumably to
+fight the infection. We confirmed that the absence of DE genes in the
+infected state is \textbf{not} caused by a decrease in statistical
+power due to an overall increase in gene expression variance upon
+infection (Supplementary Fig. \ref{fig:variance}). We chose to measure
+gene expression 18 hours post-infection because this time point was
+previously associated with a large change in genome-wide gene
+expression levels \cite{Tailleux2008}. Given our observations,
+however, future studies investigating the difference in the innate
+immune response between individuals resistant and susceptible to TB
+may want to focus on earlier time points post-infection.
 
 It is important to note that our study was not designed to uncover the
 mechanisms underlying susceptibility or resistance to TB, but to try
@@ -380,30 +394,11 @@ expression in susceptible individuals compared to resistant in the
 non-infected state. These genes are candidates for future functional
 studies investigating the mechanisms of TB susceptibility.
 
-To our knowledge, our study was only the second to collect data from
-\emph{in vitro} MTB-infected innate immune cells isolated from
-individuals known to be putatively susceptible to MTB (Thuong et al.,
-2008). However, there were substantial differences between our study
-and that of Thuong et al., 2008 \cite{Thuong2008}. First, they derived
-and infected macrophages, the primary target host cell in which MTB
-resides; whereas, we derived and infected DCs, which play a larger
-role in stimulating the adaptive immune response to MTB. Second, we
-collected samples from a larger number of putatively resistant
-individuals (19 versus 4), increasing our power to distinguish between
-the gene expression profiles of susceptible and resistant individuals.
-Third, they measured gene expression with microarrays; whereas, we
-used RNA-sequencing. Considering the substantial technical differences
-between the methods used and the biological differences between DCs
-and macrophages \cite{Chaussabel2003,Tailleux2008}, unsurprisingly our
-classifier was unable to identify the susceptible individuals from
-Thuong et al., 2008 \cite{Thuong2008} (Supplementary Fig.
-\ref{fig:class-svm-thuong}).
-
 We observed that DE genes in our \emph{in vitro} experimental system
 were enriched for lower GWAS p-values (Fig. \ref{fig:gwas}). This
 suggests that such \emph{in vitro} approaches are informative for
 interrogating the genetic basis of disease susceptibility. That being
-said, we recognize the major caveat with this analysis that assigning
+said, we recognize a major caveat with this analysis is that assigning
 SNPs to their nearest gene on the linear chromosome is problematic
 because regulatory variants can have longer range effects.
 Nevertheless, considering this limitation, it was encouraging that we
@@ -412,27 +407,28 @@ in this system.
 
 Not only did this analysis identify a global enrichment of TB
 susceptibility loci, but by intersecting the expression and GWAS data,
-we were able to identify some interesting candidate genes which were
-marginally significant in both (Supplementary Data S4). Here we
-highlight two (\emph{CCL1} and \emph{UNC13A}) which have been
-previously shown to play important roles in MTB infection. \emph{CCL1}
-is a chemokine that stimulates migration of monocytes
-\cite{Miller1992}. In our study, it was upregulated in susceptible
-individuals compared to resistant in both the non-infected and
-infected states (but did not reach statistical significance in either)
-and was statistically significantly upregulated with MTB treatment.
-Furthermore, the nearby SNP assigned to \emph{CCL1} had a p-value less
-than 0.01 in the TB susceptibility GWAS from The Gambia and Ghana. The
-previous differential expression study of TB susceptibility mentioned
-above found that \emph{CCL1} was upregulated to a greater extent 4
-hours post-infection with MTB in macrophages isolated from individuals
-with active TB (i.e. susceptible) compared to individuals with latent
-TB (i.e. resistant) \cite{Thuong2008}. Additionally they performed a
-candidate gene association study and found that SNPs nearby
-\emph{CCL1} were associated with TB susceptibility. In our previous
-study, we discovered that \emph{CCL1} was one of only 288 genes that
-were differentially expressed in macrophages 48 hours post-infection
-with MTB and related mycobacterial species but not unrelated virulent
+we were able to identify a few interesting candidate genes, which were
+only marginally significant in the original GWAS (Supplementary Data
+S4). Here we highlight two genes (\emph{CCL1} and \emph{UNC13A}),
+which have been previously shown to play important roles in MTB
+infection. \emph{CCL1} is a chemokine that stimulates migration of
+monocytes \cite{Miller1992}. In our study, it was upregulated in
+susceptible individuals compared to resistant in both the non-infected
+and infected states (but did not reach statistical significance in
+either) and was statistically significantly upregulated with MTB
+treatment. Furthermore, the nearby SNP assigned to \emph{CCL1} had a
+p-value less than 0.01 in the TB susceptibility GWAS from The Gambia
+and Ghana. A previous differential expression study of TB
+susceptibility (discussed in more detail below) found that \emph{CCL1}
+was upregulated to a greater extent 4 hours post-infection with MTB in
+macrophages isolated from individuals with active TB (i.e.
+susceptible) compared to individuals with latent TB (i.e. resistant)
+\cite{Thuong2008}. Additionally they performed a candidate gene
+association study and found that SNPs nearby \emph{CCL1} were
+associated with TB susceptibility. In our previous study, we
+discovered that \emph{CCL1} was one of only 288 genes that were
+differentially expressed in macrophages 48 hours post-infection with
+MTB and related mycobacterial species but not unrelated virulent
 bacteria \cite{Blischak2015}. \emph{UNC13A} is involved in vesicle
 formation \cite{Sudhof2004}. In our study, it was downregulated in
 susceptible individuals compared to resistant in both the non-infected
@@ -465,25 +461,45 @@ whether or not to take antibiotics to treat latent TB
 \cite{Munoz2015}, false negatives (susceptible individuals mistakenly
 classified as resistant) would be much more harmful than false
 positives (resistant individuals mistakenly classified as
-susceptible), which is why we emphasized sensitivity over specificity.
+susceptible). For that reason, we emphasized sensitivity over
+specificity.
 
-At this time, we are not aware of any other data set from healthy
-individuals known to be sensitive to TB, with which we can further
-test our classifier. When we applied our classifier to an independent
-set of non-infected DCs isolated from healthy individuals of unknown
-susceptibility status, our model predicted that \texttildelow7.7-11\%
-of the individuals were susceptible to TB, which reassuringly is
-similar to the average in the general population (10\%). Despite this
-success, our results must be interpreted cautiously as a
-proof-of-principle due to our very small sample size of only 5
-susceptible individuals. That said, our promising results in this
-small study suggest that collecting blood samples from a larger cohort
-of susceptible individuals would enable building a gene expression
-based classifier able to confidently assess risk of TB susceptibility.
-By reducing the number of resistant individuals receiving treatment
-for latent TB, we can eliminate the adverse health effects of a 6
-month regimen of antibiotics for these individuals and also reduce the
-selective pressures on MTB to develop drug resistance.
+To our knowledge, our study was only the second to collect data from
+\emph{in vitro} MTB-infected innate immune cells isolated from
+individuals known to be putatively susceptible to MTB (Thuong et al.,
+2008). However, there were substantial differences between our study
+and that of Thuong et al., 2008 \cite{Thuong2008}. First, they derived
+and infected macrophages, the primary target host cell in which MTB
+resides; whereas, we derived and infected DCs, which play a larger
+role in stimulating the adaptive immune response to MTB. Second, we
+collected samples from a larger number of putatively resistant
+individuals (19 versus 4), increasing our power to distinguish between
+the gene expression profiles of susceptible and resistant individuals.
+Third, they measured gene expression with microarrays; whereas, we
+used RNA-sequencing. Considering the substantial technical differences
+between the methods used and the biological differences between DCs
+and macrophages \cite{Chaussabel2003,Tailleux2008}, unsurprisingly, we
+were unable to identify the susceptible individuals from Thuong et
+al., 2008 \cite{Thuong2008} using our classifier (Supplementary Fig.
+\ref{fig:class-svm-thuong}).
+
+Indeed, at this time, we are not aware of any other data set from
+healthy individuals known to be sensitive to TB, with which we can
+further test our classifier. When we applied our classifier to an
+independent set of non-infected DCs isolated from healthy individuals
+of unknown susceptibility status, our model predicted that
+\texttildelow7.7-11\% of the individuals were susceptible to TB, which
+reassuringly is similar to the average in the general population
+(10\%). Despite this, our results must be interpreted cautiously; at
+best as a proof-of-principle, due to our very small sample size of
+only 5 susceptible individuals. That said, our promising results in
+this small study suggest that collecting blood samples from a larger
+cohort of susceptible individuals would enable building a gene
+expression based classifier able to confidently assess risk of TB
+susceptibility. By reducing the number of resistant individuals
+receiving treatment for latent TB, we can eliminate the adverse health
+effects of a 6 month regimen of antibiotics for these individuals and
+also reduce the selective pressures on MTB to develop drug resistance.
 \section*{Methods}
 
 \subsection*{Ethics Statement}
