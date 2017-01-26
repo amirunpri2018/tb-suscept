@@ -28,7 +28,7 @@ raw_dir = "/scratch/midway/jdblischak/tb-suscept-geo/"
 # processed data files
 processed_dir = "/home/jdblischak/tb-suscept/data/"
 # output files
-outdir = raw_dir + "geo/"
+outdir = processed_dir
 
 sys.stdout.write("fastq directory:\t%s\nprocessed directory:\t%s\noutput directory:\t%s\ncurrent directory:\t%s\n\n"%(
                  raw_dir, processed_dir, outdir, os.getcwd()))
