@@ -17,32 +17,31 @@
 \author[3,$\dag$,*]{Ludovic Tailleux}
 \author[1]{Marsha Myrthil}
 \author[4]{Cécile Charlois}
-\author[5,6]{Emmanuel Bergot}
-\author[7]{Aurélien Dinh}
-\author[8]{Gloria Morizot}
-\author[9]{Olivia Chény}
-\author[9]{Cassandre Von Platen}
-\author[10,11]{Jean-Louis Herrmann}
+\author[5]{Emmanuel Bergot}
+\author[6]{Aurélien Dinh}
+\author[7]{Gloria Morizot}
+\author[8]{Olivia Chény}
+\author[8]{Cassandre Von Platen}
+\author[9,10]{Jean-Louis Herrmann}
 \author[3]{Roland Brosch}
-\author[12,13,*]{Luis B. Barreiro}
-\author[1,14,*]{Yoav Gilad}
+\author[11,12,*]{Luis B. Barreiro}
+\author[1,13,*]{Yoav Gilad}
 
 
 
 \affil[1]{Department of Human Genetics, University of Chicago, Chicago, Illinois, USA}
 \affil[2]{Committee on Genetics, Genomics, and Systems Biology, University of Chicago, Chicago, Illinois, USA}
 \affil[3]{Integrated Mycobacterial Pathogenomics, Institut Pasteur, Paris, France}
-\affil[4]{Unknown affiliation}
-\affil[5]{Service de pneumologie et oncologie thoracique, CHU de Caen, 14033 Caen, France}
-\affil[6]{Université de Caen, 14033 Caen, France (To be confirmed)}
-\affil[7]{Maladies Infectieuses, AP-HP, Hôpital Universitaire Raymond-Poincaré, Garches 92380, France}
-\affil[8]{Clinical Investigation \& Access Biological Resources (ICAReB), Institut Pasteur, Paris, France}
-\affil[9]{Clinical Core, Institut Pasteur, Paris, France}
-\affil[10]{INSERM, U1173, UFR Simone Veil, Université de Versailles Saint Quentin, Saint Quentin en Yvelines, France (To be confirmed)}
-\affil[11]{APHP, Groupe Hospitalo-Universitaire Paris Île-de-France Ouest, Garches et Boulogne-Billancourt, France (To be confirmed)}
-\affil[12]{Department of Genetics, CHU Sainte-Justine Research Center, Montreal, Québec, Canada}
-\affil[13]{Department of Pediatrics, University of Montreal, Montreal, Québec, Canada}
-\affil[14]{Department of Medicine, University of Chicago, Chicago, Illinois, USA}
+\affil[4]{Centre de Lutte Antituberculeuse de Paris, DASES Mairie de Paris, 75013 Paris, France}
+\affil[5]{Service de pneumologie et oncologie thoracique, CHU Côte de Nacre, 14033 Caen, France}
+\affil[6]{Maladies Infectieuses, AP-HP, Hôpital Universitaire Raymond-Poincaré, Garches 92380, France}
+\affil[7]{Clinical Investigation \& Access Biological Resources (ICAReB), Institut Pasteur, Paris, France}
+\affil[8]{Clinical Core, Institut Pasteur, Paris, France}
+\affil[9]{INSERM, U1173, UFR Simone Veil, Université de Versailles Saint Quentin, Saint Quentin en Yvelines, France}
+\affil[10]{APHP, Groupe Hospitalo-Universitaire Paris Île-de-France Ouest, Garches et Boulogne-Billancourt, France}
+\affil[11]{Department of Genetics, CHU Sainte-Justine Research Center, Montreal, Québec, Canada}
+\affil[12]{Department of Pediatrics, University of Montreal, Montreal, Québec, Canada}
+\affil[13]{Department of Medicine, University of Chicago, Chicago, Illinois, USA}
 
 
 \affil[$\dag$]{These authors contributed equally.}
@@ -50,30 +49,27 @@
 \affil[*]{Correspondence should be addressed to J.D.B. (jdblischak@uchicago.edu), Y.G. (gilad@uchicago.edu), L.T. (tailleux@pasteur.fr), and L.B.B. (luis.barreiro@umontreal.ca).}
 
 \begin{abstract}
-Tuberculosis is a deadly infectious disease, which kills millions of
-people every year. The causative pathogen, \emph{Mycobacterium
+Tuberculosis (TB) is a deadly infectious disease, which kills millions
+of people every year. The causative pathogen, \emph{Mycobacterium
 tuberculosis} (MTB), is estimated to have infected up to a third of
-the world’s population; however, only approximately 10\% of healthy
-individuals progress to active TB disease. Despite evidence for
-heritability, it is not currently possible to predict whether a
-healthy person is susceptible to TB. To explore approaches to classify
-susceptibility to TB, we infected with MTB dendritic cells (DCs) from
-putatively resistant individuals diagnosed with latent TB, and from
-susceptible individuals that had recovered from a past episode of
-active TB. We measured genome-wide gene expression levels in infected
-and non-infected cells and found hundreds of differentially expressed
-genes between susceptible and resistant individuals in the
-non-infected cells. We further found that genetic polymorphisms in
-proximity to the differentially expressed genes between susceptible
-and resistant individuals are more likely to be associated with TB
-susceptibility in published GWAS data. By intersecting the gene
-expression and GWAS data, we identified two promising candidate genes:
-\emph{CCL1} and \emph{UNC13A}. Lastly, we trained a classifier based
-on the gene expression levels in the non-infected cells, and
-demonstrated decent performance on our data and an independent data
-set. Overall, our promising results from this small study suggest that
-training a classifier on a larger cohort may enable us to accurately
-predict TB susceptibility.
+the world’s population; however, only approximately 10\% of infected
+healthy individuals progress to active TB. Despite evidence for
+heritability, it is not currently possible to predict who may develop
+TB. To explore approaches to classify susceptibility to TB, we
+infected with MTB dendritic cells (DCs) from putatively resistant
+individuals diagnosed with latent TB, and from susceptible individuals
+that had recovered from active TB. We measured gene expression levels
+in infected and non-infected cells and found hundreds of
+differentially expressed genes between susceptible and resistant
+individuals in the non-infected cells. We further found that genetic
+polymorphisms nearby the differentially expressed genes between
+susceptible and resistant individuals are more likely to be associated
+with TB susceptibility in published GWAS data. Lastly, we trained a
+classifier based on the gene expression levels in the non-infected
+cells, and demonstrated decent performance on our data and an
+independent data set. Overall, our promising results from this small
+study suggest that training a classifier on a larger cohort may enable
+us to accurately predict TB susceptibility.
 \end{abstract}
 \begin{document}
 \flushbottom
@@ -88,7 +84,7 @@ with the disease \cite{WHO2015a, WHO2015b, Glaziou2015}. Successful
 treatment requires months of antibiotic therapy \cite{Sotgiu2015}, and
 drug-resistant strains of \emph{Mycobacterium tuberculosis} (MTB)
 continuously emerge \cite{Seung2015}. Approximately a third of the
-world’s population has been infected with MTB, but most are
+world’s population is estimated to be infected with MTB, but most are
 asymptomatic. While these naturally resistant individuals are able to
 avoid active disease, MTB might persist in a dormant state, known as
 latent TB \cite{Munoz2015}. In contrast, approximately 10\% of
@@ -114,21 +110,19 @@ may be used to classify individuals with respect to their
 susceptibility to develop active TB. To test this hypothesis, we
 differentiated dendritic cells (DCs) from monocytes isolated from
 individuals that had recovered from a past episode of active TB, which
-we refer to as susceptible (recognizing that they could have
-potentially developed active TB due to a non-genetic effect like
-temporary immunodeficiency), and from individuals with confirmed
-latent TB, which we refer to as resistant (recognizing that they still
-have the potential to develop active TB in the future
-\cite{Loddenkemper2016}). We infected the DCs with MTB because these
-innate immune cells help shape the adaptive immune response, which is
-critical for fighting MTB \cite{Cooper2009, Barreiro2012}. We
-discovered that the gene expression differences between innate immune
-cells from resistant and susceptible individuals were present
-primarily in the non-infected state, that these differentially
-expressed genes were enriched for nearby SNPs with low p-values in TB
-susceptibility GWAS, and furthermore, that these gene expression
-levels could be used to classify individuals based on their
-susceptibility status.
+we refer to as susceptible, and from individuals with confirmed latent
+TB, which we refer to as putatively resistant (this group is enriched
+in resistant individuals but we cannot exclude that some still have
+the potential to develop active TB \cite{Loddenkemper2016}). We
+infected the DCs with MTB because these innate immune cells help shape
+the adaptive immune response, which is critical for fighting MTB
+\cite{Cooper2009, Barreiro2012}. We discovered that the gene
+expression differences between innate immune cells from resistant and
+susceptible individuals were present primarily in the non-infected
+state, that these differentially expressed genes were enriched for
+nearby SNPs with low p-values in TB susceptibility GWAS, and
+furthermore, that these gene expression levels could be used to
+classify individuals based on their susceptibility status.
 \section*{Results}
 
 \subsection*{Susceptible individuals have an altered transcriptome in the non-infected state}
@@ -348,7 +342,7 @@ tuberculosis (TB) and measured genome-wide gene expression levels in
 non-infected DCs and DCs infected with \emph{Mycobacterium
 tuberculosis} (MTB) for 18 hours. As expected, there were large
 changes in gene expression due to MTB infection in the DCs from both
-resistant and susceptible individuals (Supplementary Fig.
+putatively resistant and susceptible individuals (Supplementary Fig.
 \ref{fig:limma-supp}). We identified 645 genes which were
 differentially expressed (DE) between susceptible and resistant
 individuals in the non-infected state; whereas, we did not observe any
@@ -502,7 +496,7 @@ effects of a 6 month regimen of antibiotics for these individuals and
 also reduce the selective pressures on MTB to develop drug resistance.
 \section*{Methods}
 
-\subsection*{Ethics Statement}
+\subsection*{Ethics statement}
 
 We recruited 25 subjects to donate a blood sample for use in our
 study. All methods were carried out in accordance with relevant
@@ -740,10 +734,11 @@ https://github.com/jdblischak/tb-suscept.
 
 The raw fastq files have been deposited in NCBI's Gene Expression
 Omnibus \cite{Edgar2002} and are accessible through GEO Series
-accession number GSEXXXXX (http://www.ncbi.nlm.nih.gov/geo/
-query/acc.cgi?acc=GSEXXXXX). The RNA-seq gene counts and other summary
-data sets are included as Supplementary Data and are also available
-for download at https://github.com/jdblischak/tb-suscept.
+accession number GSE94116
+(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94116). The
+RNA-seq gene counts and other summary data sets are included as
+Supplementary Data and are also available for download at
+https://github.com/jdblischak/tb-suscept.
 
 While a small subset of the GWAS summary statistics required for
 partially reproducing our results were included in Supplementary Data
@@ -769,7 +764,7 @@ funded by National Institutes of Health (NIH) Grant AI087658 to Y.G.
 and L.T. J.D.B. was supported by NIH Grant T32GM007197. The content is
 solely the responsibility of the authors and does not necessarily
 represent the official views of the NIH.
-\section*{Author Contributions}
+\section*{Author contributions}
 
 Y.G., L.T., and L.B.B. conceived of the study and designed the
 experiments. C.C., E.B., A.D., G.M., O.C., C.V.P., J.H., and R.B.
@@ -777,15 +772,18 @@ collected samples. L.T. coordinated sample collection and performed
 the infection experiments. M.M. extracted the RNA and prepared the
 sequencing libraries. J.D.B. analyzed the results. L.B.B. and Y.G.
 supervised the project. J.D.B. wrote the paper with input from Y.G.,
-L.T., and L.B.B.
+L.T., L.B.B, and R.B.
+\section*{Competing interests}
+
+The authors declare no competing financial interests.
 
 \bibliography{references}
 
 \clearpage\newpage
 \beginsupplement
-\section*{Supplementary Information}
+\section*{Supplementary information}
 
-\subsection*{Supplementary Figures}
+\subsection*{Supplementary figures}
 
 
 \begin{figure}[ht]
@@ -1115,7 +1113,7 @@ resistant individuals \cite{Thuong2008}.
 \label{fig:class-svm-thuong}
 \end{figure}
 \clearpage\newpage
-\subsection*{Supplementary Data}
+\subsection*{Supplementary data}
 
 \subsubsection*{Supplementary Data S1}
 

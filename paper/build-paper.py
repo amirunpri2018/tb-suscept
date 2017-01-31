@@ -158,11 +158,11 @@ if __name__ == "__main__":
             out = write_abstract(out) + begin_document()
         elif style == "Heading 1":
             out = write_section(out)
-            if "Supplementary Information" in out:
+            if "Supplementary information" in out:
                 out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
-            if "Supplementary Data" in out:
+            if "Supplementary data" in out:
                 out = "\\clearpage\\newpage\n" + out
         elif style == "Heading 3":
             out = write_subsubsection(out)
