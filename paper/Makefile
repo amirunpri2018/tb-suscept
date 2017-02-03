@@ -19,4 +19,4 @@ $(NAME).tex: $(NAME).docx
 	python build-paper.py $< > $@
 
 clean:
-	rm -f $(NAME).aux $(NAME).bbl $(NAME).blg $(NAME).dvi $(NAME).log $(NAME).out $(NAME).pdf $(FINAL)*.pdf
+	rm -f $(NAME).aux $(NAME).bbl $(NAME).blg $(NAME).dvi $(NAME).log $(NAME).out $(NAME).pdf $(FINAL)*.pdf *converted-to.pdf ../figure/*converted-to.pdf
