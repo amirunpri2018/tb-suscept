@@ -1,8 +1,12 @@
 
 NAME := tb-suscept
 BIB := references
+FINAL := blischak-et-al
 
-all: $(NAME).pdf
+all: $(FINAL).pdf $(FINAL)-supplement.pdf
+
+$(FINAL).pdf $(FINAL)-supplement.pdf: $(NAME).pdf
+	python split-pdf.py $<
 
 $(NAME).pdf: $(NAME).tex $(BIB).bib
 	python format-bibtex.py $(BIB).bib
@@ -15,4 +19,4 @@ $(NAME).tex: $(NAME).docx
 	python build-paper.py $< > $@
 
 clean:
-	rm -f $(NAME).aux $(NAME).bbl $(NAME).blg $(NAME).dvi $(NAME).log $(NAME).out $(NAME).pdf
+	rm -f $(NAME).aux $(NAME).bbl $(NAME).blg $(NAME).dvi $(NAME).log $(NAME).out $(NAME).pdf $(FINAL)*.pdf
