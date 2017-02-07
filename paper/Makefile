@@ -3,7 +3,10 @@ NAME := tb-suscept
 BIB := references
 FINAL := blischak-et-al
 
-all: $(FINAL).pdf $(FINAL)-supplement.pdf
+all: $(FINAL).pdf $(FINAL)-supplement.pdf $(FINAL).tex
+
+$(FINAL).tex: $(NAME).tex
+	python subset-main-tex.py $< > $@
 
 $(FINAL).pdf $(FINAL)-supplement.pdf: $(NAME).pdf
 	python split-pdf.py $<
