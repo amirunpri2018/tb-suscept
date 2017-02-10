@@ -5,13 +5,24 @@ FINAL := blischak-et-al
 
 all: $(FINAL).pdf $(FINAL)-supplement.pdf $(FINAL).tex
 
+$(FINAL).pdf: $(FINAL).tex $(FINAL).aux $(FINAL)-supplement.aux $(FINAL)-supplement.pdf
+	bibtex $(FINAL)
+	pdflatex -shell-escape $(FINAL)
+
+$(FINAL)-supplement.aux: $(NAME)-supplement.aux
+	sed "s/$(NAME)/$(FINAL)/" $< > $@
+
+$(FINAL).aux: $(NAME).aux
+	sed "s/$(NAME)/$(FINAL)/" $< > $@
+
 $(FINAL).tex: $(NAME).tex
-	python subset-main-tex.py $< > $@
+	sed s/'%\\includeonly'/'\\includeonly'/ $< > $@
 
-$(FINAL).pdf $(FINAL)-supplement.pdf: $(NAME).pdf
+$(FINAL)-supplement.pdf: $(NAME).pdf
 	python split-pdf.py $<
+	rm $(FINAL).pdf
 
-$(NAME).pdf: $(NAME).tex $(BIB).bib
+%.pdf %.aux %-supplement.aux: %.tex $(BIB).bib
 	python format-bibtex.py $(BIB).bib
 	pdflatex -shell-escape $(NAME)
 	bibtex $(NAME)
@@ -22,4 +33,10 @@ $(NAME).tex: $(NAME).docx
 	python build-paper.py $< > $@
 
 clean:
-	rm -f $(NAME).aux $(NAME).bbl $(NAME).blg $(NAME).dvi $(NAME).log $(NAME).out $(NAME).pdf $(FINAL)*.pdf *converted-to.pdf ../figure/*converted-to.pdf
+	rm -f $(NAME)*.aux $(NAME).bbl $(NAME).blg $(NAME).dvi \
+              $(NAME).log $(NAME).out $(NAME).pdf \
+              $(NAME)-supplement.tex $(FINAL).tex \
+              $(FINAL)*.aux $(FINAL).bbl $(FINAL).blg $(FINAL).dvi \
+              $(FINAL).log $(FINAL).out $(FINAL)*.pdf \
+              $(FINAL)-supplement.tex \
+              *converted-to.pdf ../figure/*converted-to.pdf

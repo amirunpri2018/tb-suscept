@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 
+# Convert a Word document to tex for submission to Scientific Reports.
+#
+# Usage:
+#
+# python build-paper.py file.docx > file.tex
+#
+# Resources:
+#
+# Scientific Reports template: https://www.overleaf.com/latex/templates/template-for-submissions-to-scientific-reports/xyrztqvdccns#.V5Drne3L9z1
+# Nature bibliographic style: http://tug.ctan.org/tex-archive/macros/latex/contrib/nature/naturemag.bst
+
 import docx
 import os
 import sys
 import textwrap
-import pdb
-
-# https://www.overleaf.com/latex/templates/template-for-submissions-to-scientific-reports/xyrztqvdccns#.V5Drne3L9z1
-# http://tug.ctan.org/tex-archive/macros/latex/contrib/nature/naturemag.bst
 
 doc_class = "\documentclass[fleqn,10pt]{wlscirep}\n"
 
 # List of packages to be loaded in preamble
 packages = ["fixltx2e",
             "textcomp", # for tilde: \texttildelow
-            "epstopdf"] # Convert EPS to PDF
+            "epstopdf", # Convert EPS to PDF
+            "filecontents"] # To contain supplement
 
 # LaTeX macro for labeling supplementary tables and figures.
 # http://bytesizebio.net/2013/03/11/adding-supplementary-tables-and-figures-in-latex/
@@ -26,6 +34,31 @@ label_supp = """
  \\renewcommand{\\thefigure}{S\\arabic{figure}}%
  }
 
+"""
+
+# Hack to remove supplement from final PDF while retaining
+# cross-references.
+# https://tex.stackexchange.com/questions/222934/hide-specific-table-keep-cross-references-and-caption-in-listoftables/222948#222948
+remove_supp = """
+% Uncomment for removing the supplement
+%\includeonly{}
+
+"""
+
+# LaTeX to add at start of supplement
+start_supp = """
+\\clearpage
+\\newpage
+
+\\begin{filecontents}{\jobname-supplement}
+\\beginsupplement
+"""
+
+# LaTeX to add at end of supplement
+end_supp = """
+\\end{filecontents}
+
+\include{\jobname-supplement}
 """
 
 def convert_style_to_macro(style):
@@ -141,6 +174,7 @@ if __name__ == "__main__":
     sys.stdout.write(doc_class)
     sys.stdout.write(use_packages(packages))
     sys.stdout.write(label_supp)
+    sys.stdout.write(remove_supp)
     # Process input Word document
     d = docx.Document(fname)
     for line in d.paragraphs:
@@ -159,7 +193,8 @@ if __name__ == "__main__":
         elif style == "Heading 1":
             out = write_section(out)
             if "Supplementary information" in out:
-                out = "\\clearpage\\newpage\n\\beginsupplement\n" + out
+                out = start_supp + out
+#                out = "\\clearpage\\newpage\n\begin{filecontents}{\jobname-support}\\beginsupplement\n" + out
         elif style == "Heading 2":
             out = write_subsection(out)
             if "Supplementary data" in out:
@@ -171,4 +206,5 @@ if __name__ == "__main__":
                                 break_on_hyphens = False)
         sys.stdout.write(out + "\n")
 
+    sys.stdout.write(end_supp)
     sys.stdout.write("\\end{document}\n")

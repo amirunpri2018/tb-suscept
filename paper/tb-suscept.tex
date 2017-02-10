@@ -2,6 +2,7 @@
 \usepackage{fixltx2e}
 \usepackage{textcomp}
 \usepackage{epstopdf}
+\usepackage{filecontents}
 
 \newcommand{\beginsupplement}{%
  \setcounter{table}{0}
@@ -9,6 +10,10 @@
  \setcounter{figure}{0}
  \renewcommand{\thefigure}{S\arabic{figure}}%
  }
+
+
+% Uncomment for removing the supplement
+%\includeonly{}
 
 \title{Predicting susceptibility to tuberculosis based on gene expression profiling in dendritic cells}
 
@@ -779,7 +784,11 @@ The authors declare no competing financial interests.
 
 \bibliography{references}
 
-\clearpage\newpage
+
+\clearpage
+\newpage
+
+\begin{filecontents}{\jobname-supplement}
 \beginsupplement
 \section*{Supplementary information}
 
@@ -1245,4 +1254,8 @@ gene expression data for testing the model. The sheet
 samples from Barreiro et al., 2012 \cite{Barreiro2012}. The column
 “prob\_tb\_suscep” is the probability of being susceptible to TB
 assigned by the model. (xlsx)
+
+\end{filecontents}
+
+\include{\jobname-supplement}
 \end{document}

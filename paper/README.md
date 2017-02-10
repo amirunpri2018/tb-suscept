@@ -5,7 +5,7 @@ to LaTeX (tb-suscept.tex) using the Python script build-paper.py, and
 rendered to PDF (tb-suscept.pdf) using pdflatex. For submission it was
 further split into a main PDF file (blischak-et-al.pdf), supplement
 PDF file (blischak-et-al-supplement.pdf), and main tex file
-(blischak-et-al.tex) using split-pdf.py and subset-main-tex.py.
+(blischak-et-al.tex) using split-pdf.py and various other hacks.
 
 ## Build
 
