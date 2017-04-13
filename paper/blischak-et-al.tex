@@ -71,7 +71,7 @@ polymorphisms nearby the differentially expressed genes between
 susceptible and resistant individuals are more likely to be associated
 with TB susceptibility in published GWAS data. Lastly, we trained a
 classifier based on the gene expression levels in the non-infected
-cells, and demonstrated decent performance on our data and an
+cells, and demonstrated reasonable performance on our data and an
 independent data set. Overall, our promising results from this small
 study suggest that training a classifier on a larger cohort may enable
 us to accurately predict TB susceptibility.
@@ -149,8 +149,11 @@ control analyses to remove non-expressed genes (Supplementary Fig.
 (Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
 \ref{fig:outliers}), and check for confounding batch effects
 (Supplementary Fig. \ref{fig:batch}, \ref{fig:infection}). Ultimately,
-data from six samples failed the quality checks and were removed from
-all downstream analyses (Supplementary Fig. \ref{fig:outliers}).
+data from 6 of the 50 samples (25 individuals x 2 treatments) failed
+the quality checks and were removed from all downstream analyses
+(Supplementary Fig. \ref{fig:outliers}). The remaining 44 high-quality
+samples included 17 putatively resistant individuals and 5 putatively
+susceptible individuals.
 
 We performed a standard differential expression analysis using a
 linear modeling framework (Supplementary Data S3), defined in equation
@@ -170,7 +173,10 @@ susceptible and resistant individuals in either the non-infected or
 infected states (Fig. \ref{fig:limma}). We identified 645 DE genes
 between putatively resistant and susceptible individuals in the
 non-infected state at a q-value of 10\%, including \emph{ATPV1B2},
-\emph{FEZ2}, \emph{PSMA2}, \emph{TNFRSF25}, and \emph{TRIM38}. In
+\emph{FEZ2}, \emph{PSMA2}, \emph{TNFRSF25}, and \emph{TRIM38}. The
+log\textsubscript{2} fold change in gene expression for these 645
+genes was relatively low (less than 2), which was expected given that
+susceptibility to TB is a polygenic trait influenced by many genes. In
 contrast, no genes were DE between putatively resistant and
 susceptible individuals in the infected state (at a q-value of 10\%).
 
@@ -319,7 +325,7 @@ susceptible. While we cannot confirm this result (the true
 susceptibility status of these 65 individuals is unknown), this
 observation is encouraging because our estimate is similar to the
 commonly used inference that roughly 10\% of the general population is
-susceptible to TB.
+susceptible to progression of infection from latent to active TB.
 
 \begin{figure}[ht]
 \centering
@@ -407,7 +413,8 @@ in this system.
 Not only did this analysis identify a global enrichment of TB
 susceptibility loci, but by intersecting the expression and GWAS data,
 we were able to identify a few interesting candidate genes, which were
-only marginally significant in the original GWAS (Supplementary Data
+only marginally significant in the differential expression analysis
+(Supplementary Data S3) and in the original GWAS (Supplementary Data
 S4). Here we highlight two genes (\emph{CCL1} and \emph{UNC13A}),
 which have been previously shown to play important roles in MTB
 infection. \emph{CCL1} is a chemokine that stimulates migration of
@@ -440,8 +447,8 @@ trait loci (eQTLs) in DCs 18 hours post-infection with MTB,
 \emph{UNC13A} was one of only 98 genes which were associated with an
 eQTL post-infection but not pre-infection, which we called
 MTB-specific eQTLs \cite{Barreiro2012}. Thus our new results increased
-the evidence that \emph{CCL1} and \emph{UNC13A} play important roles
-in TB susceptibility.
+the evidence that \emph{CCL1} and \emph{UNC13A} may potentially impact
+TB susceptibility.
 
 Previous attempts to use gene expression based classifiers in the
 context of TB have focused on predicting the status of an infection
@@ -454,9 +461,9 @@ to monitor the effectiveness of a treatment regimen
 between active and latent TB, but instead to be able to determine
 susceptibility status before individuals are infected with MTB. Even
 with our small sample size, we were able to successfully train a
-classier with high sensitivity and decent specificity. Because such a
-classification of susceptibility status could affect the decision of
-whether or not to take antibiotics to treat latent TB
+classier with high sensitivity and reasonable specificity. Because
+such a classification of susceptibility status could affect the
+decision of whether or not to take antibiotics to treat latent TB
 \cite{Munoz2015}, false negatives (susceptible individuals mistakenly
 classified as resistant) would be much more harmful than false
 positives (resistant individuals mistakenly classified as
@@ -515,12 +522,17 @@ by French Ethical Committee (CPP North Ouest III, n° A12 - D33
 Chicago (10-504-B) and the Institut Pasteur (IRB00006966).
 \subsection*{Sample collection}
 
-We collected whole blood samples from healthy Caucasian male
-individuals living in France. The putatively resistant individuals
-tested positive for latent TB in an interferon-$\gamma$ release assay,
-but had never developed active TB. The putatively sensitive
-individuals had developed active TB in the past, but were currently
-healthy.
+We collected whole blood samples from healthy, HIV-negative Caucasian
+male individuals living in France. The putatively resistant
+individuals tested positive for latent TB in an interferon-$\gamma$
+release assay, but had never developed active TB. The putatively
+sensitive individuals had developed active TB in the past, but were
+currently healthy after having completed antibiotic chemotherapy. All
+putatively sensitive individuals had finished their chemotherapy at
+least \textless \,insert time\textgreater \, ago and were considered
+fully recovered based on \textless \,insert method\textgreater \,. We
+did not know which strain of MTB had infected any of the individuals
+in the study.
 \subsection*{Isolation and infection of dendritic cells}
 
 We performed these experiments as previously described
@@ -564,7 +576,13 @@ samples (Supplementary Fig. \ref{fig:heat-all}, \ref{fig:heat-filt},
 sample whose data projections did not fall within two standard
 deviations of the mean for any of the first six PCs (for the first PC,
 which separated the samples by treatment, we calculated a separate
-mean for the non-infected and infected samples).
+mean for the non-infected and infected samples). The remaining 44
+high-quality samples included 17 putatively resistant individuals and
+5 putatively susceptible individuals in both the non-infected and
+infected states (Supplementary Fig. \ref{fig:outliers}). Note that
+after outlier removal, the study design was no longer completely
+paired because some individuals were only represented in the
+non-infected state or the infected state.
 
 After filtering lowly expressed genes and removing outliers, we
 performed the PCA again to check for any potential confounding
@@ -660,7 +678,7 @@ height GWAS (empirical \emph{P} \textgreater \, 0.01) (Fig.
 \ref{fig:gwas}; Supplementary Fig. \ref{fig:gwas-supp}).
 \subsection*{Classifier}
 
-The training set included data from the 44 high-quality non-infected
+The training set included data from the 22 high-quality non-infected
 samples from this study with known susceptibility status. The test set
 included the 65 non-infected samples from one of our previous studies
 in which the susceptibility status is unknown \cite{Barreiro2012}, and
