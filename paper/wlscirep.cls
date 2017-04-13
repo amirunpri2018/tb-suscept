@@ -62,7 +62,9 @@
 % Footers
 \lfoot{}%
 \cfoot{}%
-\rfoot{\small\sffamily\bfseries\thepage/\pageref{LastPage}}%
+% Custom edit (JDB). Do not show the total number of pages.
+%\rfoot{\small\sffamily\bfseries\thepage/\pageref{LastPage}}%
+\rfoot{\small\sffamily\bfseries\thepage}%
 \renewcommand{\headrulewidth}{0pt}% % No header rule
 \renewcommand{\footrulewidth}{0pt}% % No footer rule
 

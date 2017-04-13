@@ -723,27 +723,27 @@ batch-corrected median expression levels in the non-infected state
 across both studies (Supplementary Fig. \ref{fig:class-exp}).
 \subsection*{Software implementation}
 
-We automated our analysis using Python (https://www.python.org/) and
-Snakemake \cite{Koster2012}. Our processing pipeline used the general
-bioinformatics software FastQC
-(http://www.bioinformatics.babraham.ac.uk/projects/fastqc/), MultiQC
-\cite{Ewels2016}, samtools \cite{Li2009}, and bioawk
-(https://github.com/lh3/bioawk). We used R \cite{R2015} for all
+We automated our analysis using Python (\url{https://www.python.org/})
+and Snakemake \cite{Koster2012}. Our processing pipeline used the
+general bioinformatics software FastQC
+(\url{http://www.bioinformatics.babraham.ac.uk/projects/fastqc/}),
+MultiQC \cite{Ewels2016}, samtools \cite{Li2009}, and bioawk
+(\url{https://github.com/lh3/bioawk}). We used R \cite{R2015} for all
 statistics and data visualization. We obtained gene annotation
 information from the Ensembl \cite{Yates2016} and Lynx
 \cite{Sulakhe2016} databases. The computational resources were
 provided by the University of Chicago Research Computing Center. All
 code is available for viewing and reuse at
-https://github.com/jdblischak/tb-suscept.
+\url{https://github.com/jdblischak/tb-suscept}.
 \subsection*{Data availability}
 
 The raw fastq files have been deposited in NCBI's Gene Expression
 Omnibus \cite{Edgar2002} and are accessible through GEO Series
 accession number GSE94116
-(http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94116). The
-RNA-seq gene counts and other summary data sets are included as
+(\url{http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94116}).
+The RNA-seq gene counts and other summary data sets are included as
 Supplementary Data and are also available for download at
-https://github.com/jdblischak/tb-suscept.
+\url{https://github.com/jdblischak/tb-suscept}.
 
 While a small subset of the GWAS summary statistics required for
 partially reproducing our results were included in Supplementary Data
@@ -755,7 +755,7 @@ Nejentsev (sn262@cam.ac.uk), Ghana and The Gambia - Thorsten Thye
 (thye@bnitm.de), Uganda and Tanzania - Scott M. Williams
 (smw154@case.edu). The summary statistics for the height GWAS can be
 downloaded from the GIANT Consortium’s website
-(http://portals.broadinstitute.org/collaboration/giant/index.php/GIANT\_consortium\_data\_files).
+(\url{http://portals.broadinstitute.org/collaboration/giant/index.php/GIANT\_consortium\_data\_files}).
 \section*{Acknowledgements}
 
 We thank Matthew Stephens and John Novembre for providing feedback and
@@ -795,9 +795,8 @@ The authors declare no competing financial interests.
 \subsection*{Predicting susceptibility to tuberculosis based on gene expression profiling in dendritic cells}
 
 
-John D.
-Blischak\textsuperscript{1}\textsuperscript{,2}\textsuperscript{,$\dag$,*},
-Ludovic Tailleux\textsuperscript{3,$\dag$,*}, Marsha
+John D. Blischak\textsuperscript{1,2,$\dag$,*}, Ludovic
+Tailleux\textsuperscript{3,$\dag$,*}, Marsha
 Myrthil\textsuperscript{1}, Cécile Charlois\textsuperscript{4},
 Emmanuel Bergot\textsuperscript{5}, Aurélien Dinh\textsuperscript{6},
 Gloria Morizot\textsuperscript{7}, Olivia Chény\textsuperscript{8},
@@ -841,6 +840,7 @@ Chicago, Illinois, USA
 \textsuperscript{*}Correspondence should be addressed to J.D.B.
 (jdblischak@uchicago.edu), Y.G. (gilad@uchicago.edu), L.T.
 (tailleux@pasteur.fr), and L.B.B. (luis.barreiro@umontreal.ca).
+\pagenumbering{arabic} % restart page numbers at 1
 \newpage
 \subsection*{Supplementary figures}
 
@@ -1019,7 +1019,7 @@ left panel and proceeding clockwise: 1,232 vs. 1,362; 934 vs. 1,118;
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=6in]{../figure/gwas-figures.pdf}
+\includegraphics[width=6in]{../figure/gwas-supp.pdf}
 \caption{
 Comparison of differential expression and GWAS results. In each
 subplot, the y-axis is the fold enrichment (y-axis) of genes assigned
