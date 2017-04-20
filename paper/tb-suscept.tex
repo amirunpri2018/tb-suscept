@@ -416,7 +416,7 @@ we were able to identify a few interesting candidate genes, which were
 only marginally significant in the differential expression analysis
 (Supplementary Data S3) and in the original GWAS (Supplementary Data
 S4). Here we highlight two genes (\emph{CCL1} and \emph{UNC13A}),
-which have been previously shown to play important roles in MTB
+which have been previously implicated in the response to MTB
 infection. \emph{CCL1} is a chemokine that stimulates migration of
 monocytes \cite{Miller1992}. In our study, it was upregulated in
 susceptible individuals compared to resistant in both the non-infected
@@ -470,23 +470,61 @@ positives (resistant individuals mistakenly classified as
 susceptible). For that reason, we emphasized sensitivity over
 specificity.
 
+While the small sample size was the main concern in interpreting the
+classifier results, we recognize multiple other potential caveats of
+our study design. First, because the cells used in the experiments
+were collected from Caucasians, it is unknown if the classifier would
+perform well when applied to other human populations. Second, because
+the classifier focused solely on the transcriptional response of the
+host immune cell to infection with MTB H37Rv, it would not be suitable
+for the detection of differences in susceptibility due to differences
+in virulence between MTB strains \cite{Coscolla2010}. Third, because
+the susceptible individuals had already experienced active TB, it is
+possible that their innate immune cells retained memory of the
+infection \cite{Ostuni2013, Netea2016}. If this innate immune memory
+affected how the monocytes differentiated into DCs in response to
+cytokine stimulation, or in general affected gene regulation, this
+would drastically change the interpretation of our results.
+
+With respect to the third caveat, while we cannot entirely exclude the
+possibility of trained immunity, we do not believe there is sufficient
+evidence to support this possibility in our case. Innate immune memory
+is known to be a short-term phenomenon \cite{Netea2016}, its affects
+can be erased when immune cells are moved to a new microenvironment
+\cite{Lavin2014}, and the whole blood transcriptional signature of
+active TB disappears 6-12 months after the initiation of treatment
+\cite{Berry2010, Bloom2012}. Moreover, the GWAS enrichment results
+(Fig. \ref{fig:gwas}) suggest that trained immunity cannot explain our
+observations. Indeed, the differences in gene expression between
+susceptible and resistant individuals in the non-infected state were
+enriched for low p-values from TB susceptibility GWAS. This
+observation cannot be explained by possible downstream consequences of
+experiencing active TB because enrichment of DE genes in GWAS data
+supports a causal relationship. In other words, if most of the DE
+genes we observed could be explained by trained immunity, one would
+not expect these genes to be associated with susceptibility to the
+disease. That said, we recognize that the ideal study would be a
+long-term prospective design in which blood samples were obtained from
+a large cohort of individuals prior to MTB infection.
+
 To our knowledge, our study was only the second to collect data from
 \emph{in vitro} MTB-infected innate immune cells isolated from
-individuals known to be putatively susceptible to MTB (Thuong et al.,
-2008). However, there were substantial differences between our study
-and that of Thuong et al., 2008 \cite{Thuong2008}. First, they derived
-and infected macrophages, the primary target host cell in which MTB
-resides; whereas, we derived and infected DCs, which play a larger
-role in stimulating the adaptive immune response to MTB. Second, we
-collected samples from a larger number of putatively resistant
-individuals (19 versus 4), increasing our power to distinguish between
-the gene expression profiles of susceptible and resistant individuals.
-Third, they measured gene expression with microarrays; whereas, we
-used RNA-sequencing. Considering the substantial technical differences
-between the methods used and the biological differences between DCs
-and macrophages \cite{Chaussabel2003,Tailleux2008}, unsurprisingly, we
-were unable to identify the susceptible individuals from Thuong et
-al., 2008 \cite{Thuong2008} using our classifier (Supplementary Fig.
+individuals known to be putatively susceptible to MTB
+\cite{Thuong2008}. However, there were substantial differences between
+our study and that of Thuong et al., 2008 \cite{Thuong2008}. First,
+they derived and infected macrophages, the primary target host cell in
+which MTB resides; whereas, we derived and infected DCs, which play a
+larger role in stimulating the adaptive immune response to MTB.
+Second, we collected samples from a larger number of putatively
+resistant individuals (19 versus 4), increasing our power to
+distinguish between the gene expression profiles of susceptible and
+resistant individuals. Third, they measured gene expression with
+microarrays; whereas, we used RNA-sequencing. Considering the
+substantial technical differences between the methods used and the
+biological differences between DCs and macrophages
+\cite{Chaussabel2003,Tailleux2008}, unsurprisingly, we were unable to
+identify the susceptible individuals from Thuong et al., 2008
+\cite{Thuong2008} using our classifier (Supplementary Fig.
 \ref{fig:class-svm-thuong}).
 
 Indeed, at this time, we are not aware of any other data set from
