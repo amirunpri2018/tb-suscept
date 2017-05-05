@@ -56,6 +56,12 @@ for k in keys:
         for field in fields_all:
             if not field.islower():
                 continue
+            # bibtexparser converts the field "url" to "link", which is not
+            # recognized by the .bst file when formatting the references. This
+            # maintains the field as "url". Only applies to non-articles.
+            if field == "link":
+                entry["url"] = entry["link"]
+                field = "url"
             if field == "author" and "," not in entry["author"]:
                 out = out + "%s = {{%s}},\n"%(field, entry[field])
             else:
