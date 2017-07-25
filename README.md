@@ -28,9 +28,12 @@ cohort may enable us to accurately predict TB susceptibility.
 
 ## Important links
 
+* [Final publication][scirep] ([PubMed][pmd])
 * [Preprint][biorxiv] on bioRxiv
 * [GSE94116][geo] - The raw fastq files as well as some supplementary data files are available via at the Gene Expression Omnibus
 
+[scirep]: https://www.nature.com/articles/s41598-017-05878-w
+[pmd]: https://www.ncbi.nlm.nih.gov/pubmed/28720766
 [biorxiv]: http://biorxiv.org/content/early/2017/02/03/104729
 [geo]: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94116
 
