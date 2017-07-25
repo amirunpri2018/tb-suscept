@@ -13,5 +13,7 @@ Run `make` from within `paper/` to build the paper.
 
 ## Requirements
 
-To build the paper, you'll need to install GNU Make, LaTeX, and Python3
-(including the Python packages Python-Docx and PyPDF2).
+To build the paper, you'll need to install GNU Make, LaTeX, and
+Python3 (including the Python packages Python-Docx and PyPDF2). Follow
+the instructions in the main README.md to use conda to install these
+dependencies.
