@@ -1,0 +1,271 @@
+---
+title: "Initial analysis with limma"
+date: 2016-05-27
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r system("git log -1 --format='%H'", intern = TRUE)`
+
+```{r chunk-options}
+library("knitr")
+opts_chunk$set(cache = FALSE)
+```
+
+Initial limma analysis.
+
+## Setup
+
+```{r packages, message=FALSE}
+library("limma")
+library("edgeR")
+library("dplyr")
+library("tidyr")
+library("ashr")
+library("ggplot2")
+library("cowplot")
+theme_set(theme_bw(base_size = 14))
+theme_update(panel.grid.minor.x = element_blank(),
+             panel.grid.minor.y = element_blank(),
+             panel.grid.major.x = element_blank(),
+             panel.grid.major.y = element_blank())
+library("VennDiagram")
+```
+
+Input data.
+
+```{r input-counts}
+counts <- read.delim("../data/counts.txt", check.names = FALSE, row.names = 1)
+anno <- read.delim("../data/experiment-info.txt", stringsAsFactors = FALSE)
+rownames(anno) <- anno$id
+anno <- anno %>% select(-id, -tube_ind)
+stopifnot(colnames(counts) == rownames(anno))
+```
+
+Remove outliers.
+
+```{r remove-outliers, eval=FALSE}
+outliers <- c("02-contact-none", "06-contact-none", "04-tb-none",
+              "01-tb-infected", "06-contact-infected", "18-contact-infected")
+# outlier_index <- anno$individual %in% c("c06", "c02", "t04", "c18", "t01")
+outlier_index <- rownames(anno) %in% outliers
+anno <- anno[!outlier_index, ]
+counts <- counts[, !outlier_index]
+stopifnot(sum(outlier_index) == length(outliers), nrow(anno) == ncol(counts))
+table(anno$status, anno$treatment)
+```
+
+
+## Model with limma
+
+```{r design-matrix}
+anno$status <- factor(anno$status, levels = c("contact", "tb"))
+anno$treatment <- factor(anno$treatment, levels = c("none", "infected"))
+design <- model.matrix(~treatment + status + status:treatment,
+                       data = anno)
+colnames(design)[1] <- "Intercept"
+colnames(design) <- gsub("treatment", "", colnames(design))
+colnames(design) <- gsub("status", "", colnames(design))
+colnames(design) <- gsub(":", ".", colnames(design))
+colnames(design)
+```
+
+```{r fit-model, fig.width=8}
+y <- DGEList(counts)
+y <- calcNormFactors(y)
+v <- voom(y, design)
+# Model individual as a random effect
+corfit <- duplicateCorrelation(v, design, block = anno$individual)
+corfit$consensus
+v <- voom(y, design, block = anno$individual, correlation = corfit$consensus)
+fit <- lmFit(v, design, block = anno$individual, correlation = corfit$consensus)
+```
+
+Test specific contrasts.
+
+```{r fit-contrasts}
+contrasts_mat <- makeContrasts(diff_before = tb,
+                               diff_after = tb + infected.tb,
+                               diff_response = infected.tb,
+                               levels = design)
+fit2 <- contrasts.fit(fit, contrasts_mat)
+fit2 <- eBayes(fit2)
+```
+
+## Assess model results
+
+```{r model-results}
+top_before <- topTable(fit2, coef = "diff_before")
+top_before
+results_before <- topTable(fit2, coef = "diff_before",
+                              number = nrow(counts), sort = "none")
+ma_before <- ggplot(data.frame(Amean = fit2$Amean, logFC = fit2$coef[, "diff_before"]),
+                       aes(x = Amean, y = logFC)) +
+  geom_point() +
+  labs(x = "Average expression level", y = "Log fold change",
+       title = "Differences before treatment")
+ma_before
+hist_before <- ggplot(results_before, aes(x = P.Value)) +
+  geom_histogram(binwidth = 0.01) +
+  labs(x = "p-value", y = "Number of genes", title = "Differences before treatment")
+hist_before
+top_after <- topTable(fit2, coef = "diff_after")
+top_after
+results_after <- topTable(fit2, coef = "diff_after",
+                           number = nrow(counts), sort = "none")
+ma_after <- ggplot(data.frame(Amean = fit2$Amean, logFC = fit2$coef[, "diff_after"]),
+                       aes(x = Amean, y = logFC)) +
+  geom_point() +
+  labs(x = "Average expression level", y = "Log fold change",
+       title = "Differences after treatment")
+ma_after
+hist_after <- ggplot(results_after, aes(x = P.Value)) +
+  geom_histogram(binwidth = 0.01) +
+  labs(x = "p-value", y = "Number of genes", title = "Differences after treatment")
+hist_after
+top_response <- topTable(fit2, coef = "diff_response")
+top_response
+results_response <- topTable(fit2, coef = "diff_response",
+                                number = nrow(counts), sort = "none")
+ma_response <- ggplot(data.frame(Amean = fit2$Amean, logFC = fit2$coef[, "diff_response"]),
+                       aes(x = Amean, y = logFC)) +
+  geom_point() +
+  labs(x = "Average expression level", y = "Log fold change",
+       title = "Differences in response to treatment")
+ma_response
+hist_response <- ggplot(results_response, aes(x = P.Value)) +
+  geom_histogram(binwidth = 0.01) +
+  labs(x = "p-value", y = "Number of genes", title = "Differences in response treatment")
+hist_response
+```
+
+## Explore top hits
+
+Boxplot function.
+
+```{r boxplot-function}
+plot_gene <- function(v, g) {
+  # v - An EList object containing log2 counts per million
+  # g - character vector of a single gene
+  stopifnot(class(v) == "EList",
+            is.character(g), length(g) == 1)
+  library("tidyr")
+  single_gene <- v$E[g, ]
+  single_gene_long <- gather_(as.data.frame(single_gene),
+                              gather_cols = colnames(single_gene))
+  # For some reason, the argument value_col wouldn't work
+  colnames(single_gene_long) <- "log2cpm"
+  single_gene_long$sample <- rownames(single_gene_long)
+  single_gene_long <- separate_(single_gene_long, col = "sample", sep = "-",
+                                into = c("individual", "status", "treatment"))
+  single_gene_long$status <- factor(single_gene_long$status, levels = c("contact", "tb"))
+  single_gene_long$treatment <- factor(single_gene_long$treatment, levels = c("none", "infected"))
+  ggplot(single_gene_long, aes(x = treatment, y = log2cpm, fill = status)) +
+    geom_boxplot() +
+    labs(title = g, x = "Treatment", y = expression("Expression level (" * log[2] * " cpm)"))
+}
+```
+
+Before treatment.
+
+```{r}
+p_before_1 <- plot_gene(v, rownames(top_before)[1]) +
+  ylim(3, 11) + theme(legend.position = "bottom")
+p_before_2 <- plot_gene(v, rownames(top_before)[2]) +
+  ylim(3, 11) + theme(legend.position = "bottom")
+p_before_3 <- plot_gene(v, rownames(top_before)[3]) +
+  ylim(3, 11) + theme(legend.position = "bottom")
+p_before_4 <- plot_gene(v, rownames(top_before)[4]) +
+  ylim(3, 11) + theme(legend.position = "bottom")
+plot_grid(p_before_1, p_before_2, p_before_3, p_before_4)
+```
+
+After treatment.
+
+```{r}
+plot_grid(plot_gene(v, rownames(top_after)[1]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          plot_gene(v, rownames(top_after)[2]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          plot_gene(v, rownames(top_after)[3]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          nrow = 1)
+```
+
+Response to treatment.
+
+```{r}
+plot_grid(plot_gene(v, rownames(top_response)[1]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          plot_gene(v, rownames(top_response)[2]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          plot_gene(v, rownames(top_response)[3]) +
+            ylim(3, 11) + theme(legend.position = "bottom"),
+          nrow = 1)
+```
+
+## Use ash for mutliple testing correction
+
+Before
+
+```{r ash-before}
+ash_before <- ash(betahat = fit2$coefficients[, "diff_before"],
+                     sebetahat = fit2$stdev.unscaled[, "diff_before"] * sqrt(fit2$s2.post),
+                     df = fit2$df.total)
+class(ash_before)
+names(ash_before)
+sum(ash_before$svalue < .05)
+hist(ash_before$svalue)
+```
+
+After
+
+```{r ash-after}
+ash_after <- ash(betahat = fit2$coefficients[, "diff_after"],
+                  sebetahat = fit2$stdev.unscaled[, "diff_after"] * sqrt(fit2$s2.post),
+                  df = fit2$df.total)
+sum(ash_after$svalue < .05)
+hist(ash_after$svalue)
+```
+
+Response
+
+```{r ash-response}
+ash_response <- ash(betahat = fit2$coefficients[, "diff_response"],
+                     sebetahat = fit2$stdev.unscaled[, "diff_response"] * sqrt(fit2$s2.post),
+                     df = fit2$df.total)
+sum(ash_response$svalue < .05)
+hist(ash_response$svalue)
+```
+
+Venn diagram
+
+```{r venn}
+ash_before_de <- ash_before$svalue < .05
+ash_after_de <- ash_after$svalue < .05
+ash_response_de <- ash_response$svalue < .05
+grid.newpage()
+venn_rv <- draw.triple.venn(
+  area1 = sum(ash_before_de),
+  area2 = sum(ash_after_de),
+  area3 = sum(ash_response_de),
+  n12 = sum(ash_before_de & ash_after_de),
+  n23 = sum(ash_after_de & ash_response_de),
+  n13 = sum(ash_before_de & ash_response_de),
+  n123 = sum(ash_before_de & ash_after_de & ash_response_de),
+  category = c("before", "after", "response"),
+#   fill = c("darkolivegreen3", "cadetblue3", "darkorchid"),
+  alpha = c(0.5, 0.5, 0.5), col = "black", cex = 2, cat.cex = 1.5,
+  euler.d = FALSE, scaled = FALSE, ind = TRUE)
+grid.draw(venn_rv)
+```
+
+## Session information
+
+```{r info}
+sessionInfo()
+```
