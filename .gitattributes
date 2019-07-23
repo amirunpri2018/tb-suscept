@@ -1,0 +1,8 @@
+# linguist overrides
+# https://github.com/github/linguist#overrides
+# Ignore figures in PostScript
+*eps linguist-generated=true
+# Ignore TeX-related files
+*aux linguist-generated=true
+*tex linguist-generated=true
+*cls linguist-vendored
